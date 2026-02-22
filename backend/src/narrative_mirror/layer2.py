@@ -5,7 +5,7 @@ import re
 import sqlite3
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Optional
 
 import chromadb
 
@@ -435,6 +435,7 @@ def build_layer2(
     rerank_threshold: float = 0.5,
     top_m: int = 20,
     debug: bool = False,
+    progress_callback: Optional[Callable[[str, str, str], None]] = None,
 ) -> tuple[int, int]:
     """Build Layer 2 semantic threads for a conversation.
 
@@ -455,10 +456,15 @@ def build_layer2(
         rerank_threshold: Minimum reranker score to keep a pair (default 0.5).
         top_m: Maximum pairs to pass to Stage 2 (default 20).
         debug: If True, print debug information.
+        progress_callback: Optional (stage, step, detail) callback for UI progress.
 
     Returns:
         Tuple of (nodes_embedded, pointers_created).
     """
+    def _progress(stage: str, step: str, detail: str) -> None:
+        if progress_callback:
+            progress_callback(stage, step, detail)
+
     if debug:
         print(f"Building Layer 2 for {talker_id}...", file=sys.stderr)
 
@@ -488,22 +494,30 @@ def build_layer2(
     collection = init_chroma(data_dir, talker_id)
 
     # Embed nodes
+    _progress("layer2", "embed", f"正在嵌入 {len(nodes)} 个节点")
     embedded = embed_nodes(nodes, messages_by_node, llm_noncot, collection)
+    _progress("layer2", "embed", f"已嵌入 {embedded} 个节点")
     if debug:
         print(f"Embedded {embedded} nodes", file=sys.stderr)
 
     # Stage 1: Find candidates (relaxed threshold, reranker will filter)
+    _progress("layer2", "stage1", "检索相似节点候选对")
     candidates = stage1_candidates(collection, nodes, conn, sim_threshold, top_k)
+    _progress("layer2", "stage1", f"找到 {len(candidates)} 个候选对")
     if debug:
         print(f"Stage 1: Found {len(candidates)} candidate pairs", file=sys.stderr)
 
     # Stage 1.5: Rerank
+    _progress("layer2", "stage1.5", "重排序候选对")
     reranked = stage1_5_rerank(candidates, reranker, rerank_threshold, top_m)
+    _progress("layer2", "stage1.5", f"重排后保留 {len(reranked)} 对")
     if debug:
         print(f"Stage 1.5: {len(reranked)} pairs after reranking (threshold={rerank_threshold})", file=sys.stderr)
 
     # Stage 2: Arbitrate
+    _progress("layer2", "stage2", "语义仲裁与链路写入")
     links = stage2_arbitrate(reranked, llm_cot, conn, talker_id, debug)
+    _progress("layer2", "stage2", f"已创建 {len(links)} 条语义链路")
     if debug:
         print(f"Stage 2: Created {len(links)} thread pointers", file=sys.stderr)
 

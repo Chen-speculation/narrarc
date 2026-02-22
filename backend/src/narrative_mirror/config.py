@@ -53,19 +53,26 @@ class Config:
 def load_config(path: str = "config.yml") -> Config:
     """Load configuration from a YAML file.
 
+    Accepts both config.yml and config.yaml: if the given path does not exist,
+    the other extension is tried in the same directory.
+
     Args:
-        path: Path to the config file.
+        path: Path to the config file (e.g. config.yml or config.yaml).
 
     Returns:
         A Config object.
 
     Raises:
-        FileNotFoundError: If the config file doesn't exist.
+        FileNotFoundError: If neither the config file nor the alternate exists.
     """
     config_path = Path(path)
-
     if not config_path.exists():
-        raise FileNotFoundError(f"Config file not found: {path}")
+        # Try the other common extension in the same directory
+        alt = config_path.with_suffix(".yaml" if config_path.suffix == ".yml" else ".yml")
+        if alt.exists():
+            config_path = alt
+        else:
+            raise FileNotFoundError(f"Config file not found: {path}")
 
     with open(config_path, "r") as f:
         data = yaml.safe_load(f)

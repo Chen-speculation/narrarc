@@ -18,6 +18,9 @@ from .db import (
     init_db,
     get_talkers_with_stats,
     get_build_status,
+    get_build_progress,
+    set_build_progress,
+    clear_build_progress,
     get_all_messages,
     get_messages_by_ids,
     upsert_messages,
@@ -123,13 +126,28 @@ def _cmd_list_sessions(args) -> None:
         result = []
         for s in stats:
             status = get_build_status(conn, s["talker_id"])
-            result.append({
+            row = {
                 "talker_id": s["talker_id"],
                 "display_name": s["display_name"],
                 "last_timestamp": s["last_timestamp"],
                 "build_status": status,
                 "message_count": s["message_count"],
-            })
+            }
+            if status in ("pending", "in_progress"):
+                progress = get_build_progress(conn, s["talker_id"])
+                if progress:
+                    row["build_progress"] = progress
+            result.append(row)
+            # #region agent log
+            try:
+                _db_abs = os.path.abspath(args.db)
+                _backend_dir = os.path.dirname(os.path.dirname(_db_abs))
+                _log_path = os.path.normpath(os.path.join(_backend_dir, "..", "debug-75fb2f.log"))
+                with open(_log_path, "a", encoding="utf-8") as _f:
+                    _f.write(json.dumps({"hypothesisId": "H1", "location": "cli_json._cmd_list_sessions", "message": "list_sessions row", "data": {"talker_id": s["talker_id"], "build_status": status, "has_build_progress": "build_progress" in row}, "timestamp": int(time.time() * 1000)}, ensure_ascii=False) + "\n")
+            except Exception:
+                pass
+            # #endregion
         print(json.dumps(result, ensure_ascii=False))
     finally:
         conn.close()
@@ -348,21 +366,31 @@ def _cmd_query(args) -> None:
 def parse_import_json(content: str) -> tuple[str, str, list[RawMessage]]:
     """Parse single-file import JSON.
 
+    Supports multiple formats:
+    - Flat: top-level display_name, talker_id, messages (e.g. realtalk export)
+    - WeFlow: weflow + session (displayName) + messages
+
     Returns (display_name, talker_id, messages).
     - createTime: if < 10^10 treat as seconds, multiply by 1000
     - localType 10000/10002 -> excluded=True
     - Missing talker_id: generate via md5(display_name + str(messages[0].createTime))[:12]
     """
     data = json.loads(content)
-    display_name = data.get("display_name")
     messages_data = data.get("messages")
-
-    if not display_name:
-        raise ValueError("Missing required field: display_name")
     if messages_data is None:
         raise ValueError("Missing required field: messages")
 
+    # Resolve display_name: flat "display_name" or WeFlow "session.displayName" / "session.display_name"
+    display_name = data.get("display_name")
+    if not display_name and data.get("session"):
+        session = data["session"]
+        display_name = session.get("displayName") or session.get("display_name") or session.get("remark") or session.get("nickname")
+    if not display_name:
+        raise ValueError("Missing required field: display_name (or session.displayName in WeFlow format)")
+
     talker_id = data.get("talker_id")
+    if not talker_id and data.get("session"):
+        talker_id = data["session"].get("wxid") or data["session"].get("talker_id")
     if not talker_id and messages_data:
         first_ts = messages_data[0].get("createTime", 0)
         raw = f"{display_name}{first_ts}"
@@ -377,13 +405,15 @@ def parse_import_json(content: str) -> tuple[str, str, list[RawMessage]]:
             ct *= 1000
         local_type = item.get("localType", 1)
         excluded = local_type in (10000, 10002)
+        # parsedContent (realtalk) or content (WeFlow)
+        parsed_content = item.get("parsedContent") or item.get("content") or ""
         messages.append(RawMessage(
             local_id=item.get("localId", 0),
             talker_id=talker_id,
             create_time=ct,
             is_send=item.get("isSend", 0) == 1,
             sender_username=item.get("senderUsername", ""),
-            parsed_content=item.get("parsedContent", ""),
+            parsed_content=parsed_content,
             local_type=local_type,
             excluded=excluded,
         ))
@@ -462,27 +492,35 @@ def _cmd_build(args) -> None:
         from .metadata import build_layer15
         from .layer2 import build_layer2
 
+        talker_id = args.talker
+        debug = getattr(args, "debug", False)
+
+        def on_progress(stage: str, step: str, detail: str) -> None:
+            set_build_progress(conn, talker_id, stage, step, detail)
+
         config = load_config(args.config)
         llm_noncot, llm_cot, reranker = from_config(config)
-        source = _SqliteDataSource(conn, args.talker)
+        source = _SqliteDataSource(conn, talker_id)
 
-        debug = getattr(args, "debug", False)
         try:
+            set_build_progress(conn, talker_id, "layer1", "start", "开始构建 Layer 1：消息聚合与话题分类")
             build_layer1(
-                talker_id=args.talker,
+                talker_id=talker_id,
                 source=source,
                 llm=llm_noncot,
                 conn=conn,
                 gap_seconds=1800,
                 debug=debug,
+                progress_callback=on_progress,
             )
         except Exception as e:
             print("build_layer1", file=sys.stderr)
             _die(str(e))
 
         try:
+            set_build_progress(conn, talker_id, "layer1.5", "metadata", "计算元数据与异常锚点")
             build_layer15(
-                talker_id=args.talker,
+                talker_id=talker_id,
                 llm=llm_noncot,
                 conn=conn,
                 debug=debug,
@@ -493,20 +531,23 @@ def _cmd_build(args) -> None:
 
         chroma_dir = args.chroma_dir or os.path.join(os.path.dirname(args.db), "chroma")
         try:
+            set_build_progress(conn, talker_id, "layer2", "start", "开始构建 Layer 2：语义链路")
             build_layer2(
-                talker_id=args.talker,
+                talker_id=talker_id,
                 llm_noncot=llm_noncot,
                 reranker=reranker,
                 llm_cot=llm_cot,
                 conn=conn,
                 data_dir=chroma_dir,
                 debug=debug,
+                progress_callback=on_progress,
             )
         except Exception as e:
             print("layer2", file=sys.stderr)
             _die(str(e))
 
-        out = {"status": "complete", "talker_id": args.talker}
+        clear_build_progress(conn, talker_id)
+        out = {"status": "complete", "talker_id": talker_id}
         print(json.dumps(out, ensure_ascii=False))
     except Exception as e:
         _die(str(e))

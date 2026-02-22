@@ -192,6 +192,31 @@ def test_query_output_format(tmp_db, tmp_path):
     assert "all_messages" in data
 
 
+def test_import_weflow_format(tmp_path):
+    """Import accepts WeFlow format: session.displayName + messages with content (no parsedContent)."""
+    from narrative_mirror.cli_json import parse_import_json
+
+    weflow_json = """
+    {
+      "weflow": {"version": "1.0.3"},
+      "session": {
+        "wxid": "wxid_abc123",
+        "displayName": "不让叫琪",
+        "remark": "备注名"
+      },
+      "messages": [
+        {"localId": 1, "createTime": 1700029034, "content": "你好", "isSend": 0, "localType": 1}
+      ]
+    }
+    """
+    display_name, talker_id, messages = parse_import_json(weflow_json)
+    assert display_name == "不让叫琪"
+    assert talker_id == "wxid_abc123"
+    assert len(messages) == 1
+    assert messages[0].parsed_content == "你好"
+    assert messages[0].sender_username == ""
+
+
 def test_import_idempotency(tmp_path):
     """8.5: import is idempotent - second import does not duplicate rows."""
     db_path = tmp_path / "import.db"

@@ -186,6 +186,17 @@ def init_db(path: str) -> sqlite3.Connection:
         ON semantic_thread_pointers(to_node_id)
     """)
 
+    # Build progress (for UI: current stage/step when build is running)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS build_progress (
+            talker_id TEXT PRIMARY KEY,
+            stage TEXT NOT NULL,
+            step TEXT NOT NULL,
+            detail TEXT,
+            updated_at TEXT NOT NULL
+        )
+    """)
+
     conn.commit()
     return conn
 
@@ -743,6 +754,15 @@ def get_build_status(conn: sqlite3.Connection, talker_id: str) -> str:
     has_nodes = cursor.fetchone() is not None
 
     if not has_nodes:
+        # #region agent log
+        try:
+            import os, json, time
+            _p = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "debug-75fb2f.log"))
+            with open(_p, "a", encoding="utf-8") as _f:
+                _f.write(json.dumps({"hypothesisId": "H1", "location": "db.get_build_status", "message": "status=pending", "data": {"talker_id": talker_id, "has_nodes": has_nodes}, "timestamp": int(time.time() * 1000)}, ensure_ascii=False) + "\n")
+        except Exception:
+            pass
+        # #endregion
         return "pending"
 
     cursor.execute(
@@ -757,11 +777,63 @@ def get_build_status(conn: sqlite3.Connection, talker_id: str) -> str:
     return "complete"
 
 
+def set_build_progress(
+    conn: sqlite3.Connection,
+    talker_id: str,
+    stage: str,
+    step: str,
+    detail: str = "",
+) -> None:
+    """Record current build progress for a talker (for UI display)."""
+    cursor = conn.cursor()
+    now = datetime.utcnow().isoformat() + "Z"
+    cursor.execute(
+        """
+        INSERT INTO build_progress (talker_id, stage, step, detail, updated_at)
+        VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT(talker_id) DO UPDATE SET
+            stage = excluded.stage,
+            step = excluded.step,
+            detail = excluded.detail,
+            updated_at = excluded.updated_at
+        """,
+        (talker_id, stage, step, detail, now),
+    )
+    conn.commit()
+
+
+def get_build_progress(
+    conn: sqlite3.Connection, talker_id: str
+) -> Optional[dict]:
+    """Return current build progress for a talker, or None if not building."""
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT stage, step, detail, updated_at FROM build_progress WHERE talker_id = ?",
+        (talker_id,),
+    )
+    row = cursor.fetchone()
+    if row is None:
+        return None
+    return {
+        "stage": row[0],
+        "step": row[1],
+        "detail": row[2] or "",
+        "updated_at": row[3],
+    }
+
+
+def clear_build_progress(conn: sqlite3.Connection, talker_id: str) -> None:
+    """Remove build progress record when build completes or is cleared."""
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM build_progress WHERE talker_id = ?", (talker_id,))
+    conn.commit()
+
+
 def delete_session(conn: sqlite3.Connection, talker_id: str) -> None:
     """Delete all data for a session (talker_id) from SQLite.
 
     Removes from: raw_messages, bursts, topic_nodes, node_metadata,
-    anomaly_anchors, semantic_thread_pointers.
+    anomaly_anchors, semantic_thread_pointers, build_progress.
     """
     cursor = conn.cursor()
     cursor.execute("DELETE FROM raw_messages WHERE talker_id = ?", (talker_id,))
@@ -770,6 +842,7 @@ def delete_session(conn: sqlite3.Connection, talker_id: str) -> None:
     cursor.execute("DELETE FROM node_metadata WHERE talker_id = ?", (talker_id,))
     cursor.execute("DELETE FROM anomaly_anchors WHERE talker_id = ?", (talker_id,))
     cursor.execute("DELETE FROM semantic_thread_pointers WHERE talker_id = ?", (talker_id,))
+    cursor.execute("DELETE FROM build_progress WHERE talker_id = ?", (talker_id,))
     conn.commit()
 
 

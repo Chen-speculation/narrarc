@@ -5,27 +5,17 @@
   "windows": ["main"],
   "permissions": [
     "core:default",
+    "core:window:allow-close",
+    "core:window:allow-minimize",
+    "core:window:allow-toggle-maximize",
+    "core:window:allow-start-dragging",
     {
       "identifier": "shell:allow-execute",
-      "allow": [
-        {
-          "name": "uv",
-          "cmd": "uv",
-          "args": true,
-          "sidecar": false
-        }
-      ]
+      "allow": [{"name": "uv", "cmd": "uv", "args": true, "sidecar": false}]
     },
     {
       "identifier": "shell:allow-spawn",
-      "allow": [
-        {
-          "name": "uv",
-          "cmd": "uv",
-          "args": true,
-          "sidecar": false
-        }
-      ]
+      "allow": [{"name": "uv", "cmd": "uv", "args": true, "sidecar": false}]
     },
     "dialog:allow-open"
   ]

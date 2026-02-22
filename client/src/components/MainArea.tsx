@@ -4,7 +4,8 @@ import { NarrativeArc } from './NarrativeArc';
 import { ChatPanel } from './ChatPanel';
 import { AgentTracePanel } from './AgentTracePanel';
 import { AgentProgress } from './AgentProgress';
-import { Loader2, Terminal } from 'lucide-react';
+import { BuildStatusPanel } from './BuildStatusPanel';
+import { Terminal } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import * as api from '../api';
 
@@ -144,24 +145,13 @@ export function MainArea({
                 <div className="p-4 border-b border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-[#050505] text-center transition-colors duration-300">
                   <p className="font-title text-[10px] text-zinc-400 dark:text-zinc-600 uppercase tracking-widest">原始数据流</p>
                 </div>
-                {sessionMessages.length > 0 ? (
+                {activeSession.build_status !== 'complete' ? (
+                  <BuildStatusPanel session={activeSession} />
+                ) : sessionMessages.length > 0 ? (
                   <ChatPanel messages={sessionMessages} highlightedMessageId={null} />
                 ) : (
-                  <div className="flex-1 flex items-center justify-center">
-                    <div className="text-center text-zinc-400 dark:text-zinc-500 max-w-md">
-                      {activeSession.build_status === 'in_progress' ? (
-                        <>
-                          <Loader2 className="w-6 h-6 animate-spin text-indigo-500 mx-auto mb-4" />
-                          <p className="text-sm tracking-widest uppercase mb-2">BUILDING INDEX...</p>
-                          <p className="text-[10px] text-zinc-500 dark:text-zinc-600">Please wait while the system analyzes the structure.</p>
-                        </>
-                      ) : (
-                        <>
-                          <p className="text-sm tracking-widest uppercase mb-2">AWAITING BUILD</p>
-                          <p className="text-[10px] text-zinc-500 dark:text-zinc-600">This session has not been indexed yet.</p>
-                        </>
-                      )}
-                    </div>
+                  <div className="flex-1 flex items-center justify-center text-zinc-400 dark:text-zinc-500 text-[10px]">
+                    加载消息中…
                   </div>
                 )}
               </div>

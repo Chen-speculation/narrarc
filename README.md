@@ -32,7 +32,21 @@ npm install
 npm run tauri:dev
 ```
 
-**前置要求**：本机安装 `uv`（Python 包管理）、`uv` 在 PATH 中。客户端会通过 `backend/` 目录运行 Python 子进程。
+**前置要求**：
+- **uv**（Python 包管理）在 PATH 中。若未安装：`powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`，安装后把 `%USERPROFILE%\.local\bin` 加入 PATH。
+- **Node.js 18+**（客户端构建与 Tauri 需要）。
+- **Rust**（Tauri 2 首次构建时会提示安装）。
+
+**一键本地运行**（自动安装 uv、Node.js、Rust、MSVC Build Tools，然后启动桌面客户端）：
+```cmd
+run-local.cmd
+```
+或（若遇「禁止运行脚本」则用）：
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\run-local.ps1
+```
+- 首次运行若缺少 **Visual Studio Build Tools**，会自动通过 winget 安装（体积较大，约 10–20 分钟），完成后请再执行一次上述命令即可打开 Tauri 窗口。
+- Node.js 若未安装会下载便携版到项目目录 `.node/`，无需全局安装。
 
 ## 导入示例数据
 
