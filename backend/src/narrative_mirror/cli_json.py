@@ -138,16 +138,6 @@ def _cmd_list_sessions(args) -> None:
                 if progress:
                     row["build_progress"] = progress
             result.append(row)
-            # #region agent log
-            try:
-                _db_abs = os.path.abspath(args.db)
-                _backend_dir = os.path.dirname(os.path.dirname(_db_abs))
-                _log_path = os.path.normpath(os.path.join(_backend_dir, "..", "debug-75fb2f.log"))
-                with open(_log_path, "a", encoding="utf-8") as _f:
-                    _f.write(json.dumps({"hypothesisId": "H1", "location": "cli_json._cmd_list_sessions", "message": "list_sessions row", "data": {"talker_id": s["talker_id"], "build_status": status, "has_build_progress": "build_progress" in row}, "timestamp": int(time.time() * 1000)}, ensure_ascii=False) + "\n")
-            except Exception:
-                pass
-            # #endregion
         print(json.dumps(result, ensure_ascii=False))
     finally:
         conn.close()
@@ -561,6 +551,14 @@ def _cmd_build(args) -> None:
 
 
 def main() -> None:
+    # Force UTF-8 for stdout/stderr on Windows so Chinese (topic_name etc.) renders correctly
+    if sys.platform == "win32":
+        try:
+            sys.stdout.reconfigure(encoding="utf-8")
+            sys.stderr.reconfigure(encoding="utf-8")
+        except Exception:
+            pass
+
     parser = argparse.ArgumentParser(description="Narrative Mirror JSON CLI")
     parser.add_argument("--db", default="data/mirror.db", help="SQLite database path")
     subparsers = parser.add_subparsers(dest="cmd", required=True)

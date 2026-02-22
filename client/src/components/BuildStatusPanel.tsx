@@ -28,9 +28,6 @@ interface BuildStatusPanelProps {
 }
 
 export function BuildStatusPanel({ session }: BuildStatusPanelProps) {
-  // #region agent log
-  fetch('http://127.0.0.1:7251/ingest/6d4754d5-f830-4574-ae7e-cc5bdfa1e60f',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'75fb2f'},body:JSON.stringify({sessionId:'75fb2f',location:'BuildStatusPanel.tsx:render',message:'panel state',data:{talker_id:session.talker_id,build_status:session.build_status,has_progress:!!session.build_progress},timestamp:Date.now(),hypothesisId:'H4'})}).catch(()=>{});
-  // #endregion
   const isPending = session.build_status === 'pending';
   const isInProgress = session.build_status === 'in_progress';
   const progress = session.build_progress;

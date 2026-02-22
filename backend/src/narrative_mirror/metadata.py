@@ -4,6 +4,14 @@ import json
 import sqlite3
 import statistics
 import sys
+
+# Ensure UTF-8 output on Windows so Chinese topic names render correctly
+def _ensure_utf8_stderr() -> None:
+    if sys.platform == "win32" and hasattr(sys.stderr, "reconfigure"):
+        try:
+            sys.stderr.reconfigure(encoding="utf-8")
+        except (AttributeError, OSError):
+            pass
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from typing import TYPE_CHECKING
@@ -431,7 +439,7 @@ def compute_all_metadata(
 
         if debug:
             print(
-                f"Node {node.topic_name}: reply_delay={algo['reply_delay_avg']:.1f}s, "
+                f"  话题 {node.topic_name}: reply_delay={algo['reply_delay_avg']:.1f}s, "
                 f"emotional_tone={emotional_tone:.2f}, conflict={conflict_intensity:.2f}",
                 file=sys.stderr,
             )
