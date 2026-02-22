@@ -15,7 +15,7 @@ export function AgentProgress({ steps, logs }: { steps: AgentStep[]; logs: strin
         initial={{ opacity: 0, y: 30, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full bg-white dark:bg-[#0a0a0a] rounded-3xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] dark:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] border border-zinc-200 dark:border-white/10 overflow-hidden flex transition-colors duration-300"
+        className="w-full min-h-[420px] bg-white dark:bg-[#0a0a0a] rounded-3xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] dark:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] border border-zinc-200 dark:border-white/10 overflow-hidden flex transition-colors duration-300"
       >
         {/* Left: Steps */}
         <div className="w-1/2 p-10 border-r border-zinc-200 dark:border-white/5 relative bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
@@ -90,17 +90,24 @@ export function AgentProgress({ steps, logs }: { steps: AgentStep[]; logs: strin
           </div>
           
           <div className="flex-1 overflow-y-auto pr-2 space-y-1.5 text-zinc-500 dark:text-zinc-400" style={{ scrollbarWidth: 'none' }}>
-            {logs.map((log, i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                className={log?.includes('OUTPUT:') || log?.includes('DONE') ? 'text-emerald-600 dark:text-emerald-400/80' : log?.includes('INPUT:') ? 'text-indigo-600 dark:text-indigo-400/80' : ''}
-              >
-                <span className="text-zinc-400 dark:text-zinc-600 mr-3">{new Date().toISOString().split('T')[1].slice(0, 12)}</span>
-                {log}
-              </motion.div>
-            ))}
+            {logs.map((log, i) => {
+              const stepIdx = Math.floor(i / 4);
+              const ts = steps[stepIdx]?.timestamp_ms;
+              const timeStr = ts
+                ? new Date(ts).toISOString().split('T')[1].slice(0, 12)
+                : new Date().toISOString().split('T')[1].slice(0, 12);
+              return (
+                <motion.div 
+                  key={i}
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className={log?.includes('OUTPUT:') || log?.includes('DONE') ? 'text-emerald-600 dark:text-emerald-400/80' : log?.includes('INPUT:') ? 'text-indigo-600 dark:text-indigo-400/80' : ''}
+                >
+                  <span className="text-zinc-400 dark:text-zinc-600 mr-3">{timeStr}</span>
+                  {log}
+                </motion.div>
+              );
+            })}
             <div ref={logsEndRef} />
           </div>
           

@@ -205,12 +205,14 @@ def _build_query_response(trace, talker_id: str, start_ms: int, end_ms: int, con
             "verified": phase.verified,
         })
 
-    # AgentTrace steps with node_name_display and timestamp_ms
+    # AgentTrace steps with node_name_display and timestamp_ms (real completion time)
     steps = trace.steps
     n = len(steps)
     steps_out = []
     for i, step in enumerate(steps):
-        ts_ms = start_ms + int(total_duration_ms * i / n) if n > 0 else start_ms
+        ts_ms = step.timestamp_ms if getattr(step, "timestamp_ms", 0) > 0 else (
+            start_ms + int(total_duration_ms * i / n) if n > 0 else start_ms
+        )
         node_display = NODE_NAME_DISPLAY.get(step.node_name, step.node_name)
         steps_out.append({
             "node_name": step.node_name,
@@ -256,12 +258,14 @@ def _build_query_response(trace, talker_id: str, start_ms: int, end_ms: int, con
 
 
 def _serialize_trace_steps_for_progress(steps: list, start_ms: int, end_ms: int) -> list[dict]:
-    """Serialize trace_steps for streaming progress (NDJSON)."""
+    """Serialize trace_steps for streaming progress (NDJSON). Uses real timestamp_ms from steps."""
     total_ms = max(1, end_ms - start_ms)
     n = len(steps)
     out = []
     for i, step in enumerate(steps):
-        ts_ms = start_ms + int(total_ms * i / n) if n > 0 else start_ms
+        ts_ms = step.timestamp_ms if getattr(step, "timestamp_ms", 0) > 0 else (
+            start_ms + int(total_ms * i / n) if n > 0 else start_ms
+        )
         node_display = NODE_NAME_DISPLAY.get(step.node_name, step.node_name)
         out.append({
             "node_name": step.node_name,

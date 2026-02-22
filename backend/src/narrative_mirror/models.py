@@ -129,6 +129,7 @@ class AgentStep:
     input_summary: str  # summary of state when node started
     output_summary: str  # summary of what the node produced
     llm_calls: int = 0  # number of LLM calls in this step
+    timestamp_ms: int = 0  # wall-clock ms when step completed (real completion time)
 
 
 @dataclass

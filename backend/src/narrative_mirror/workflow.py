@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+import time
 from datetime import datetime
 from typing import Any, Optional, TYPE_CHECKING
 
@@ -101,6 +102,7 @@ def planner_node(state: WorkflowState) -> dict:
         input_summary=f"question='{question[:50]}'",
         output_summary=f"intent={intent.query_type}, queries={search_queries}",
         llm_calls=2,
+        timestamp_ms=int(time.time() * 1000),
     )
 
     existing_steps = list(state.get("trace_steps", []))
@@ -214,6 +216,7 @@ def retriever_node(state: WorkflowState) -> dict:
         input_summary=f"queries={search_queries[:2]}, anchors={len(anchor_node_ids)}",
         output_summary=f"collected_nodes={len(merged_nodes)}, messages_loaded={len(collected_messages)}",
         llm_calls=0,
+        timestamp_ms=int(time.time() * 1000),
     )
 
     existing_steps = list(state.get("trace_steps", []))
@@ -317,6 +320,7 @@ def factual_retriever_node(state: WorkflowState) -> dict:
         input_summary=f"question='{question[:50]}', time_range={intent.time_range if intent else None}",
         output_summary=f"collected_nodes={len(merged_nodes)}",
         llm_calls=0,
+        timestamp_ms=int(time.time() * 1000),
     )
 
     existing_steps = list(state.get("trace_steps", []))
@@ -422,6 +426,7 @@ def factual_generator_node(state: WorkflowState) -> dict:
         input_summary=f"nodes={len(collected_nodes)}, messages={len(all_msg_entries)}",
         output_summary=f"answer='{factual_answer['answer'][:60]}'",
         llm_calls=1,
+        timestamp_ms=int(time.time() * 1000),
     )
 
     existing_steps = list(state.get("trace_steps", []))
@@ -526,6 +531,7 @@ def grader_node(state: WorkflowState) -> dict:
         input_summary=f"nodes={node_count}, date_range={date_range}",
         output_summary=f"evaluation={evaluation[:80]}",
         llm_calls=1,
+        timestamp_ms=int(time.time() * 1000),
     )
 
     existing_steps = list(state.get("trace_steps", []))
@@ -677,6 +683,7 @@ def explorer_node(state: WorkflowState) -> dict:
         input_summary=f"suggested_action={suggested_action}, reason='{evaluation_reason[:40]}'",
         output_summary=f"new_nodes={len(new_nodes)}, total_nodes={len(merged)}",
         llm_calls=0,
+        timestamp_ms=int(time.time() * 1000),
     )
 
     existing_steps = list(state.get("trace_steps", []))
@@ -876,6 +883,7 @@ def generator_node(state: WorkflowState) -> dict:
         input_summary=f"nodes={len(collected_nodes)}, question='{question[:40]}'",
         output_summary=f"phases={len(phases)}",
         llm_calls=1,
+        timestamp_ms=int(time.time() * 1000),
     )
 
     existing_steps = list(state.get("trace_steps", []))
