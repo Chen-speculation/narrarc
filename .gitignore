@@ -22,6 +22,10 @@ openspec/
 backend/data/
 backend/profile_chroma/
 
+# Client data: only samples/ is tracked
+client/data/*
+!client/data/samples/
+
 # Client (Tauri/Node)
 client/node_modules/
 client/dist/

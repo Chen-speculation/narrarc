@@ -5,7 +5,7 @@ import { ChatPanel } from './ChatPanel';
 import { AgentTracePanel } from './AgentTracePanel';
 import { AgentProgress } from './AgentProgress';
 import { BuildStatusPanel } from './BuildStatusPanel';
-import { Terminal } from 'lucide-react';
+import { Terminal, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import * as api from '../api';
 
@@ -13,6 +13,10 @@ import * as api from '../api';
 interface MainAreaProps {
   activeSession: Session | null;
   sessionMessages: Message[];
+  hasMoreBefore: boolean;
+  hasMoreAfter: boolean;
+  onLoadMoreBefore: () => Promise<void>;
+  onLoadMoreAfter: () => Promise<void>;
   queryResult: QueryResponse | null;
   onQueryComplete: (result: QueryResponse) => void;
   highlightedMessageId: number | null;
@@ -22,6 +26,10 @@ interface MainAreaProps {
 export function MainArea({
   activeSession,
   sessionMessages,
+  hasMoreBefore,
+  hasMoreAfter,
+  onLoadMoreBefore,
+  onLoadMoreAfter,
   queryResult,
   onQueryComplete,
   highlightedMessageId,
@@ -139,16 +147,23 @@ export function MainArea({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex-1 flex justify-center overflow-hidden w-full"
+              className="flex-1 flex justify-center overflow-hidden w-full min-h-0"
             >
-              <div className="w-full max-w-4xl flex flex-col h-full border-x border-zinc-200 dark:border-white/5 bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
+              <div className="w-full max-w-4xl flex flex-col h-full min-h-0 border-x border-zinc-200 dark:border-white/5 bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
                 <div className="p-4 border-b border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-[#050505] text-center transition-colors duration-300">
                   <p className="font-title text-[10px] text-zinc-400 dark:text-zinc-600 uppercase tracking-widest">原始数据流</p>
                 </div>
                 {activeSession.build_status !== 'complete' ? (
                   <BuildStatusPanel session={activeSession} />
                 ) : sessionMessages.length > 0 ? (
-                  <ChatPanel messages={sessionMessages} highlightedMessageId={null} />
+                  <ChatPanel
+                    messages={sessionMessages}
+                    highlightedMessageId={null}
+                    hasMoreBefore={hasMoreBefore}
+                    hasMoreAfter={hasMoreAfter}
+                    onLoadMoreBefore={onLoadMoreBefore}
+                    onLoadMoreAfter={onLoadMoreAfter}
+                  />
                 ) : (
                   <div className="flex-1 flex items-center justify-center text-zinc-400 dark:text-zinc-500 text-[10px]">
                     加载消息中…

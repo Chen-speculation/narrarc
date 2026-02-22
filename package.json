@@ -1,0 +1,11 @@
+{
+  "name": "chat-mirror",
+  "private": true,
+  "description": "Root workspace – run client scripts from client/",
+  "scripts": {
+    "tauri:dev": "npm run tauri:dev --prefix client",
+    "tauri:build": "npm run tauri:build --prefix client",
+    "dev": "npm run dev --prefix client",
+    "build": "npm run build --prefix client"
+  }
+}

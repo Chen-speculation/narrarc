@@ -51,9 +51,12 @@ export async function listSessions(): Promise<Session[]> {
 }
 
 /** Use spawn + stream stdout to avoid pipe buffer deadlock with large payloads (400+ msgs). */
-export async function getMessages(talkerId: string): Promise<Message[]> {
+export async function getMessages(talkerId: string, limit?: number, offset?: number): Promise<Message[]> {
   const cwd = await getBackendDir();
-  const args = cliArgs('get_messages', ['--talker', talkerId]);
+  const extra: string[] = [];
+  if (limit !== undefined) extra.push('--limit', String(limit));
+  if (offset !== undefined && offset > 0) extra.push('--offset', String(offset));
+  const args = cliArgs('get_messages', ['--talker', talkerId, ...extra]);
   const cmd = Command.create('uv', ['run', 'python', '-m', 'narrative_mirror.cli_json', ...args], { cwd });
   let stdout = '';
   cmd.stdout.on('data', (chunk: string) => { stdout += chunk; });
