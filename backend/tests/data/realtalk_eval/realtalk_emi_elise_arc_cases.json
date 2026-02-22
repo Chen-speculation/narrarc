@@ -1,0 +1,96 @@
+[
+  {
+    "question": "How did Elise's wellness and self-care activities evolve over time?",
+    "query_type": "arc_narrative",
+    "expected_phases": [
+      {
+        "title": "Active social life and holiday plans",
+        "time_range": "Dec 29-Jan 3",
+        "evidence_dia_ids": [
+          "D1:1",
+          "D2:3",
+          "D3:3"
+        ]
+      },
+      {
+        "title": "Illness and recovery period",
+        "time_range": "Jan 4-6",
+        "evidence_dia_ids": [
+          "D4:2",
+          "D5:2"
+        ]
+      },
+      {
+        "title": "Resuming activities and self-care focus",
+        "time_range": "Jan 7-19",
+        "evidence_dia_ids": [
+          "D7:24",
+          "D7:47",
+          "D7:48"
+        ]
+      }
+    ]
+  },
+  {
+    "question": "How did Elise's interest in cooking and creative activities develop?",
+    "query_type": "arc_narrative",
+    "expected_phases": [
+      {
+        "title": "Initial interest in cooking",
+        "time_range": "Jan 1-3",
+        "evidence_dia_ids": [
+          "D2:3",
+          "D3:3"
+        ]
+      },
+      {
+        "title": "Broadening to art and creative activities",
+        "time_range": "Jan 7-8",
+        "evidence_dia_ids": [
+          "D7:47",
+          "D7:48"
+        ]
+      },
+      {
+        "title": "Active pursuit of cooking and wellness classes",
+        "time_range": "Jan 11-19",
+        "evidence_dia_ids": [
+          "D7:47",
+          "D7:48"
+        ]
+      }
+    ]
+  },
+  {
+    "question": "How did the conversational dynamic between Kate and Elise evolve?",
+    "query_type": "arc_narrative",
+    "expected_phases": [
+      {
+        "title": "Formal greetings and holiday updates",
+        "time_range": "Dec 29-Jan 3",
+        "evidence_dia_ids": [
+          "D1:1",
+          "D2:1",
+          "D3:1"
+        ]
+      },
+      {
+        "title": "Increasing personal sharing and mutual checking-in",
+        "time_range": "Jan 4-10",
+        "evidence_dia_ids": [
+          "D4:1",
+          "D5:1",
+          "D7:48"
+        ]
+      },
+      {
+        "title": "Casual sharing of daily life and future plans",
+        "time_range": "Jan 11-19",
+        "evidence_dia_ids": [
+          "D7:47",
+          "D7:48"
+        ]
+      }
+    ]
+  }
+]

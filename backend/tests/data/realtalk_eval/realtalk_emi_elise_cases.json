@@ -1,0 +1,619 @@
+[
+  {
+    "question": "What are Kate's hobbies?",
+    "expected_answer": "Cooking, skiing, hiking",
+    "evidence_dia_ids": [
+      "D1:6",
+      "D1:40",
+      "D3:69"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "Which cities have both, Kate and Elise, been to?",
+    "expected_answer": "Miami, Los Angeles, San Diego, Las Vegas, New York",
+    "evidence_dia_ids": [
+      "D1:9",
+      "D1:22",
+      "D1:23",
+      "D3:37",
+      "D3:40",
+      "D3:46",
+      "D3:50",
+      "D3:24",
+      "D5:24"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "Where does Kate work as a teacher assistant?",
+    "expected_answer": "UCLA",
+    "evidence_dia_ids": [
+      "D1:22",
+      "D4:13"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Kate start skiing?",
+    "expected_answer": "2013",
+    "evidence_dia_ids": [
+      "D1:49"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Kate visit Art Basel?",
+    "expected_answer": "30 December, 2023",
+    "evidence_dia_ids": [
+      "D2:3"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What kind of pasta did Kate make on 29 Dec 2023?",
+    "expected_answer": "ham and peas",
+    "evidence_dia_ids": [
+      "D2:9"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What do Elise and Kate have in common?",
+    "expected_answer": "They spend the New Year with their family and enjoy outdoor activities such as hiking.",
+    "evidence_dia_ids": [
+      "D3:2",
+      "D3:3",
+      "D3:57",
+      "D3:64",
+      "D4:26"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "Where was Elise on 31 Dec 2023?",
+    "expected_answer": "Miami",
+    "evidence_dia_ids": [
+      "D3:3"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What dishes did Kate learn to cook in her Italian cooking class?",
+    "expected_answer": "Pasta with ham and peas, tiramisu, Osso Buco.",
+    "evidence_dia_ids": [
+      "D2:9",
+      "D2:10",
+      "D3:9",
+      "D3:11",
+      "D14:19"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "Where are Kate and Elise planning to celebrate New Year 2025?",
+    "expected_answer": "Miami",
+    "evidence_dia_ids": [
+      "D3:17",
+      "D3:19"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "Where was Kate on 31 Dec 2023?",
+    "expected_answer": "New York",
+    "evidence_dia_ids": [
+      "D3:24",
+      "D3:27"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "Which place did Elise visit in the first week of 2024?",
+    "expected_answer": "Turks and Caicos",
+    "evidence_dia_ids": [
+      "D3:32"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Elise return from Turks and Caicos?",
+    "expected_answer": "03 January, 2024",
+    "evidence_dia_ids": [
+      "D3:32",
+      "D4:2"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What remedies does Elise use to fall asleep faster?",
+    "expected_answer": "Mint tea, melatonin.",
+    "evidence_dia_ids": [
+      "D4:8",
+      "D5:15"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "Which country did Elise visit in winter 2021 - 2022?",
+    "expected_answer": "Morocco",
+    "evidence_dia_ids": [
+      "D4:15"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What cities did Elise visit during her holidays?",
+    "expected_answer": "New York, Boston, Marakesh, Chefchaouen",
+    "evidence_dia_ids": [
+      "D3:23",
+      "D4:15",
+      "D4:22"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "How long did Elise have the flu?",
+    "expected_answer": "2 days",
+    "evidence_dia_ids": [
+      "D4:2",
+      "D5:2"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "Why can't Kate play volleyball on the beach?",
+    "expected_answer": "She is very busy at work after the holidays.",
+    "evidence_dia_ids": [
+      "D4:3",
+      "D5:3",
+      "D5:51"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What happened to Elise in the library on 5 January 2024?",
+    "expected_answer": "She fell asleep",
+    "evidence_dia_ids": [
+      "D5:8"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "Where did Elise celebrate the New Year?",
+    "expected_answer": "Osaka Miami",
+    "evidence_dia_ids": [
+      "D5:27",
+      "D5:30"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "In which countries did Kate relax on the beach near the sea?",
+    "expected_answer": "Indonesia, USA, Mexico",
+    "evidence_dia_ids": [
+      "D4:26",
+      "D4:27",
+      "D5:46",
+      "D5:48",
+      "D6:27",
+      "D6:28"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What did Elise play 5 Jan 2024?",
+    "expected_answer": "Basketball",
+    "evidence_dia_ids": [
+      "D6:1",
+      "D6:2"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What games are both Kate and Elise interested in?",
+    "expected_answer": "Soccer, padel",
+    "evidence_dia_ids": [
+      "D5:38",
+      "D5:42",
+      "D6:10",
+      "D6:18"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "Where does Kate plan to visit in the spring of 2024?",
+    "expected_answer": "Banff National Park in Canada",
+    "evidence_dia_ids": [
+      "D6:9"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When was Elise in Mexico?",
+    "expected_answer": "Spring 2023",
+    "evidence_dia_ids": [
+      "D6:23"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What is Elise's favorite type of vacation?",
+    "expected_answer": "She loves to relax on the beach.",
+    "evidence_dia_ids": [
+      "D1:38",
+      "D1:42",
+      "D3:38",
+      "D3:41",
+      "D6:22",
+      "D6:25",
+      "D6:26"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "Did Elise spend her day on 7 Jan 2024 alone?",
+    "expected_answer": "No, she was with her friend.",
+    "evidence_dia_ids": [
+      "D7:4"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When does Kate plan to visit the botanical garden?",
+    "expected_answer": "07 January, 2024",
+    "evidence_dia_ids": [
+      "D7:9"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What might have inspired Elise to create an abstract art work?",
+    "expected_answer": "Vasily Kandinsky works, which she saw at the Art Basel.",
+    "evidence_dia_ids": [
+      "D2:6",
+      "D7:10",
+      "D7:12"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "Do Kate and Elise have the same favorite art style?",
+    "expected_answer": "No, Elise likes abstract expressionism, and Kate likes impressionism.",
+    "evidence_dia_ids": [
+      "D2:16",
+      "D7:14"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What did Elise buy on 7 Jan 2024?",
+    "expected_answer": "water and breakfast bars",
+    "evidence_dia_ids": [
+      "D7:24"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "Is Elise a proponent of a completely healthy diet?",
+    "expected_answer": "No, she drinks sugary and alcoholic drinks, eats sweet desserts and foods with a lot of salt, such as bacon.",
+    "evidence_dia_ids": [
+      "D3:7",
+      "D5:25",
+      "D6:25",
+      "D7:25"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Kate visit the \"Central Perk\" cafe?",
+    "expected_answer": "07 January, 2024",
+    "evidence_dia_ids": [
+      "D7:37"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What TV show was Kate watching shortly before 7 Jan 2024?",
+    "expected_answer": "Money Heist",
+    "evidence_dia_ids": [
+      "D7:50"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "How does Elise usually spend her free time?",
+    "expected_answer": "Watches TV shows, plays games outdoors, meets friends.",
+    "evidence_dia_ids": [
+      "D5:41",
+      "D7:4",
+      "D7:53"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What activities does Elise do with her friends?",
+    "expected_answer": "Going to the bar, hiking, watching TV shows",
+    "evidence_dia_ids": [
+      "D1:4",
+      "D3:66",
+      "D7:64"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "How does Elise take care of her appearance?",
+    "expected_answer": "She is interested in fashionable things, does yoga, and takes care of her hair.",
+    "evidence_dia_ids": [
+      "D8:3",
+      "D12:29",
+      "D13:2"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Eliza have lunch with her best friends?",
+    "expected_answer": "11 January, 2024",
+    "evidence_dia_ids": [
+      "D9:4"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What types of pasta does Kate make in her Italian cooking class?",
+    "expected_answer": "Homemade pasta, pasta with ham and peas.",
+    "evidence_dia_ids": [
+      "D2:9",
+      "D9:7"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What Italian dishes does Elise like?",
+    "expected_answer": "tiramisu, spaghetti, lasagna",
+    "evidence_dia_ids": [
+      "D10:1",
+      "D14:23"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When was the last time Elise saw her ex?",
+    "expected_answer": "01 May, 2023",
+    "evidence_dia_ids": [
+      "D10:5"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Kate dye her hair?",
+    "expected_answer": "12 January, 2024",
+    "evidence_dia_ids": [
+      "D10:13"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When does Elise plan to meet her college friends?",
+    "expected_answer": "few weeks after 12 Jan 2024",
+    "evidence_dia_ids": [
+      "D10:16"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What unpleasant situation happened in the lives of both Kate and Elise?",
+    "expected_answer": "They both went through a breakup.",
+    "evidence_dia_ids": [
+      "D11:11",
+      "D10:5"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When will Elise leave Los Angeles?",
+    "expected_answer": "22 January, 2024",
+    "evidence_dia_ids": [
+      "D12:4"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Elise take the photo of the clouds from the plane?",
+    "expected_answer": "17 January, 2024",
+    "evidence_dia_ids": [
+      "D12:7",
+      "D12:8"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What countries has Kate visited?",
+    "expected_answer": "Indonesia, Netherlands, Mexico",
+    "evidence_dia_ids": [
+      "D4:26",
+      "D4:27",
+      "D6:27",
+      "D12:19"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What are some tips that Kate give Elise?",
+    "expected_answer": "How to get over a breakup easier, hair care tips, tiramisu recipe.",
+    "evidence_dia_ids": [
+      "D10:11",
+      "D12:29",
+      "D14:23"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What color are both Kate and Elise's hair?",
+    "expected_answer": "blonde",
+    "evidence_dia_ids": [
+      "D10:12",
+      "D10:13",
+      "D12:29",
+      "D12:31"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What cosmetic products does Kate use?",
+    "expected_answer": "Hair care products, hydrating cream.",
+    "evidence_dia_ids": [
+      "D10:13",
+      "D12:33"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Kate tried Neutrogena cream?",
+    "expected_answer": "Recently before 15 Jan 2024",
+    "evidence_dia_ids": [
+      "D12:33"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What companies' cosmetic products does Kate use?",
+    "expected_answer": "Neutrogena, Clairol, Emsibeth",
+    "evidence_dia_ids": [
+      "D10:21",
+      "D10:31",
+      "D12:37"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When is Elise's first yoga class?",
+    "expected_answer": "17 January, 2024",
+    "evidence_dia_ids": [
+      "D13:2",
+      "D13:4"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What exercises do Kate and Elise both do to reduce stress?",
+    "expected_answer": "yoga",
+    "evidence_dia_ids": [
+      "D12:41",
+      "D13:4"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Elise go for a massage?",
+    "expected_answer": "19 January, 2024",
+    "evidence_dia_ids": [
+      "D14:4"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "In what ways does Elise try to relieve physical and mental stress?",
+    "expected_answer": "yoga, massage",
+    "evidence_dia_ids": [
+      "D13:4. D14:4"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Elise start doing laser hair removal?",
+    "expected_answer": "summer 2022",
+    "evidence_dia_ids": [
+      "D14:7"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What types of recreation on water bodies does Elise like?",
+    "expected_answer": "Active recreation on the water, relaxing on the beach, hot springs.",
+    "evidence_dia_ids": [
+      "D3:41",
+      "D6:25",
+      "D14:15"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What recipes did Elise and Kate share?",
+    "expected_answer": "tiramisu, smoothie",
+    "evidence_dia_ids": [
+      "D7:31",
+      "D14:23"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What dish did both Kate and Elise cook?",
+    "expected_answer": "tiramisu",
+    "evidence_dia_ids": [
+      "D3:9",
+      "D14:23"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  }
+]

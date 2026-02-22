@@ -1,0 +1,709 @@
+[
+  {
+    "question": "What foods does Nebraas like?",
+    "expected_answer": "eggs, olive oil, cheese tart, nyquil and coffee together",
+    "evidence_dia_ids": [
+      "D1:29",
+      "D1:45",
+      "D6:65",
+      "D6:66",
+      "D11:28",
+      "D17:12"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What foods doesn't Nebraas like?",
+    "expected_answer": "olives, burgers, donuts, fast food",
+    "evidence_dia_ids": [
+      "D11:18",
+      "D17:12",
+      "D20:42",
+      "D20:45",
+      "D20:47"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "Do Nicolas and Nebraas drink beer?",
+    "expected_answer": "yes",
+    "evidence_dia_ids": [
+      "D1:72",
+      "D4:97"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What hobbies does Nicolas have?",
+    "expected_answer": "rollerskate, driving, TikTok stuff",
+    "evidence_dia_ids": [
+      "D1:81",
+      "D1:102",
+      "D14:6"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What activities does Nebraas like?",
+    "expected_answer": "badminton, ice skating, reading, painting",
+    "evidence_dia_ids": [
+      "D1:87",
+      "D1:92",
+      "D14:18",
+      "D19:14"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Nicolas get sick?",
+    "expected_answer": "29 Dec 2023",
+    "evidence_dia_ids": [
+      "D2:7",
+      "D3:6"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "Under what circumstances does Nebraas read books?",
+    "expected_answer": "when she is off of work, on rainy days with some nice coffee",
+    "evidence_dia_ids": [
+      "D2:17",
+      "D3:19"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What games are Nebraas and Nicolas discussing?",
+    "expected_answer": "Lethal Company, It takes two, Mario, Yakuza",
+    "evidence_dia_ids": [
+      "D2:72",
+      "D2:87",
+      "D4:53",
+      "D5:43",
+      "D7:6",
+      "D21:120"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Nebraas go for her morning jog?",
+    "expected_answer": "30 Dec 2023",
+    "evidence_dia_ids": [
+      "D3:3"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When Nicolas sent Nebraas a photo of a pretty nice view outside?",
+    "expected_answer": "30 Dec 2023",
+    "evidence_dia_ids": [
+      "D3:12",
+      "D3:13"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What films did Nebraas watch?",
+    "expected_answer": "Leave the world behind, the Jeffery Dahmer",
+    "evidence_dia_ids": [
+      "D3:31",
+      "D3:33",
+      "D16:47"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "Who does Nebraas live with?",
+    "expected_answer": "with her best friend, with one more other girl",
+    "evidence_dia_ids": [
+      "D3:51",
+      "D8:7"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What countries did Nebraas and Nicolas mention in their conversations?",
+    "expected_answer": "America, Turkey, France",
+    "evidence_dia_ids": [
+      "D3:69",
+      "D3:63",
+      "D21:103"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "How long has Nebraas been in Turkey?",
+    "expected_answer": "for 2 months",
+    "evidence_dia_ids": [
+      "D3:66",
+      "D3:75"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What foods doesn't Nicolas like?",
+    "expected_answer": "olives, cheese",
+    "evidence_dia_ids": [
+      "D6:67",
+      "D6:68",
+      "D17:11",
+      "D17:13",
+      "D17:14"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What food does Nicolas prefer?",
+    "expected_answer": "new exotic foods,  pistachios, pho",
+    "evidence_dia_ids": [
+      "D4:20",
+      "D16:23",
+      "D20:40"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Nebraas get covid?",
+    "expected_answer": "about a year ago before 31 Dec 2023",
+    "evidence_dia_ids": [
+      "D4:71"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "Did Nicolas and Nebraas get sick with Covid?",
+    "expected_answer": "yes",
+    "evidence_dia_ids": [
+      "D3:38",
+      "D4:71",
+      "D6:109"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When Nebraas` boyfriend explained to her the situation between him and his coworker?",
+    "expected_answer": "31 Dec 2023",
+    "evidence_dia_ids": [
+      "D5:11"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "Why did Nebraas want to change jobs?",
+    "expected_answer": "She was not promoted to the position of manager",
+    "evidence_dia_ids": [
+      "D14:31",
+      "D20:37"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "How is Nicolas treated?",
+    "expected_answer": "tea, honey, meds",
+    "evidence_dia_ids": [
+      "D2:9",
+      "D2:10",
+      "D6:11",
+      "D6:12"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What famous stores did Nicolas and Nebraas mention in their conversation?",
+    "expected_answer": "Costco, Amazon, Petco, Petsmart",
+    "evidence_dia_ids": [
+      "D6:24",
+      "D15:27",
+      "D17:1",
+      "D17:3",
+      "D21:44",
+      "D21:48",
+      "D23:3"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What is Nebraas not a fan of?",
+    "expected_answer": "cooking, rollerskating",
+    "evidence_dia_ids": [
+      "D1:87",
+      "D6:58"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Nebraas buy a cheese tart?",
+    "expected_answer": "02 Jan 2024",
+    "evidence_dia_ids": [
+      "D6:61",
+      "D6:62"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What relationship advice did Nebraas give to Nicolas?",
+    "expected_answer": "asking his crush on a date, invite his crush to the park for a picnic,  apologize, tell the truth in relationships",
+    "evidence_dia_ids": [
+      "D6:88",
+      "D6:115",
+      "D11:42",
+      "D14:14",
+      "D14:15"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Nicolas first ask the girl to meet in person?",
+    "expected_answer": "02 Jan 2024",
+    "evidence_dia_ids": [
+      "D6:116",
+      "D6:119",
+      "D7:1",
+      "D7:2"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When is Nicolas's birthday?",
+    "expected_answer": "03 Jan 2024",
+    "evidence_dia_ids": [
+      "D7:5"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "How many times did Nicolas call the girl to apologize on 3 Jan 2024?",
+    "expected_answer": "3 times",
+    "evidence_dia_ids": [
+      "D7:73"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Nebraas clean her apartment?",
+    "expected_answer": "04 Jan 2024",
+    "evidence_dia_ids": [
+      "D8:4"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When Nebraas is going to a concert with her boyfriend?",
+    "expected_answer": "05 Jan 2024",
+    "evidence_dia_ids": [
+      "D9:3"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What famous people are Nicolas and Nebraas discussing?",
+    "expected_answer": "Mr Beast, The weekend,Jeffery Dahmer, Andrew Tate",
+    "evidence_dia_ids": [
+      "D6:34",
+      "D9:7",
+      "D16:47",
+      "D17:70",
+      "D17:71"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What different interests do Nebraas and her boyfriend have?",
+    "expected_answer": "music, pets",
+    "evidence_dia_ids": [
+      "D9:3",
+      "D9:7",
+      "D9:8",
+      "D9:9",
+      "D11:82"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Nicolas take his aunt to the airport?",
+    "expected_answer": "6 Jan 2024 at 5am",
+    "evidence_dia_ids": [
+      "D11:4"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "How many times did Nicolas take naps on January 6 2024?",
+    "expected_answer": "3",
+    "evidence_dia_ids": [
+      "D11:22"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Nebraas call out of work because of a stomach ache?",
+    "expected_answer": "06 Jan 2024",
+    "evidence_dia_ids": [
+      "D11:50"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Nicolas have a stomach ache?",
+    "expected_answer": "two weeks ago before 06 Jan 2024",
+    "evidence_dia_ids": [
+      "D11:54"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What ailments did Nicolas and Nebraas have?",
+    "expected_answer": "covid, nosebleed, stomach ache, food poisoning, damaged lungs, headache",
+    "evidence_dia_ids": [
+      "D3:10",
+      "D3:38",
+      "D4:71",
+      "D4:75",
+      "D5:4",
+      "D6:109",
+      "D6:111",
+      "D7:4",
+      "D7:10",
+      "D7:42",
+      "D11:48",
+      "D11:50",
+      "D18:4",
+      "D20:45",
+      "D20:46",
+      "D21:177",
+      "D22:14"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "How long has it been since Nebraas had a nosebleed?",
+    "expected_answer": "since middle school",
+    "evidence_dia_ids": [
+      "D11:55"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "How long did Nicolas have to leave work when he had a nosebleed?",
+    "expected_answer": "for 2 hours",
+    "evidence_dia_ids": [
+      "D11:60"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What types of transport are Nicolas and Nebraas discussing?",
+    "expected_answer": "car, plane, train, subway",
+    "evidence_dia_ids": [
+      "D21:154",
+      "D21:187"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What animals are Nicolas and Nebraas discussing?",
+    "expected_answer": "snakes, cats, dogs, ball pythons, orca, jellyfish, tiger",
+    "evidence_dia_ids": [
+      "D15:23",
+      "D15:30",
+      "D15:37",
+      "D15:38",
+      "D16:1",
+      "D16:2",
+      "D17:75",
+      "D21:2",
+      "D21:6",
+      "D21:15",
+      "D21:19",
+      "D21:20",
+      "D22:35",
+      "D22:37",
+      "D22:38",
+      "D23:5",
+      "D23:6",
+      "D23:7",
+      "D23:9",
+      "D23:14",
+      "D23:73",
+      "D23:74"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Nicolas' management start giving him less work?",
+    "expected_answer": "after his birthday",
+    "evidence_dia_ids": [
+      "D13:10",
+      "D13:18"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When Nebraas showed Nicolas the photo of the bubble tee she made?",
+    "expected_answer": "09 Jan 2024",
+    "evidence_dia_ids": [
+      "D13:21",
+      "D13:22"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "Is reading a common interest for Nicolas and Nebraas?",
+    "expected_answer": "no",
+    "evidence_dia_ids": [
+      "D3:19",
+      "D14:5",
+      "D14:6",
+      "D14:17",
+      "D14:18"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What drinks are Nicolas and Nebraas discussing?",
+    "expected_answer": "bubble tea, tea, coffee, alcohol, soda with ice",
+    "evidence_dia_ids": [
+      "D14:13",
+      "D19:11",
+      "D20:66"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "Which doctors are Nicolas and Nebraas discussing?",
+    "expected_answer": "therapist, rheumatologist, internist",
+    "evidence_dia_ids": [
+      "D14:24",
+      "D15:9",
+      "D15:10",
+      "D15:11"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When will Nicolas meet his crush for shopping?",
+    "expected_answer": "on 12 Jan 2024",
+    "evidence_dia_ids": [
+      "D16:27"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When will Nicolas and his girlfriend start a book club?",
+    "expected_answer": "on 12 Jan 2024",
+    "evidence_dia_ids": [
+      "D16:27"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What films and movie series are Nicolas and Nebraas discussing?",
+    "expected_answer": "Psychopaths, Paranormal Activity, Jeffery Dahmer",
+    "evidence_dia_ids": [
+      "D16:36",
+      "D16:47",
+      "D17:20",
+      "D17:24"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What genres of films did Nebraas mention in conversation?",
+    "expected_answer": "documentaries, about mummy movies",
+    "evidence_dia_ids": [
+      "D16:47",
+      "D21:100"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What dishes do Nicolas and Nebraas mention?",
+    "expected_answer": "cheese tart, tomato soup grilled cheese, hot dog, cheesecake, burger, soups, miso soup, vegetable soup, ramen,  french onion soup, sandwiches, fries",
+    "evidence_dia_ids": [
+      "D6:61",
+      "D6:65",
+      "D6:83",
+      "D17:1",
+      "D18:28",
+      "D20:35",
+      "D20:36",
+      "D20:42",
+      "D20:49",
+      "D20:50",
+      "D20:51",
+      "D20:52",
+      "D20:52",
+      "D20:54",
+      "D20:58",
+      "D20:59",
+      "D20:71",
+      "D20:73",
+      "D20:75",
+      "D20:77",
+      "D21:188",
+      "D23:95",
+      "D23:96"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Nicolas go to the cinema with his сrush?",
+    "expected_answer": "on 12 Jan 2024",
+    "evidence_dia_ids": [
+      "D17:18",
+      "D17:22"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When Nicolas and his crush didn't go to book club because they went to the movies?",
+    "expected_answer": "on 12 Jan 2024",
+    "evidence_dia_ids": [
+      "D17:24"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What dating options did Nebraas offer Nicolas?",
+    "expected_answer": "go to a play, go to a cafe, a picnic",
+    "evidence_dia_ids": [
+      "D6:115",
+      "D17",
+      "39",
+      "D17:49"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Nicolas go to the bar?",
+    "expected_answer": "on 12 Jan 2024",
+    "evidence_dia_ids": [
+      "D17:91"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When Nicolas was at his crushe's house and she didn't open the door for him?",
+    "expected_answer": "on 13 Jan 2024",
+    "evidence_dia_ids": [
+      "D18:11"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Nicolas get to the precinct?",
+    "expected_answer": "on 13 Jan 2024",
+    "evidence_dia_ids": [
+      "D18:21"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Nebraas paint some pottery?",
+    "expected_answer": "on 14 Jan 2024",
+    "evidence_dia_ids": [
+      "D19:13",
+      "D19:14"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "How long has Nebraas gone without eating Burger King?",
+    "expected_answer": "in years before 01.2024",
+    "evidence_dia_ids": [
+      "D20:42"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "Did Nicolas and Nebraas go to the school?",
+    "expected_answer": "yes",
+    "evidence_dia_ids": [
+      "D1:93",
+      "D3:24",
+      "D11:55",
+      "D15:7",
+      "D21:182",
+      "D21:140"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When Nicolas saw the woman who started shouting conspiracy theories at the post office?",
+    "expected_answer": "16 Jan 2024",
+    "evidence_dia_ids": [
+      "D21:143"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Nebraas go for a walk?",
+    "expected_answer": "19 Jan 2024",
+    "evidence_dia_ids": [
+      "D23:17"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  }
+]

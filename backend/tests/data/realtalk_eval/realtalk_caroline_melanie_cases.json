@@ -1,0 +1,666 @@
+[
+  {
+    "question": "When did Caroline go to the LGBTQ support group?",
+    "expected_answer": "7 May 2023",
+    "evidence_dia_ids": [
+      "D1:3"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Melanie paint a sunrise?",
+    "expected_answer": 2022,
+    "evidence_dia_ids": [
+      "D1:12"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What did Caroline research?",
+    "expected_answer": "Adoption agencies",
+    "evidence_dia_ids": [
+      "D2:8"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What is Caroline's identity?",
+    "expected_answer": "Transgender woman",
+    "evidence_dia_ids": [
+      "D1:5"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Melanie run a charity race?",
+    "expected_answer": "The sunday before 25 May 2023",
+    "evidence_dia_ids": [
+      "D2:1"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When is Melanie planning on going camping?",
+    "expected_answer": "June 2023",
+    "evidence_dia_ids": [
+      "D2:7"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What is Caroline's relationship status?",
+    "expected_answer": "Single",
+    "evidence_dia_ids": [
+      "D3:13",
+      "D2:14"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Caroline give a speech at a school?",
+    "expected_answer": "The week before 9 June 2023",
+    "evidence_dia_ids": [
+      "D3:1"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Caroline meet up with her friends, family, and mentors?",
+    "expected_answer": "The week before 9 June 2023",
+    "evidence_dia_ids": [
+      "D3:11"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "How long has Caroline had her current group of friends for?",
+    "expected_answer": "4 years",
+    "evidence_dia_ids": [
+      "D3:13"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "Where did Caroline move from 4 years ago?",
+    "expected_answer": "Sweden",
+    "evidence_dia_ids": [
+      "D3:13",
+      "D4:3"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "How long ago was Caroline's 18th birthday?",
+    "expected_answer": "10 years ago",
+    "evidence_dia_ids": [
+      "D4:5"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What career path has Caroline decided to persue?",
+    "expected_answer": "counseling or mental health for Transgender people",
+    "evidence_dia_ids": [
+      "D4:13",
+      "D1:11"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What activities does Melanie partake in?",
+    "expected_answer": "pottery, camping, painting, swimming",
+    "evidence_dia_ids": [
+      "D5:4",
+      "D9:1",
+      "D1:12",
+      "D1:18"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Melanie sign up for a pottery class?",
+    "expected_answer": "2 July 2023",
+    "evidence_dia_ids": [
+      "D5:4"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When is Caroline going to the transgender conference?",
+    "expected_answer": "July 2023",
+    "evidence_dia_ids": [
+      "D5:13"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "Where has Melanie camped?",
+    "expected_answer": "beach, mountains, forest",
+    "evidence_dia_ids": [
+      "D6:16",
+      "D4:6",
+      "D8:32"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What do Melanie's kids like?",
+    "expected_answer": "dinosaurs, nature",
+    "evidence_dia_ids": [
+      "D6:6",
+      "D4:8"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Melanie go to the museum?",
+    "expected_answer": "5 July 2023",
+    "evidence_dia_ids": [
+      "D6:4"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Caroline have a picnic?",
+    "expected_answer": "The week before 6 July 2023",
+    "evidence_dia_ids": [
+      "D6:11"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What books has Melanie read?",
+    "expected_answer": "\"Nothing is Impossible\", \"Charlotte's Web\"",
+    "evidence_dia_ids": [
+      "D7:8",
+      "D6:10"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What does Melanie do to destress?",
+    "expected_answer": "Running, pottery",
+    "evidence_dia_ids": [
+      "D7:22",
+      "D5:4"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Caroline go to the LGBTQ conference?",
+    "expected_answer": "10 July 2023",
+    "evidence_dia_ids": [
+      "D7:1"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Melanie read the book \"nothing is impossible\"?",
+    "expected_answer": 2022,
+    "evidence_dia_ids": [
+      "D7:8"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Caroline go to the adoption meeting?",
+    "expected_answer": "The friday before 15 July 2023",
+    "evidence_dia_ids": [
+      "D8:9"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Melanie go to the pottery workshop?",
+    "expected_answer": "The Friday before 15 July 2023",
+    "evidence_dia_ids": [
+      "D8:2"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Melanie go camping in June?",
+    "expected_answer": "The week before 27 June 2023",
+    "evidence_dia_ids": [
+      "D4:8"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What LGBTQ+ events has Caroline participated in?",
+    "expected_answer": "Pride parade, school speech, support group",
+    "evidence_dia_ids": [
+      "D5:1",
+      "D8:17",
+      "D3:1",
+      "D1:3"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Caroline go to a pride parade during the summer?",
+    "expected_answer": "The week before 3 July 2023",
+    "evidence_dia_ids": [
+      "D5:1"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What events has Caroline participated in to help children?",
+    "expected_answer": "Mentoring program, school speech",
+    "evidence_dia_ids": [
+      "D9:2",
+      "D3:3"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Melanie go camping in July?",
+    "expected_answer": "two weekends before 17 July 2023",
+    "evidence_dia_ids": [
+      "D9:1"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Caroline join a mentorship program?",
+    "expected_answer": "The weekend before 17 July 2023",
+    "evidence_dia_ids": [
+      "D9:2"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What did Melanie paint recently?",
+    "expected_answer": "sunset",
+    "evidence_dia_ids": [
+      "D8:6",
+      "D9:17"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What activities has Melanie done with her family?",
+    "expected_answer": "Pottery, painting, camping, museum, swimming, hiking",
+    "evidence_dia_ids": [
+      "D8:4",
+      "D8:6",
+      "D9:1",
+      "D6:4",
+      "D1:18",
+      "D3:14"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "In what ways is Caroline participating in the LGBTQ community?",
+    "expected_answer": "Joining activist group, going to pride parades, participating in an art show, mentoring program",
+    "evidence_dia_ids": [
+      "D10:3",
+      "D5:1",
+      "D9:12",
+      "D9:2"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "How many times has Melanie gone to the beach in 2023?",
+    "expected_answer": 2,
+    "evidence_dia_ids": [
+      "D10:8",
+      "D6:16"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Caroline join a new activist group?",
+    "expected_answer": "The Tuesday before 20 July 2023",
+    "evidence_dia_ids": [
+      "D10:3"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What kind of art does Caroline make?",
+    "expected_answer": "abstract art",
+    "evidence_dia_ids": [
+      "D11:12",
+      "D11:8",
+      "D9:14"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When is Melanie's daughter's birthday?",
+    "expected_answer": "13 August",
+    "evidence_dia_ids": [
+      "D11:1"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Caroline attend a pride parade in August?",
+    "expected_answer": "The Friday before 14 August 2023",
+    "evidence_dia_ids": [
+      "D11:4"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "Who supports Caroline when she has a negative experience?",
+    "expected_answer": "Her mentors, family, and friends",
+    "evidence_dia_ids": [
+      "D12:1",
+      "D3:11"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What types of pottery have Melanie and her kids made?",
+    "expected_answer": "bowls, cup",
+    "evidence_dia_ids": [
+      "D12:14",
+      "D8:4",
+      "D5:6"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Caroline and Melanie go to a pride fesetival together?",
+    "expected_answer": 2022,
+    "evidence_dia_ids": [
+      "D12:15"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What has Melanie painted?",
+    "expected_answer": "Horse, sunset, sunrise",
+    "evidence_dia_ids": [
+      "D13:8",
+      "D8:6",
+      "D1:12"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What are Melanie's pets' names?",
+    "expected_answer": "Oliver, Luna, Bailey",
+    "evidence_dia_ids": [
+      "D13:4",
+      "D7:18"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Caroline apply to adoption agencies?",
+    "expected_answer": "The week of 23 August 2023",
+    "evidence_dia_ids": [
+      "D13:1"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Caroline draw a self-portrait?",
+    "expected_answer": "The week before 23 August 2023",
+    "evidence_dia_ids": [
+      "D13:11"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What subject have Caroline and Melanie both painted?",
+    "expected_answer": "Sunsets",
+    "evidence_dia_ids": [
+      "D14:5",
+      "D8:6"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What symbols are important to Caroline?",
+    "expected_answer": "Rainbow flag, transgender symbol",
+    "evidence_dia_ids": [
+      "D14:15",
+      "D4:1"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Caroline encounter people on a hike and have a negative experience?",
+    "expected_answer": "The week before 25 August 2023",
+    "evidence_dia_ids": [
+      "D14:1"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Melanie make a plate in pottery class?",
+    "expected_answer": "24 August 2023",
+    "evidence_dia_ids": [
+      "D14:4"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What instruments does Melanie play?",
+    "expected_answer": "clarinet and violin",
+    "evidence_dia_ids": [
+      "D15:26",
+      "D2:5"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What musical artists/bands has Melanie seen?",
+    "expected_answer": "Summer Sounds, Matt Patterson",
+    "evidence_dia_ids": [
+      "D15:16",
+      "D11:3"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Melanie go to the park?",
+    "expected_answer": "27 August 2023",
+    "evidence_dia_ids": [
+      "D15:2"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When is Caroline's youth center putting on a talent show?",
+    "expected_answer": "September 2023",
+    "evidence_dia_ids": [
+      "D15:11"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What are some changes Caroline has faced during her transition journey?",
+    "expected_answer": "Changes to her body, losing unsupportive friends",
+    "evidence_dia_ids": [
+      "D16:15",
+      "D11:14"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What does Melanie do with her family on hikes?",
+    "expected_answer": "Roast marshmallows, tell stories",
+    "evidence_dia_ids": [
+      "D16:4",
+      "D10:12"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Caroline go biking with friends?",
+    "expected_answer": "The weekend before 13 September 2023",
+    "evidence_dia_ids": [
+      "D16:1"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "How long has Melanie been practicing art?",
+    "expected_answer": "Since 2016",
+    "evidence_dia_ids": [
+      "D16:8"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What transgender-specific events has Caroline attended?",
+    "expected_answer": "Poetry reading, conference",
+    "evidence_dia_ids": [
+      "D17:19",
+      "D15:13"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What book did Melanie read from Caroline's suggestion?",
+    "expected_answer": "\"Becoming Nicole\"",
+    "evidence_dia_ids": [
+      "D7:11",
+      "D17:10"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Melanie's friend adopt a child?",
+    "expected_answer": 2022,
+    "evidence_dia_ids": [
+      "D17:3"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Melanie get hurt?",
+    "expected_answer": "September 2023",
+    "evidence_dia_ids": [
+      "D17:8"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Melanie's family go on a roadtrip?",
+    "expected_answer": "The weekend before 20 October 2023",
+    "evidence_dia_ids": [
+      "D18:1"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "How many children does Melanie have?",
+    "expected_answer": 3,
+    "evidence_dia_ids": [
+      "D18:1",
+      "D18:7"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Melanie go on a hike after the roadtrip?",
+    "expected_answer": "19 October 2023",
+    "evidence_dia_ids": [
+      "D18:17"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What items has Melanie bought?",
+    "expected_answer": "Figurines, shoes",
+    "evidence_dia_ids": [
+      "D19:2",
+      "D7:18"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Caroline pass the adoption interview?",
+    "expected_answer": "The Friday before 22 October 2023",
+    "evidence_dia_ids": [
+      "D19:1"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Melanie buy the figurines?",
+    "expected_answer": "21 October 2023",
+    "evidence_dia_ids": [
+      "D19:2"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  }
+]

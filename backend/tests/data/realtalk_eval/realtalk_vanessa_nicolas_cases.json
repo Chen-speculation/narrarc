@@ -1,0 +1,613 @@
+[
+  {
+    "question": "What coffee does Vanessa prefer on a cold day?",
+    "expected_answer": "She prefers hot coffee with brown sugar creamer and latte.",
+    "evidence_dia_ids": [
+      "D1:11",
+      "D3:18"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What foods did Nicolas eat?",
+    "expected_answer": "Carrot cake, grapes, hot dogs, ice cream, chef boyardee, ravioli, banger sandwich, onigiri, chicken and rice",
+    "evidence_dia_ids": [
+      "D1:23",
+      "D3:50",
+      "D4:42",
+      "D4:94",
+      "D13:1",
+      "D13:2",
+      "D17:49",
+      "D17:55",
+      "D18:2"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Nicolas eat carrot cake?",
+    "expected_answer": "On December 28, 2023.",
+    "evidence_dia_ids": [
+      "D1:23",
+      "D1:25"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When is Vanessa going to study in a nearby cafe because she don't want to just stay at home all day?",
+    "expected_answer": "December 28, 2023",
+    "evidence_dia_ids": [
+      "D1:27",
+      "D1:26"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When Vanessa stayed at home all day?",
+    "expected_answer": "December 27, 2023",
+    "evidence_dia_ids": [
+      "D1:28",
+      "D1:30"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When was the rain so Nicolas didn't want to go outside?",
+    "expected_answer": "On  December, 27 2023",
+    "evidence_dia_ids": [
+      "D1:34"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Nicolas feel a bit sick?",
+    "expected_answer": "On the morning of December, 29 2023",
+    "evidence_dia_ids": [
+      "D2:3"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What has Nicolas been doing related to Covid?",
+    "expected_answer": "Drinks tea with lemon, takes meds to get better, takes a Covid test",
+    "evidence_dia_ids": [
+      "D2:10",
+      "D5:41",
+      "D3:60",
+      "D3:66"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What drinks does Nicolas like?",
+    "expected_answer": "Fruity drinks, ice sweet drinks, tea with lots of lemons, Inca Cola, water",
+    "evidence_dia_ids": [
+      "D1:77",
+      "D1:113",
+      "D2:10",
+      "D2:13",
+      "D3:40",
+      "D16:31"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What drinks does Vanessa like?",
+    "expected_answer": "Mango juice, lychee milk tea, tea with lots of honey, bubble teas",
+    "evidence_dia_ids": [
+      "D1:85",
+      "D1:112",
+      "D2:14",
+      "D18:35"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What activity do Nicolas and Vanessa like to relax?",
+    "expected_answer": "Yoga.",
+    "evidence_dia_ids": [
+      "D2:136",
+      "D2:137",
+      "D25:12"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Vanessa get a caramel latte from a local coffee shop?",
+    "expected_answer": "December 30, 2023",
+    "evidence_dia_ids": [
+      "D3:18"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What does Nicolas eat and drink to cure his sickness?",
+    "expected_answer": "Grape and citron tea with lemons.",
+    "evidence_dia_ids": [
+      "D3:50",
+      "D3:52",
+      "D2:10"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Vanessa see a lot of people wearing masks and sneezing?",
+    "expected_answer": "December 30, 2023",
+    "evidence_dia_ids": [
+      "D3:54"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Nicolas do the covid test?",
+    "expected_answer": "On December 31, 2023.",
+    "evidence_dia_ids": [
+      "D3:66",
+      "D3:60"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When will Nicolas's friend Cornelius visit him?",
+    "expected_answer": "In 5 days after 30.12.2023",
+    "evidence_dia_ids": [
+      "D3:82"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "Which celebrities did Nicolas mention?",
+    "expected_answer": "Gordon Ramsay, Dr. Phil, Steve Harvey, Mr Beast",
+    "evidence_dia_ids": [
+      "D2:79",
+      "D3:116",
+      "D3:117",
+      "D6:45"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Nicolas have the craziest NYE party?",
+    "expected_answer": "In 2022.",
+    "evidence_dia_ids": [
+      "D4:32",
+      "D4:36"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When Vanessa had a day off?",
+    "expected_answer": "On the 1st of January, 2024.",
+    "evidence_dia_ids": [
+      "D5:4"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What is the main character of the show Vanessa watching?",
+    "expected_answer": "Munchausen lady.",
+    "evidence_dia_ids": [
+      "D5:7",
+      "D2:131"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "Where does Vanessa work?",
+    "expected_answer": "She works in a clinic as a veterinary technician.",
+    "evidence_dia_ids": [
+      "D3:11",
+      "D6:9"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Vanessa help the owner catch their dog after it escaped its leash from the owner and ran off in the street?",
+    "expected_answer": "January 2, 2024",
+    "evidence_dia_ids": [
+      "D6:41"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What shows did Vanessa watch?",
+    "expected_answer": "Munchausen lady, Dr. Phil show",
+    "evidence_dia_ids": [
+      "D5:7",
+      "D6:83"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Nicolas take his meds?",
+    "expected_answer": "January 3, 2024",
+    "evidence_dia_ids": [
+      "D6:89"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When does Nicolas plan to cook tomato soup?",
+    "expected_answer": "On the January 4, 2024.",
+    "evidence_dia_ids": [
+      "D6:91"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What dishes did Nicolas cook?",
+    "expected_answer": "Jello salad, tomato soup",
+    "evidence_dia_ids": [
+      "D4:9",
+      "D6:91"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When is Nicolas's birthday?",
+    "expected_answer": "On January, 3th.",
+    "evidence_dia_ids": [
+      "D7:9"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When has Vanessa congratulated Nicolas?",
+    "expected_answer": "At 4 PM of January 3, 2024.",
+    "evidence_dia_ids": [
+      "D7:11",
+      "D7:13"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When do Nicolas cry himself to sleep?",
+    "expected_answer": "On January 4, 2024.",
+    "evidence_dia_ids": [
+      "D8:2"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "Why Nicolas is so upset with his friends?",
+    "expected_answer": "Because they refused to come to the birthday party and didn't respond to him.",
+    "evidence_dia_ids": [
+      "D7:30",
+      "D8:7"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What happened with Vanessa's hand recently before 5th of January 2024?",
+    "expected_answer": "She burned her hand with oil.",
+    "evidence_dia_ids": [
+      "D9:4"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When does Vanessa fry some corn dogs?",
+    "expected_answer": "Recently before January 5, 2024.",
+    "evidence_dia_ids": [
+      "D9:5"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When should Nicolas go to the airport?",
+    "expected_answer": "At 5 am on January 6, 2024.",
+    "evidence_dia_ids": [
+      "D10:6"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What health problems did Nicolas have?",
+    "expected_answer": "Covid, heart pain, food poisoning",
+    "evidence_dia_ids": [
+      "D5:41",
+      "D11:11",
+      "D18:4"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What topic do Vanessa and Nicolas discuss regarding relationships?",
+    "expected_answer": "Nicolas hopes to be in a relationship and Vanessa feels comfortable living alone.",
+    "evidence_dia_ids": [
+      "D11:20",
+      "D11:22",
+      "D12:1"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What teas are Vanessa and Nicolas discussing?",
+    "expected_answer": "ginger tea, lychee milk tea, lemon citron tea, bubble tea",
+    "evidence_dia_ids": [
+      "D21:62",
+      "D1:112",
+      "D2:10",
+      "D18:35"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What is Nicolas's famous salad?",
+    "expected_answer": "Jello salad, the recipe for which he found from lady YouTuber Kay",
+    "evidence_dia_ids": [
+      "D4:9",
+      "D12:20",
+      "D16:33",
+      "D12:22"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Vanessa eat ravioli the last time?",
+    "expected_answer": "In December 2023.",
+    "evidence_dia_ids": [
+      "D13:9"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What do Vanessa and Nicolas mention about their school food experiences?",
+    "expected_answer": "They share memories of their favorite items served, such as round pizzas, sloppy joes, sandwiches, and free cereal.",
+    "evidence_dia_ids": [
+      "D13:19",
+      "D13:20",
+      "D14:2",
+      "D14:6"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "How much time does Nicolas's and Vanessa's routine usually take?",
+    "expected_answer": "5 minutes and 15 minutes.",
+    "evidence_dia_ids": [
+      "D14:41",
+      "D15:2"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What does Nicolas do before bed?",
+    "expected_answer": "Yoga and meditation, skin routine",
+    "evidence_dia_ids": [
+      "D2:135",
+      "D2:136",
+      "D15:20"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What did Nicolas help his friends with?",
+    "expected_answer": "To move, to work in Starbucks.",
+    "evidence_dia_ids": [
+      "D16:16",
+      "D17:1"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What kind of pets does Nicolas want?",
+    "expected_answer": "A dog, a shrimp.",
+    "evidence_dia_ids": [
+      "D2:59",
+      "D2:60",
+      "D17:41"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Vanessa have shrimps as pets?",
+    "expected_answer": "When she was a kid.",
+    "evidence_dia_ids": [
+      "D17:44"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "For what period does Nicolas want to go vegan?",
+    "expected_answer": "For one week.",
+    "evidence_dia_ids": [
+      "D17:62"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What activities does Vanessa not like?",
+    "expected_answer": "Food competitions, vacationing",
+    "evidence_dia_ids": [
+      "D4:79",
+      "D18:48"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What destinations did Nicolas mention?",
+    "expected_answer": "Timbuktu, Alaska",
+    "evidence_dia_ids": [
+      "D10:14",
+      "D18:50"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When Vanessa was stalked by a weird guy?",
+    "expected_answer": "January 13, 2024",
+    "evidence_dia_ids": [
+      "D19:3"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "Where did Vanessa buy food and drinks?",
+    "expected_answer": "Local coffee shop, food truck, corner store",
+    "evidence_dia_ids": [
+      "D3:18",
+      "D18:14",
+      "D19:8"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What pets did Vanessa have?",
+    "expected_answer": "Shrimp, cat",
+    "evidence_dia_ids": [
+      "D17:44",
+      "D20:28"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "When did Nicolas end up in the hospital?",
+    "expected_answer": "On January 15, 2024.",
+    "evidence_dia_ids": [
+      "D21:1"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Nicolas find a stray cat?",
+    "expected_answer": "On January 16, 2024.",
+    "evidence_dia_ids": [
+      "D22:1"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Nicolas eat popcorn?",
+    "expected_answer": "On January 17, 2024.",
+    "evidence_dia_ids": [
+      "D23:10"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What happened on the 17th of January, 2024 with a stray cat that Nicolas found?",
+    "expected_answer": "The cat disappeared.",
+    "evidence_dia_ids": [
+      "D23:13"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Nicolas find 50 bucks on the ground?",
+    "expected_answer": "On January 17, 2024.",
+    "evidence_dia_ids": [
+      "D23:25"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "When did Nicolas eat fatty pork belly?",
+    "expected_answer": "On January 17, 2024.",
+    "evidence_dia_ids": [
+      "D24:23",
+      "D24:22"
+    ],
+    "query_type": "time_point",
+    "category": 2
+  },
+  {
+    "question": "What are the ingredients of Nicolas's tomato soup?",
+    "expected_answer": "It's canned tomato, granulated sugar, water, and grilled cheese.",
+    "evidence_dia_ids": [
+      "D6:93",
+      "D6:91",
+      "D24:38"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "What are the names of the authors of the recipes that Nicolas found on the Internet?",
+    "expected_answer": "Barbara, Kay",
+    "evidence_dia_ids": [
+      "D24:46",
+      "D12:22"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "Who are Nicolas's idols?",
+    "expected_answer": "Gordon Ramsay and Joryu.",
+    "evidence_dia_ids": [
+      "D2:79",
+      "D2:80",
+      "D24:51"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  },
+  {
+    "question": "Do Vanessa and Nicolas both play video games?",
+    "expected_answer": "Yes, they do.",
+    "evidence_dia_ids": [
+      "D2:28",
+      "D24:56",
+      "D24:51",
+      "D24:53"
+    ],
+    "query_type": "event_retrieval",
+    "category": 1
+  }
+]

@@ -1,0 +1,32 @@
+{
+    "name": {
+        "speaker_1": "Emi",
+        "speaker_2": "elise"
+    },
+    "session_1": [
+        {
+            "clean_text": "Hey! How are you?",
+            "speaker": "Emi",
+            "date_time": "29.12.2023, 22:42:04",
+            "img_file": [],
+            "img_url": [],
+            "dia_id": "D1:1"
+        },
+        {
+            "clean_text": "Hi, I'm doing good how are you?",
+            "speaker": "elise",
+            "date_time": "30.12.2023, 00:32:20",
+            "img_file": [],
+            "img_url": [],
+            "dia_id": "D1:2"
+        },
+        {
+            "clean_text": "I'm doing well, thanks for asking.",
+            "speaker": "Emi",
+            "date_time": "30.12.2023, 00:33:00",
+            "img_file": [],
+            "img_url": [],
+            "dia_id": "D1:3"
+        }
+    ]
+}

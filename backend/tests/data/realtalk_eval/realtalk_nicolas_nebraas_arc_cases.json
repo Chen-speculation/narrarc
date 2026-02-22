@@ -1,0 +1,91 @@
+[
+  {
+    "question": "How did Nicolas's pursuit of his crush evolve over these sessions?",
+    "query_type": "arc_narrative",
+    "expected_phases": [
+      {
+        "title": "Initial interest and planning to ask her out",
+        "time_range": "Dec 29-30",
+        "evidence_dia_ids": [
+          "D2:3",
+          "D3:3"
+        ]
+      },
+      {
+        "title": "Asking her out and uncertain waiting",
+        "time_range": "Dec 31-Jan 02",
+        "evidence_dia_ids": [
+          "D7:1",
+          "D8:1",
+          "D8:2"
+        ]
+      },
+      {
+        "title": "Positive interaction and shared activities",
+        "time_range": "Jan 03-14",
+        "evidence_dia_ids": [
+          "D7:3",
+          "D9:1"
+        ]
+      }
+    ]
+  },
+  {
+    "question": "How did Nebraas's relationship with her boyfriend evolve over these sessions?",
+    "query_type": "arc_narrative",
+    "expected_phases": [
+      {
+        "title": "Vacation together but minor annoyance",
+        "time_range": "Dec 30-31",
+        "evidence_dia_ids": [
+          "D3:2"
+        ]
+      },
+      {
+        "title": "Problem resolution and continued activities",
+        "time_range": "Jan 01-05",
+        "evidence_dia_ids": [
+          "D5:3",
+          "D9:3"
+        ]
+      },
+      {
+        "title": "Support after job loss and working together",
+        "time_range": "Jan 15-16",
+        "evidence_dia_ids": [
+          "D4:2",
+          "D4:3"
+        ]
+      }
+    ]
+  },
+  {
+    "question": "How did Nicolas's health issues evolve over these sessions?",
+    "query_type": "arc_narrative",
+    "expected_phases": [
+      {
+        "title": "Initial sickness and COVID diagnosis",
+        "time_range": "Dec 29-Jan 01",
+        "evidence_dia_ids": [
+          "D5:1",
+          "D5:2"
+        ]
+      },
+      {
+        "title": "Persisting symptoms and new health concerns",
+        "time_range": "Jan 06-09",
+        "evidence_dia_ids": [
+          "D4:1",
+          "D4:2"
+        ]
+      },
+      {
+        "title": "Hospital visit and ongoing health management",
+        "time_range": "Jan 15-16",
+        "evidence_dia_ids": [
+          "D5:3"
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,100 @@
+[
+  {
+    "question": "How did Caroline's involvement with the LGBTQ community and activism evolve over time?",
+    "query_type": "arc_narrative",
+    "expected_phases": [
+      {
+        "title": "Initial exploration and personal support",
+        "time_range": "May 8 - June 9",
+        "evidence_dia_ids": [
+          "D1:3",
+          "D3:1",
+          "D3:3"
+        ]
+      },
+      {
+        "title": "Community engagement and mentorship",
+        "time_range": "June 27 - July 20",
+        "evidence_dia_ids": [
+          "D5:1",
+          "D7:1",
+          "D9:2",
+          "D10:3"
+        ]
+      },
+      {
+        "title": "Resilience and proactive response to adversity",
+        "time_range": "August 17 - August 25",
+        "evidence_dia_ids": [
+          "D5:3",
+          "D7:3"
+        ]
+      }
+    ]
+  },
+  {
+    "question": "How did Caroline's adoption journey evolve throughout these sessions?",
+    "query_type": "arc_narrative",
+    "expected_phases": [
+      {
+        "title": "Initial inspiration and research",
+        "time_range": "May 25 - July 15",
+        "evidence_dia_ids": [
+          "D2:2",
+          "D5:2"
+        ]
+      },
+      {
+        "title": "Active pursuit and seeking support",
+        "time_range": "July 17 - August 23",
+        "evidence_dia_ids": [
+          "D9:3",
+          "D13:1"
+        ]
+      },
+      {
+        "title": "Progress and achievement",
+        "time_range": "August 28 - October 22",
+        "evidence_dia_ids": [
+          "D17:1",
+          "D19:1"
+        ]
+      }
+    ]
+  },
+  {
+    "question": "How did Melanie's focus on family bonding and self-care evolve over time?",
+    "query_type": "arc_narrative",
+    "expected_phases": [
+      {
+        "title": "Initial family activities and self-discovery",
+        "time_range": "June 27 - July 12",
+        "evidence_dia_ids": [
+          "D1:2",
+          "D2:1",
+          "D2:3",
+          "D8:2"
+        ]
+      },
+      {
+        "title": "Creative exploration and family outings",
+        "time_range": "July 6 - August 14",
+        "evidence_dia_ids": [
+          "D4:2",
+          "D6:2",
+          "D8:3",
+          "D9:1"
+        ]
+      },
+      {
+        "title": "Family challenges and community involvement",
+        "time_range": "August 17 - October 20",
+        "evidence_dia_ids": [
+          "D14:2",
+          "D15:1",
+          "D18:1"
+        ]
+      }
+    ]
+  }
+]

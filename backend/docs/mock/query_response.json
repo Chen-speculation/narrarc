@@ -1,0 +1,198 @@
+{
+  "conversation_id": "conv_mock_001",
+  "question": "我们是怎么一步步分手的？",
+  "phases": [
+    {
+      "phase_index": 1,
+      "phase_title": "热恋期",
+      "time_range": "2023年3月",
+      "core_conclusion": "关系处于高能量状态。TA 反应迅速（回复延迟 < 1分钟），使用亲昵称呼，主动提供情感支持，每天维持晚安仪式。",
+      "evidence": [
+        {
+          "local_id": 2,
+          "create_time": 1678457460000,
+          "is_send": false,
+          "sender_display": "TA",
+          "parsed_content": "宝贝！怎么了，说来听听",
+          "phase_index": 1
+        },
+        {
+          "local_id": 5,
+          "create_time": 1678457820000,
+          "is_send": false,
+          "sender_display": "TA",
+          "parsed_content": "周末去吃你最喜欢的火锅？",
+          "phase_index": 1
+        },
+        {
+          "local_id": 7,
+          "create_time": 1678458060000,
+          "is_send": false,
+          "sender_display": "TA",
+          "parsed_content": "晚安宝贝❤",
+          "phase_index": 1
+        }
+      ],
+      "reasoning_chain": "回复延迟 < 1min + 亲昵称呼 + 主动安慰 + 约会提议 → 情感投入度高，亲密仪式稳定。",
+      "uncertainty_note": "仅有 1 天数据，不排除这是特殊好日子，不代表整体水平。",
+      "verified": true
+    },
+    {
+      "phase_index": 2,
+      "phase_title": "第一道裂痕",
+      "time_range": "2023年6月",
+      "core_conclusion": "同样是工作被批评，TA 回复延迟从 < 1分钟增至 3小时2分钟（增加18倍），称呼从「宝贝」消失，首次出现「哦」等单字回避词，情感支持质量骤降。",
+      "evidence": [
+        {
+          "local_id": 9,
+          "create_time": 1685972460000,
+          "is_send": true,
+          "sender_display": "我",
+          "parsed_content": "今天老板又骂我了，一整天都在加班",
+          "phase_index": 2
+        },
+        {
+          "local_id": 10,
+          "create_time": 1685983380000,
+          "is_send": false,
+          "sender_display": "TA",
+          "parsed_content": "哦",
+          "phase_index": 2
+        },
+        {
+          "local_id": 12,
+          "create_time": 1686010800000,
+          "is_send": false,
+          "sender_display": "TA",
+          "parsed_content": "嗯，困了",
+          "phase_index": 2
+        }
+      ],
+      "reasoning_chain": "回复延迟增加18倍 + 首次回避词「哦」+ 无情感内容 → 对比阶段1，亲密互动模式首次发生结构性变化。",
+      "uncertainty_note": "也可能 TA 当晚真的早睡了。但「哦」作为唯一回复，在情感表达上仍明显低于此前水平。",
+      "verified": true
+    },
+    {
+      "phase_index": 3,
+      "phase_title": "冲突激化",
+      "time_range": "2023年9月",
+      "core_conclusion": "情感需求冲突显性化。你表达「我也需要你」，TA 回应冷淡（「好了好了」「我真的很累」），9分钟沉默后冲突升级，之后 24 小时无消息。",
+      "evidence": [
+        {
+          "local_id": 15,
+          "create_time": 1694786760000,
+          "is_send": true,
+          "sender_display": "我",
+          "parsed_content": "你压力大我理解，但你有没有想过我也需要你",
+          "phase_index": 3
+        },
+        {
+          "local_id": 16,
+          "create_time": 1694787300000,
+          "is_send": false,
+          "sender_display": "TA",
+          "parsed_content": "好了好了，我知道了",
+          "phase_index": 3
+        },
+        {
+          "local_id": 18,
+          "create_time": 1694787420000,
+          "is_send": false,
+          "sender_display": "TA",
+          "parsed_content": "我真的很累",
+          "phase_index": 3
+        }
+      ],
+      "reasoning_chain": "情感诉求 + 回避式回应 + 长时间沉默 → 冲突强度高，沟通模式断裂。",
+      "uncertainty_note": "24h 沉默可能因双方冷静，也可能关系已实质冷却。",
+      "verified": true
+    },
+    {
+      "phase_index": 4,
+      "phase_title": "仪式消失与终点",
+      "time_range": "2023年12月 - 2024年2月",
+      "core_conclusion": "晚安仪式消失（TA 无回复），你主动提出「我们谈谈吧」，关系进入终局阶段。",
+      "evidence": [
+        {
+          "local_id": 19,
+          "create_time": 1703111700000,
+          "is_send": true,
+          "sender_display": "我",
+          "parsed_content": "晚安",
+          "phase_index": 4
+        },
+        {
+          "local_id": 20,
+          "create_time": 1707922800000,
+          "is_send": true,
+          "sender_display": "我",
+          "parsed_content": "我们谈谈吧",
+          "phase_index": 4
+        }
+      ],
+      "reasoning_chain": "对比阶段1的每日晚安，此处晚安无回复 → 亲密仪式彻底消失；「谈谈」暗示关系需要重新定义。",
+      "uncertainty_note": "TA 未回复晚安可能有多种原因，但结合前期裂痕，仪式消失具有象征意义。",
+      "verified": true
+    }
+  ],
+  "agent_trace": {
+    "steps": [
+      {
+        "node_name": "planner",
+        "node_name_display": "意图解析",
+        "input_summary": "用户问题：我们是怎么一步步分手的？",
+        "output_summary": "解析为 arc_narrative，关注维度：reply_delay, conflict_intensity, silence_event",
+        "llm_calls": 1,
+        "timestamp_ms": 1707922810000
+      },
+      {
+        "node_name": "retriever",
+        "node_name_display": "检索锚点与节点",
+        "input_summary": "按 focus_dimensions 查询异常锚点",
+        "output_summary": "命中 4 个锚点（Node_B 回复延迟、Node_C 冲突峰值、Node_D 仪式沉默），沿线程扩展得 6 个候选节点",
+        "llm_calls": 0,
+        "timestamp_ms": 1707922812000
+      },
+      {
+        "node_name": "grader",
+        "node_name_display": "证据评估",
+        "input_summary": "已收集 6 个节点，覆盖 2023.03 - 2024.02",
+        "output_summary": "信息充足，可生成叙事",
+        "llm_calls": 1,
+        "timestamp_ms": 1707922815000
+      },
+      {
+        "node_name": "generator",
+        "node_name_display": "叙事生成",
+        "input_summary": "6 个节点摘要 + 消息预览",
+        "output_summary": "生成 4 个叙事阶段，证据验证全部通过",
+        "llm_calls": 1,
+        "timestamp_ms": 1707922820000
+      }
+    ],
+    "total_llm_calls": 3,
+    "total_duration_ms": 10000
+  },
+  "all_messages": [
+    {"local_id": 1, "create_time": 1678457400000, "is_send": true, "sender_display": "我", "parsed_content": "今天好累，被老板骂了一顿"},
+    {"local_id": 2, "create_time": 1678457460000, "is_send": false, "sender_display": "TA", "parsed_content": "宝贝！怎么了，说来听听"},
+    {"local_id": 3, "create_time": 1678457700000, "is_send": true, "sender_display": "我", "parsed_content": "就说我报告数据不对，其实是他自己改了需求"},
+    {"local_id": 4, "create_time": 1678457760000, "is_send": false, "sender_display": "TA", "parsed_content": "气死我了！你已经很厉害了，不用理他"},
+    {"local_id": 5, "create_time": 1678457820000, "is_send": false, "sender_display": "TA", "parsed_content": "周末去吃你最喜欢的火锅？"},
+    {"local_id": 6, "create_time": 1678457880000, "is_send": true, "sender_display": "我", "parsed_content": "好呀好呀！爱你"},
+    {"local_id": 7, "create_time": 1678458060000, "is_send": false, "sender_display": "TA", "parsed_content": "晚安宝贝❤"},
+    {"local_id": 8, "create_time": 1678458120000, "is_send": true, "sender_display": "我", "parsed_content": "晚安❤"},
+    {"local_id": 9, "create_time": 1685972460000, "is_send": true, "sender_display": "我", "parsed_content": "今天老板又骂我了，一整天都在加班"},
+    {"local_id": 10, "create_time": 1685983380000, "is_send": false, "sender_display": "TA", "parsed_content": "哦"},
+    {"local_id": 11, "create_time": 1686010500000, "is_send": true, "sender_display": "我", "parsed_content": "你昨晚睡了？"},
+    {"local_id": 12, "create_time": 1686010800000, "is_send": false, "sender_display": "TA", "parsed_content": "嗯，困了"},
+    {"local_id": 13, "create_time": 1694786400000, "is_send": true, "sender_display": "我", "parsed_content": "你最近是不是不想理我"},
+    {"local_id": 14, "create_time": 1694786700000, "is_send": false, "sender_display": "TA", "parsed_content": "没有，就是最近压力大"},
+    {"local_id": 15, "create_time": 1694786760000, "is_send": true, "sender_display": "我", "parsed_content": "你压力大我理解，但你有没有想过我也需要你"},
+    {"local_id": 16, "create_time": 1694787300000, "is_send": false, "sender_display": "TA", "parsed_content": "好了好了，我知道了"},
+    {"local_id": 17, "create_time": 1694787360000, "is_send": true, "sender_display": "我", "parsed_content": "你能不能好好说话"},
+    {"local_id": 18, "create_time": 1694787420000, "is_send": false, "sender_display": "TA", "parsed_content": "我真的很累"},
+    {"local_id": 19, "create_time": 1703111700000, "is_send": true, "sender_display": "我", "parsed_content": "晚安"},
+    {"local_id": 20, "create_time": 1707922800000, "is_send": true, "sender_display": "我", "parsed_content": "我们谈谈吧"}
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "sessions": [
+    {
+      "talker_id": "mock_talker_001",
+      "display_name": "TA",
+      "last_timestamp": 1707922800000,
+      "build_status": "complete",
+      "message_count": 129
+    },
+    {
+      "talker_id": "mock_talker_002",
+      "display_name": "同事小张",
+      "last_timestamp": 1707800000000,
+      "build_status": "in_progress",
+      "message_count": 350
+    },
+    {
+      "talker_id": "mock_talker_003",
+      "display_name": "妈妈",
+      "last_timestamp": 1707500000000,
+      "build_status": "pending",
+      "message_count": 1200
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+# Narrative Mirror LLM Configuration
+# Copy this file to config.yml and fill in your API keys
+
+llm:
+  provider: openai          # Adapter type; currently only "openai" supported
+  model: claude-3-5-sonnet-20241022
+  api_key: YOUR_API_KEY_HERE
+  base_url: https://api.anthropic.com/v1
+  max_workers: 8
+
+
+embedding:
+  provider: openai
+  model: BAAI/bge-m3        # Produces 1024-dim vectors
+  api_key: YOUR_API_KEY_HERE
+  base_url: YOUR_EMBEDDING_ENDPOINT_HERE
+
+reranker:
+  model: BAAI/bge-reranker-v2-m3
+  api_key: YOUR_API_KEY_HERE
+  base_url: YOUR_RERANKER_ENDPOINT_HERE

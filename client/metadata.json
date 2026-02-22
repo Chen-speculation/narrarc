@@ -1,0 +1,5 @@
+{
+  "name": "Narrative Mirror",
+  "description": "An AI-powered tool that analyzes chat histories to extract narrative arcs and key evidence based on user questions.",
+  "requestFramePermissions": []
+}

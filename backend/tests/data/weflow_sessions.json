@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "count": 1,
+  "sessions": [
+    {
+      "username": "wxid_ta_001",
+      "displayName": "TA",
+      "type": 1,
+      "lastTimestamp": 1707926400,
+      "unreadCount": 0
+    }
+  ]
+}
