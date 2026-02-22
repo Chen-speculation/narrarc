@@ -17,6 +17,6 @@
       "identifier": "shell:allow-spawn",
       "allow": [{"name": "uv", "cmd": "uv", "args": true, "sidecar": false}]
     },
-    "dialog:allow-open"
+    "dialog:allow-open","dialog:allow-confirm","dialog:allow-message"
   ]
 }

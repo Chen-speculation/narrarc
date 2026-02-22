@@ -18,6 +18,8 @@ fn spawn_backend_build(talker_id: String) -> Result<(), String> {
       "--debug",
     ])
     .env("PYTHONUNBUFFERED", "1")
+    .env("PYTHONIOENCODING", "utf-8")
+    .env("PYTHONIOENCODING", "utf-8")
     .current_dir(&cwd)
     .stdin(Stdio::null())
     .stdout(Stdio::inherit())
@@ -25,6 +27,11 @@ fn spawn_backend_build(talker_id: String) -> Result<(), String> {
     .spawn()
     .map_err(|e| format!("Failed to spawn backend build: {}", e))?;
   Ok(())
+}
+
+#[tauri::command]
+fn log_frontend_error(message: String) {
+  eprintln!("[Frontend Error] {}", message);
 }
 
 #[tauri::command]
@@ -56,7 +63,7 @@ fn get_backend_dir() -> String {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![get_backend_dir, spawn_backend_build])
+    .invoke_handler(tauri::generate_handler![get_backend_dir, spawn_backend_build, log_frontend_error])
     .plugin(tauri_plugin_shell::init())
     .plugin(tauri_plugin_dialog::init())
     .setup(|app| {

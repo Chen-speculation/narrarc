@@ -26,16 +26,20 @@ export default function App() {
         const list = await api.listSessions();
         setSessions(list);
         const found = list.find((s) => s.talker_id === talkerId);
-        // #region agent log
-        fetch('http://127.0.0.1:7251/ingest/6d4754d5-f830-4574-ae7e-cc5bdfa1e60f',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'75fb2f'},body:JSON.stringify({sessionId:'75fb2f',location:'App.tsx:pollBuildStatus',message:'poll tick',data:{listLen:list.length,talkerId,found:!!found,foundStatus:found?.build_status,foundProgress:!!found?.build_progress},timestamp:Date.now(),hypothesisId:'H2'})}).catch(()=>{});
-        // #endregion
         if (found) {
           setActiveSession((prev) => (prev?.talker_id === talkerId ? found : prev));
         }
         if (found?.build_status === 'complete') {
           clearInterval(intervalId);
           const messages = await api.getMessages(talkerId);
-          setSessionMessages(messages);
+          // Only update messages if user is still viewing this session (avoid overwriting when switched to another)
+          setActiveSession((prev) => {
+            if (prev?.talker_id === talkerId) {
+              setSessionMessages(messages);
+              return found;
+            }
+            return prev;
+          });
         }
       } catch (e) {
         console.error(e);
@@ -47,9 +51,6 @@ export default function App() {
   // 当当前选中的会话尚未构建完成时，持续轮询会话列表并更新 build_status，避免后端已完成但前端未刷新
   useEffect(() => {
     if (!activeSession || activeSession.build_status === 'complete') return;
-    // #region agent log
-    fetch('http://127.0.0.1:7251/ingest/6d4754d5-f830-4574-ae7e-cc5bdfa1e60f',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'75fb2f'},body:JSON.stringify({sessionId:'75fb2f',location:'App.tsx:useEffect poll',message:'starting poll',data:{talkerId:activeSession.talker_id,status:activeSession.build_status},timestamp:Date.now(),hypothesisId:'H2'})}).catch(()=>{});
-    // #endregion
     const cleanup = pollBuildStatus(activeSession.talker_id);
     return cleanup;
   }, [activeSession?.talker_id, activeSession?.build_status, pollBuildStatus]);

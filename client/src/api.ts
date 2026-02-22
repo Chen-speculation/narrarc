@@ -7,8 +7,17 @@ const CONFIG_PATH = 'config.yml';
 
 let _backendDir: string | null = null;
 
+function isTauriContext(): boolean {
+  return typeof window !== 'undefined' && !!window.__TAURI_INTERNALS__;
+}
+
 async function getBackendDir(): Promise<string> {
   if (_backendDir) return _backendDir;
+  if (!isTauriContext()) {
+    throw new Error(
+      'Tauri API 不可用。请通过 npm run tauri:dev 或运行构建后的应用启动，不要直接在浏览器中打开 localhost。'
+    );
+  }
   _backendDir = await invoke<string>('get_backend_dir');
   return _backendDir;
 }
@@ -41,8 +50,19 @@ export async function listSessions(): Promise<Session[]> {
   return runCli<Session[]>(cliArgs('list_sessions'));
 }
 
+/** Use spawn + stream stdout to avoid pipe buffer deadlock with large payloads (400+ msgs). */
 export async function getMessages(talkerId: string): Promise<Message[]> {
-  return runCli<Message[]>(cliArgs('get_messages', ['--talker', talkerId]));
+  const cwd = await getBackendDir();
+  const args = cliArgs('get_messages', ['--talker', talkerId]);
+  const cmd = Command.create('uv', ['run', 'python', '-m', 'narrative_mirror.cli_json', ...args], { cwd });
+  let stdout = '';
+  cmd.stdout.on('data', (chunk: string) => { stdout += chunk; });
+  const output = await new Promise<{ code: number; stderr: string }>((resolve, reject) => {
+    cmd.on('close', (e) => resolve({ code: e.code ?? -1, stderr: '' }));
+    cmd.spawn().catch(reject);
+  });
+  if (output.code !== 0) throw new Error(`CLI error: ${output.stderr || 'exit ' + output.code}`);
+  return JSON.parse(stdout) as Message[];
 }
 
 export async function queryNarrative(

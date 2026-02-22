@@ -33,6 +33,11 @@ def init_db(path: str) -> sqlite3.Connection:
     """
     conn = sqlite3.connect(path)
     conn.row_factory = sqlite3.Row
+    # Enable WAL mode so concurrent reads (get_messages, list_sessions) can proceed
+    # while build holds a write transaction (one writer + multiple readers)
+    conn.execute("PRAGMA journal_mode=WAL")
+    # Wait up to 60s on lock instead of blocking indefinitely (SQLITE_BUSY)
+    conn.execute("PRAGMA busy_timeout=60000")
 
     cursor = conn.cursor()
 
@@ -754,16 +759,8 @@ def get_build_status(conn: sqlite3.Connection, talker_id: str) -> str:
     has_nodes = cursor.fetchone() is not None
 
     if not has_nodes:
-        # #region agent log
-        try:
-            import os, json, time
-            _p = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "debug-75fb2f.log"))
-            with open(_p, "a", encoding="utf-8") as _f:
-                _f.write(json.dumps({"hypothesisId": "H1", "location": "db.get_build_status", "message": "status=pending", "data": {"talker_id": talker_id, "has_nodes": has_nodes}, "timestamp": int(time.time() * 1000)}, ensure_ascii=False) + "\n")
-        except Exception:
-            pass
-        # #endregion
-        return "pending"
+        prog = get_build_progress(conn, talker_id)
+        return "in_progress" if prog else "pending"
 
     cursor.execute(
         "SELECT 1 FROM node_metadata WHERE talker_id = ? LIMIT 1",
