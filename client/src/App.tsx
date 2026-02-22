@@ -7,10 +7,14 @@ import { TitleBar } from './components/TitleBar';
 import { Session, QueryResponse, Message } from './types';
 import * as api from './api';
 
+const PAGE_SIZE = 300;
+
 export default function App() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [activeSession, setActiveSession] = useState<Session | null>(null);
   const [sessionMessages, setSessionMessages] = useState<Message[]>([]);
+  const [loadedStart, setLoadedStart] = useState(0);
+  const [loadedEnd, setLoadedEnd] = useState(0);
   const [queryResult, setQueryResult] = useState<QueryResponse | null>(null);
   const [highlightedMessageId, setHighlightedMessageId] = useState<number | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -31,10 +35,11 @@ export default function App() {
         }
         if (found?.build_status === 'complete') {
           clearInterval(intervalId);
-          const messages = await api.getMessages(talkerId);
-          // Only update messages if user is still viewing this session (avoid overwriting when switched to another)
+          const messages = await api.getMessages(talkerId, PAGE_SIZE, 0);
           setActiveSession((prev) => {
             if (prev?.talker_id === talkerId) {
+              setLoadedStart(0);
+              setLoadedEnd(messages.length);
               setSessionMessages(messages);
               return found;
             }
@@ -59,10 +64,33 @@ export default function App() {
     setActiveSession(session);
     setQueryResult(null);
     setSessionMessages([]);
+    setLoadedStart(0);
+    setLoadedEnd(0);
     if (session.build_status === 'complete') {
-      api.getMessages(session.talker_id).then(setSessionMessages).catch(console.error);
+      api.getMessages(session.talker_id, PAGE_SIZE, 0).then((msgs) => {
+        setSessionMessages(msgs);
+        setLoadedEnd(msgs.length);
+      }).catch(console.error);
     }
   };
+
+  const handleLoadMoreBefore = useCallback(async () => {
+    if (!activeSession || loadedStart <= 0) return;
+    const newStart = Math.max(0, loadedStart - PAGE_SIZE);
+    const limit = loadedStart - newStart;
+    const older = await api.getMessages(activeSession.talker_id, limit, newStart);
+    setLoadedStart(newStart);
+    setSessionMessages((prev) => [...older, ...prev]);
+  }, [activeSession, loadedStart]);
+
+  const handleLoadMoreAfter = useCallback(async () => {
+    if (!activeSession || loadedEnd >= activeSession.message_count) return;
+    const newer = await api.getMessages(activeSession.talker_id, PAGE_SIZE, loadedEnd);
+    if (newer.length > 0) {
+      setLoadedEnd((prev) => prev + newer.length);
+      setSessionMessages((prev) => [...prev, ...newer]);
+    }
+  }, [activeSession, loadedEnd]);
 
   const handleQueryComplete = (result: QueryResponse) => {
     setQueryResult(result);
@@ -113,6 +141,10 @@ export default function App() {
           <MainArea
             activeSession={activeSession}
             sessionMessages={sessionMessages}
+            hasMoreBefore={loadedStart > 0}
+            hasMoreAfter={activeSession ? loadedEnd < activeSession.message_count : false}
+            onLoadMoreBefore={handleLoadMoreBefore}
+            onLoadMoreAfter={handleLoadMoreAfter}
             queryResult={queryResult}
             onQueryComplete={handleQueryComplete}
             highlightedMessageId={highlightedMessageId}

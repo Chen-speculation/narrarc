@@ -1,20 +1,57 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Message } from '../types';
 import { motion } from 'motion/react';
 
 const ESTIMATE_ITEM_HEIGHT = 80;
+const LOAD_THRESHOLD = 400; // px from edge to trigger load
 
-export function ChatPanel({ messages, highlightedMessageId }: { messages: Message[], highlightedMessageId: number | null }) {
+interface ChatPanelProps {
+  messages: Message[];
+  highlightedMessageId: number | null;
+  hasMoreBefore?: boolean;
+  hasMoreAfter?: boolean;
+  onLoadMoreBefore?: () => Promise<void>;
+  onLoadMoreAfter?: () => Promise<void>;
+}
+
+export function ChatPanel({
+  messages,
+  highlightedMessageId,
+  hasMoreBefore,
+  hasMoreAfter,
+  onLoadMoreBefore,
+  onLoadMoreAfter,
+}: ChatPanelProps) {
   const parentRef = useRef<HTMLDivElement>(null);
+  const prevFirstIdRef = useRef<number | null>(null);
+  const [isLoadingBefore, setIsLoadingBefore] = useState(false);
+  const [isLoadingAfter, setIsLoadingAfter] = useState(false);
 
   const virtualizer = useVirtualizer({
     count: messages.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => ESTIMATE_ITEM_HEIGHT,
-    overscan: 10,
+    overscan: 3,
   });
 
+  // Maintain scroll position when messages are prepended
+  useEffect(() => {
+    if (messages.length === 0) {
+      prevFirstIdRef.current = null;
+      return;
+    }
+    const firstId = messages[0].local_id;
+    if (prevFirstIdRef.current !== null && firstId !== prevFirstIdRef.current) {
+      const oldFirstIndex = messages.findIndex((m) => m.local_id === prevFirstIdRef.current);
+      if (oldFirstIndex > 0) {
+        virtualizer.scrollToIndex(oldFirstIndex, { align: 'start', behavior: 'auto' });
+      }
+    }
+    prevFirstIdRef.current = firstId;
+  }, [messages]);
+
+  // Scroll to highlighted message
   useEffect(() => {
     if (highlightedMessageId != null) {
       const idx = messages.findIndex((m) => m.local_id === highlightedMessageId);
@@ -24,17 +61,45 @@ export function ChatPanel({ messages, highlightedMessageId }: { messages: Messag
     }
   }, [highlightedMessageId, messages]);
 
+  // Auto-load on scroll
+  useEffect(() => {
+    const el = parentRef.current;
+    if (!el) return;
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = el;
+
+      if (scrollTop < LOAD_THRESHOLD && hasMoreBefore && !isLoadingBefore) {
+        setIsLoadingBefore(true);
+        onLoadMoreBefore?.().finally(() => setIsLoadingBefore(false));
+      }
+
+      if (scrollHeight - scrollTop - clientHeight < LOAD_THRESHOLD && hasMoreAfter && !isLoadingAfter) {
+        setIsLoadingAfter(true);
+        onLoadMoreAfter?.().finally(() => setIsLoadingAfter(false));
+      }
+    };
+
+    el.addEventListener('scroll', handleScroll, { passive: true });
+    return () => el.removeEventListener('scroll', handleScroll);
+  }, [hasMoreBefore, hasMoreAfter, isLoadingBefore, isLoadingAfter, onLoadMoreBefore, onLoadMoreAfter]);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5, delay: 0.1 }}
-      className="flex-1 flex flex-col bg-zinc-50 dark:bg-[#050505] font-mono transition-colors duration-300"
+      className="flex-1 flex flex-col min-h-0 bg-zinc-50 dark:bg-[#050505] font-mono transition-colors duration-300"
     >
       <div
         ref={parentRef}
-        className="flex-1 overflow-y-auto p-6 bg-zinc-50 dark:bg-[#050505]"
+        className="flex-1 min-h-0 overflow-y-auto p-6 bg-zinc-50 dark:bg-[#050505]"
       >
+        {isLoadingBefore && (
+          <div className="flex justify-center pb-3">
+            <span className="text-[10px] uppercase tracking-widest text-zinc-400 dark:text-zinc-600">加载中…</span>
+          </div>
+        )}
         <div
           style={{
             height: `${virtualizer.getTotalSize()}px`,
@@ -92,6 +157,11 @@ export function ChatPanel({ messages, highlightedMessageId }: { messages: Messag
             );
           })}
         </div>
+        {isLoadingAfter && (
+          <div className="flex justify-center pt-3">
+            <span className="text-[10px] uppercase tracking-widest text-zinc-400 dark:text-zinc-600">加载中…</span>
+          </div>
+        )}
       </div>
     </motion.div>
   );

@@ -152,6 +152,12 @@ def _cmd_get_messages(args) -> None:
     conn = _ensure_db(args.db)
     try:
         msgs = get_all_messages(conn, args.talker, excluded=False)
+        offset = getattr(args, 'offset', 0) or 0
+        limit = getattr(args, 'limit', None)
+        if limit is not None:
+            msgs = msgs[offset: offset + limit]
+        elif offset:
+            msgs = msgs[offset:]
         out = [msg_to_client(m) for m in msgs]
         print(json.dumps(out, ensure_ascii=False))
     finally:
@@ -570,6 +576,8 @@ def main() -> None:
     # get_messages
     p_get = subparsers.add_parser("get_messages")
     p_get.add_argument("--talker", required=True, help="Talker ID")
+    p_get.add_argument("--limit", type=int, default=None, help="Max messages to return")
+    p_get.add_argument("--offset", type=int, default=0, help="Skip first N messages")
     p_get.set_defaults(func=_cmd_get_messages)
 
     # query
