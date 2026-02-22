@@ -74,6 +74,11 @@ export function Sidebar({ sessions, activeSession, onSelectSession, onDeleteSess
                 <span className="font-title text-zinc-500 dark:text-zinc-500 bg-zinc-100 dark:bg-black/40 px-2 py-0.5 border border-zinc-200 dark:border-white/5">{session.message_count} 条</span>
                 <span className="text-zinc-400 dark:text-zinc-600 tracking-wide">{new Date(session.last_timestamp).toLocaleDateString()}</span>
               </div>
+              {session.build_status === 'in_progress' && session.build_progress?.detail && (
+                <p className="text-[10px] text-indigo-600 dark:text-indigo-400 truncate" title={session.build_progress.detail}>
+                  {session.build_progress.detail}
+                </p>
+              )}
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); onDeleteSession(session); }}

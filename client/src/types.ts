@@ -1,11 +1,19 @@
 export type BuildStatus = 'pending' | 'in_progress' | 'complete';
 
+export interface BuildProgress {
+  stage: string;
+  step: string;
+  detail: string;
+  updated_at: string;
+}
+
 export interface Session {
   talker_id: string;
   display_name: string;
   last_timestamp: number;
   build_status: BuildStatus;
   message_count: number;
+  build_progress?: BuildProgress;
 }
 
 export interface Message {

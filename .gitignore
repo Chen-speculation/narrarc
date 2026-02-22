@@ -9,6 +9,9 @@ wheels/
 # Virtual environments
 .venv
 
+# Local Node.js portable (run-local.ps1)
+.node/
+
 # Project tooling
 openspec/
 .claude/

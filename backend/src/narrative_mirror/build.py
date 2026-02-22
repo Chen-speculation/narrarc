@@ -4,7 +4,7 @@ import json
 import sqlite3
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Optional
 
 from .models import RawMessage, Burst, TopicNode
 from .datasource import ChatDataSource, get_data_source
@@ -277,6 +277,7 @@ def build_layer1(
     conn: sqlite3.Connection,
     gap_seconds: int = 1800,
     debug: bool = False,
+    progress_callback: Optional[Callable[[str, str, str], None]] = None,
 ) -> list[TopicNode]:
     """Build Layer 1 topic nodes for a conversation.
 
@@ -294,15 +295,21 @@ def build_layer1(
         conn: SQLite connection.
         gap_seconds: Gap threshold for burst aggregation.
         debug: If True, print debug information.
+        progress_callback: Optional (stage, step, detail) callback for UI progress.
 
     Returns:
         List of all TopicNode objects for the conversation.
     """
+    def _progress(stage: str, step: str, detail: str) -> None:
+        if progress_callback:
+            progress_callback(stage, step, detail)
+
     # Fetch all messages
     if debug:
         print(f"Fetching messages for {talker_id}...", file=sys.stderr)
 
     messages = source.get_messages(talker_id, limit=10000)
+    _progress("layer1", "fetch", f"已获取 {len(messages)} 条消息")
 
     if debug:
         print(f"Fetched {len(messages)} messages", file=sys.stderr)
@@ -314,6 +321,7 @@ def build_layer1(
 
     # Aggregate into bursts
     bursts = aggregate_bursts(messages, gap_seconds)
+    _progress("layer1", "aggregate", f"已聚合为 {len(bursts)} 个 burst")
     if debug:
         print(f"Aggregated into {len(bursts)} bursts", file=sys.stderr)
 
@@ -337,6 +345,7 @@ def build_layer1(
     # total request count (important for rate-limited providers). Batch calls
     # themselves run concurrently up to llm.max_workers (configurable).
     if bursts_to_classify:
+        _progress("layer1", "classify", f"正在分类 {len(bursts_to_classify)} 个 burst")
         BATCH_SIZE = 8
         max_workers: int = getattr(llm, "max_workers", 8)
 
@@ -358,6 +367,8 @@ def build_layer1(
                     batch_output[bi] = future.result()
                 except Exception:
                     batch_output[bi] = [None] * len(batch)
+                done = sum(len(batches[bbi]) for bbi in batch_output)
+                _progress("layer1", "classify", f"已分类 {done}/{len(bursts)} 个 burst")
 
         for bi, batch in enumerate(batches):
             results = batch_output.get(bi, [None] * len(batch))
