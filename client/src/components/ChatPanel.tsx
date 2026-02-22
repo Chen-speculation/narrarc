@@ -1,64 +1,98 @@
 import { useEffect, useRef } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { Message } from '../types';
 import { motion } from 'motion/react';
 
+const ESTIMATE_ITEM_HEIGHT = 80;
+
 export function ChatPanel({ messages, highlightedMessageId }: { messages: Message[], highlightedMessageId: number | null }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const messageRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  const virtualizer = useVirtualizer({
+    count: messages.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => ESTIMATE_ITEM_HEIGHT,
+    overscan: 10,
+  });
 
   useEffect(() => {
-    if (highlightedMessageId && messageRefs.current[highlightedMessageId]) {
-      messageRefs.current[highlightedMessageId]?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
+    if (highlightedMessageId != null) {
+      const idx = messages.findIndex((m) => m.local_id === highlightedMessageId);
+      if (idx >= 0) {
+        virtualizer.scrollToIndex(idx, { align: 'center', behavior: 'smooth' });
+      }
     }
-  }, [highlightedMessageId]);
+  }, [highlightedMessageId, messages]);
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5, delay: 0.1 }}
-      ref={containerRef} 
-      className="flex-1 overflow-y-auto p-6 space-y-3 bg-zinc-50 dark:bg-[#050505] font-mono transition-colors duration-300"
+      className="flex-1 flex flex-col bg-zinc-50 dark:bg-[#050505] font-mono transition-colors duration-300"
     >
-      {messages.map((msg) => {
-        const isHighlighted = msg.local_id === highlightedMessageId;
-        const isSend = msg.is_send;
-        return (
-          <div 
-            key={msg.local_id} 
-            ref={(el) => messageRefs.current[msg.local_id] = el}
-            className={`group flex ${isSend ? 'justify-end' : 'justify-start'} transition-all duration-300`}
-          >
-            <div
-              className={`max-w-[85%] flex flex-col gap-1 py-2 px-4 rounded-xl border transition-all duration-300
-                ${isSend 
-                  ? 'rounded-br-sm bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/30' 
-                  : 'rounded-bl-sm bg-white dark:bg-[#0a0a0a] border-zinc-200 dark:border-white/10'
-                }
-                ${isHighlighted 
-                  ? 'ring-2 ring-indigo-500 dark:ring-indigo-400' 
-                  : 'hover:bg-zinc-50 dark:hover:bg-white/5'
-                }
-              `}
-            >
-              <div className="flex items-center gap-2 text-[10px] text-zinc-500 dark:text-zinc-400">
-                <span className={`font-bold uppercase ${isSend ? 'text-emerald-600 dark:text-emerald-500' : 'text-indigo-600 dark:text-indigo-400'}`}>
-                  {msg.sender_display}
-                </span>
-                <span className="tracking-wider">
-                  {new Date(msg.create_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </span>
+      <div
+        ref={parentRef}
+        className="flex-1 overflow-y-auto p-6 bg-zinc-50 dark:bg-[#050505]"
+      >
+        <div
+          style={{
+            height: `${virtualizer.getTotalSize()}px`,
+            width: '100%',
+            position: 'relative',
+          }}
+        >
+          {virtualizer.getVirtualItems().map((virtualRow) => {
+            const msg = messages[virtualRow.index];
+            const isHighlighted = msg.local_id === highlightedMessageId;
+            const isSend = msg.is_send;
+            return (
+              <div
+                key={msg.local_id}
+                ref={(el) => el && virtualizer.measureElement(el)}
+                data-index={virtualRow.index}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  transform: `translateY(${virtualRow.start}px)`,
+                  paddingBottom: 12,
+                }}
+              >
+                <div
+                  className={`group flex ${isSend ? 'justify-end' : 'justify-start'} transition-all duration-300`}
+                >
+                  <div
+                    className={`max-w-[85%] flex flex-col gap-1 py-2 px-4 rounded-xl border transition-all duration-300
+                      ${isSend
+                        ? 'rounded-br-sm bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/30'
+                        : 'rounded-bl-sm bg-white dark:bg-[#0a0a0a] border-zinc-200 dark:border-white/10'
+                      }
+                      ${isHighlighted
+                        ? 'ring-2 ring-indigo-500 dark:ring-indigo-400'
+                        : 'hover:bg-zinc-50 dark:hover:bg-white/5'
+                      }
+                    `}
+                  >
+                    <div className="flex items-center gap-2 text-[10px] text-zinc-500 dark:text-zinc-400">
+                      <span className={`font-bold uppercase ${isSend ? 'text-emerald-600 dark:text-emerald-500' : 'text-indigo-600 dark:text-indigo-400'}`}>
+                        {msg.sender_display}
+                      </span>
+                      <span className="tracking-wider">
+                        {new Date(msg.create_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                    <div className={`text-[13px] leading-relaxed ${isHighlighted ? 'text-zinc-900 dark:text-indigo-100' : 'text-zinc-700 dark:text-zinc-300'}`}>
+                      {msg.parsed_content}
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className={`text-[13px] leading-relaxed ${isHighlighted ? 'text-zinc-900 dark:text-indigo-100' : 'text-zinc-700 dark:text-zinc-300'}`}>
-                {msg.parsed_content}
-              </div>
-            </div>
-          </div>
-        );
-      })}
+            );
+          })}
+        </div>
+      </div>
     </motion.div>
   );
 }

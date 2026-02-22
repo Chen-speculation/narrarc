@@ -6,6 +6,7 @@ from narrative_mirror.db import (
     upsert_messages,
     upsert_node,
     upsert_metadata,
+    set_build_progress,
     get_messages_for_node,
     get_talkers_with_stats,
     get_build_status,
@@ -181,3 +182,28 @@ def test_get_build_status_complete():
     )
     upsert_metadata(conn, meta)
     assert get_build_status(conn, "t1") == "complete"
+
+
+def test_get_build_status_layer2_in_progress():
+    """When topic_nodes and node_metadata exist but build_progress has a record
+    (Layer 2 still running), status must be in_progress, not complete."""
+    conn = init_db(":memory:")
+    upsert_messages(conn, [
+        RawMessage(1, "t1", 1000, True, "u", "a", 1),
+    ])
+    node = TopicNode(
+        node_id="n1", talker_id="t1", burst_id="b1",
+        topic_name="T", start_local_id=1, end_local_id=1,
+        start_time=1000, end_time=1000,
+    )
+    upsert_node(conn, node)
+    meta = MetadataSignals(
+        node_id="n1", talker_id="t1",
+        reply_delay_avg_s=0.0, reply_delay_max_s=0.0,
+        term_shift_score=0.0, silence_event=False,
+        topic_frequency=0, initiator_ratio=0.0,
+        emotional_tone=0.0, conflict_intensity=0.0,
+    )
+    upsert_metadata(conn, meta)
+    set_build_progress(conn, "t1", "layer2", "start", "Building Layer 2...")
+    assert get_build_status(conn, "t1") == "in_progress"

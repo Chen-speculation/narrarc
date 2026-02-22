@@ -60,14 +60,14 @@ export function Sidebar({ sessions, activeSession, onSelectSession, onDeleteSess
               onClick={() => onSelectSession(session)}
               className="flex-1 text-left flex flex-col gap-3"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5 font-medium text-[13px] tracking-wide">
-                  <MessageSquare className={`w-3.5 h-3.5 ${activeSession?.talker_id === session.talker_id ? 'text-indigo-600 dark:text-indigo-400' : 'text-zinc-400 dark:text-zinc-600 group-hover:text-zinc-500 dark:group-hover:text-zinc-400'}`} />
-                  {session.display_name}
+              <div className="flex items-center justify-between gap-2 min-w-0">
+                <div className="flex items-center gap-2.5 font-medium text-[13px] tracking-wide min-w-0 flex-1">
+                  <MessageSquare className={`w-3.5 h-3.5 shrink-0 ${activeSession?.talker_id === session.talker_id ? 'text-indigo-600 dark:text-indigo-400' : 'text-zinc-400 dark:text-zinc-600 group-hover:text-zinc-500 dark:group-hover:text-zinc-400'}`} />
+                  <span className="truncate" title={session.display_name}>{session.display_name}</span>
                 </div>
-                {session.build_status === 'complete' && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-500/80" />}
-                {session.build_status === 'in_progress' && <Loader2 className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 animate-spin" />}
-                {session.build_status === 'pending' && <Clock className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-600" />}
+                {session.build_status === 'complete' && <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-600 dark:text-emerald-500/80" />}
+                {session.build_status === 'in_progress' && <Loader2 className="w-3.5 h-3.5 shrink-0 text-indigo-600 dark:text-indigo-400 animate-spin" />}
+                {session.build_status === 'pending' && <Clock className="w-3.5 h-3.5 shrink-0 text-zinc-400 dark:text-zinc-600" />}
               </div>
               
               <div className="flex items-center justify-between text-[10px]">
