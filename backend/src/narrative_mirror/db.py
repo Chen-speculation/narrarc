@@ -747,8 +747,8 @@ def get_build_status(conn: sqlite3.Connection, talker_id: str) -> str:
 
     Returns:
         "pending": topic_nodes has no data for talker_id
-        "in_progress": topic_nodes has data, node_metadata has none
-        "complete": both topic_nodes and node_metadata have data
+        "in_progress": build running (Layer 1/1.5/2) or topic_nodes without node_metadata
+        "complete": full build done (topic_nodes + node_metadata + build_progress cleared)
     """
     cursor = conn.cursor()
 
@@ -769,6 +769,12 @@ def get_build_status(conn: sqlite3.Connection, talker_id: str) -> str:
     has_metadata = cursor.fetchone() is not None
 
     if not has_metadata:
+        return "in_progress"
+
+    # Layer 1.5 done, but Layer 2 may still be running. build_progress is only
+    # cleared when the full build (including Layer 2) completes.
+    prog = get_build_progress(conn, talker_id)
+    if prog:
         return "in_progress"
 
     return "complete"
