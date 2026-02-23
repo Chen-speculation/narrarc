@@ -82,6 +82,24 @@ scope 判断规则：
 沟通："沟通方式有什么问题" → global, narrative
 沟通："谁更主动发起聊天" → global, summary
 
+fact_lookup 判断规则（关键）：问题只需要一个具体的事实答案（地点、时间、名称、数字等），不需要分析演变过程或多阶段叙事，答案通常可以用一句话回答 → fact_lookup, output_mode=fact
+
+事件级事实查询（指向某个具体事件/场合的单一事实）→ fact_lookup, output_mode=fact：
+- "Kate第一次约会去了哪个咖啡馆" → fact_lookup, fact
+- "第一次见面是在哪里" → fact_lookup, fact
+- "他们第一次约会去了哪里" → fact_lookup, fact
+- "那次旅行住的什么酒店" → fact_lookup, fact
+- "生日是哪天" → fact_lookup, fact
+- "他说的那个餐厅叫什么名字" → fact_lookup, fact
+- "第一次约会在哪" → fact_lookup, fact
+
+消息级事实查询（指向某条具体消息的事实）→ fact_lookup, output_mode=fact：
+- "292消息里提到的Central Park是什么" → fact_lookup, fact
+- "消息292里说的咖啡店叫什么" → fact_lookup, fact
+- "What was the Central Park mentioned in message 292?" → fact_lookup, fact
+- "第100条消息说了什么" → fact_lookup, fact
+- "localId 292里提到的约会地点" → fact_lookup, fact
+
 关注维度 (focus_dimensions) 从以下选择: reply_delay, term_shift, silence_event, topic_frequency, initiator_ratio, emotional_tone, conflict_intensity"""
 
     prompt = f"用户问题: {question}\n\n请分析这个问题的意图。"

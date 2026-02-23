@@ -3,6 +3,9 @@
 REALTALK JSON format:
     - name.speaker_1, name.speaker_2
     - session_1, session_2, ... (arrays of messages)
+    - events_session_1, events_session_2, ... (agent sub-events, optional)
+    - session_N_date_time (session timestamps)
+    - qa (question, answer, evidence dia_ids, category)
     - Each message: clean_text, speaker, date_time (DD.MM.YYYY, HH:MM:SS), dia_id
 
 LoCoMo JSON format (--locomo):

@@ -247,20 +247,14 @@ class FactualIntentStub:
         return '{"result": "ok"}'
 
 
-def test_route_after_planning_factual():
-    """route_after_planning returns 'factual_retrieve' for factual_rag mode."""
-    state = {"answer_mode": "factual_rag"}
-    assert route_after_planning(state) == "factual_retrieve"
-
-
-def test_route_after_planning_narrative():
-    """route_after_planning returns 'retrieve' for full_narrative mode."""
-    state = {"answer_mode": "full_narrative"}
-    assert route_after_planning(state) == "retrieve"
+def test_route_after_planning_always_retrieve():
+    """route_after_planning always returns 'retrieve' - all queries go agentic path."""
+    assert route_after_planning({"answer_mode": "factual_rag"}) == "retrieve"
+    assert route_after_planning({"answer_mode": "full_narrative"}) == "retrieve"
 
 
 def test_factual_rag_path(populated_db, mock_llm_noncot):
-    """Test factual_rag path: Planner -> factual_retriever -> factual_generator."""
+    """Test factual_rag goes agentic path: Planner -> Retriever -> Grader -> Explorer -> Generator."""
     conn = populated_db
     llm = FactualIntentStub()
     tools = get_all_tools(conn, TALKER, "/tmp/chroma_test", mock_llm_noncot)
@@ -283,34 +277,35 @@ def test_factual_rag_path(populated_db, mock_llm_noncot):
 
     node_names = [s.node_name for s in trace.steps]
     assert "planner" in node_names
-    assert "factual_retriever" in node_names
-    assert "factual_generator" in node_names
-    # Should NOT go through the heavy pipeline
-    assert "grader" not in node_names
-    assert "explorer" not in node_names
-    assert "generator" not in node_names
+    assert "retriever" in node_names
+    assert "grader" in node_names
+    assert "generator" in node_names
 
 
-def test_factual_rag_llm_calls_fewer(populated_db, mock_llm_noncot):
-    """Factual path uses fewer LLM calls than full narrative path."""
+def test_message_id_heuristic_forces_factual(populated_db, mock_llm_noncot):
+    """Question with message ID (e.g. '292消息') triggers factual_rag even if LLM returns narrative."""
     conn = populated_db
+    # Stub returns arc_narrative (would give full_narrative) - heuristic should override to factual_rag
+    class NarrativeIntentStub:
+        def think_and_complete(self, system, prompt, max_tokens=4096, response_format=None):
+            if "query_type" in prompt.lower() or "意图" in prompt.lower():
+                return '{"query_type": "arc_narrative", "focus_dimensions": [], "output_mode": "narrative"}'
+            if "queries" in system.lower() or "搜索查询" in system:
+                return '{"queries": ["Central Park"]}'
+            if "直接回答" in system or "查询助手" in system:
+                return '{"answer": "Central Perk 是 Greenwich Village 的咖啡馆。", "evidence_msg_ids": [292]}'
+            return '{"result": "ok"}'
+
     tools = get_all_tools(conn, TALKER, "/tmp/chroma_test", mock_llm_noncot)
-
-    factual_trace = run_workflow(
-        question="去年7月我们吃了什么？",
+    trace = run_workflow(
+        question="292消息里提到的Central Park是什么？",
         talker_id=TALKER,
-        llm=FactualIntentStub(),
+        llm=NarrativeIntentStub(),
         conn=conn,
         tools=tools,
         llm_noncot=mock_llm_noncot,
+        max_iterations=3,
+        debug=False,
     )
-    narrative_trace = run_workflow(
-        question="我们是怎么一步步分手的？",
-        talker_id=TALKER,
-        llm=StubCoTLLM(),
-        conn=conn,
-        tools=tools,
-        llm_noncot=mock_llm_noncot,
-    )
-
-    assert factual_trace.total_llm_calls < narrative_trace.total_llm_calls
+    assert trace.answer_mode == "factual_rag"
+    assert trace.factual_answer is not None

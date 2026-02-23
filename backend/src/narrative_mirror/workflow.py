@@ -64,6 +64,18 @@ def _get_tool(tools: list, name: str):
     return next((t for t in tools if t.name == name), None)
 
 
+# Message-ID pattern: "292消息", "消息292", "message 292", "第292条", "localId 292"
+_MSG_ID_PATTERN = re.compile(
+    r"(?:消息|message|msg|条|localId|local_id)\s*\d+|\d+\s*(?:消息|message|msg|条)",
+    re.IGNORECASE,
+)
+
+
+def _is_message_specific_factual(question: str) -> bool:
+    """Heuristic: question references a specific message ID → factual lookup, not multi-phase narrative."""
+    return bool(_MSG_ID_PATTERN.search(question))
+
+
 # ---------------------------------------------------------------------------
 # 5.2 planner_node
 # ---------------------------------------------------------------------------
@@ -125,6 +137,10 @@ def planner_node(state: WorkflowState) -> dict:
         if output_mode == "fact" or intent.query_type in ("time_point", "event_retrieval")
         else "full_narrative"
     )
+    # Heuristic fallback: question references specific message ID (e.g. "292消息", "message 292")
+    # → force factual_rag so we get direct answer, not multi-phase narrative
+    if answer_mode == "full_narrative" and _is_message_specific_factual(question):
+        answer_mode = "factual_rag"
 
     return {
         "intent": intent,
@@ -263,10 +279,7 @@ def retriever_node(state: WorkflowState) -> dict:
 # ---------------------------------------------------------------------------
 
 def route_after_planning(state: WorkflowState) -> str:
-    """Route to 'factual_retrieve' or 'retrieve' based on answer_mode."""
-    answer_mode = state.get("answer_mode", "full_narrative")
-    if answer_mode == "factual_rag":
-        return "factual_retrieve"
+    """Route to agentic path (retrieve) for all queries. Factual and narrative both go through Retriever -> Grader -> Explorer -> Generator."""
     return "retrieve"
 
 
@@ -296,9 +309,9 @@ def factual_retriever_node(state: WorkflowState) -> dict:
 
     collected_node_ids: set[str] = set()
 
-    # 1. Single semantic search with the question (top_k=5)
+    # 1. Single semantic search with the question (top_k=15 for better recall)
     if search_semantic_tool:
-        result = search_semantic_tool.run(conn, talker_id, query=question, top_k=5)
+        result = search_semantic_tool.run(conn, talker_id, query=question, top_k=15)
         if isinstance(result.data, list):
             for nid in result.data:
                 if isinstance(nid, str):
@@ -382,14 +395,8 @@ def factual_generator_node(state: WorkflowState) -> dict:
         msgs = collected_messages.get(node.node_id)
         if msgs is None:
             msgs = get_messages_for_node(conn, talker_id, node)
-        # Use same preview logic as generator_node
-        if len(msgs) > 8:
-            mid = len(msgs) // 2
-            preview_msgs = msgs[:3] + msgs[mid - 1 : mid + 1] + msgs[-3:]
-        elif len(msgs) > 5:
-            preview_msgs = msgs[:3] + msgs[-2:]
-        else:
-            preview_msgs = msgs
+        # For factual queries, use all messages to avoid missing specific facts
+        preview_msgs = msgs
         for m in preview_msgs:
             valid_ids.add(m.local_id)
             sender = "我" if m.is_send else "TA"
@@ -547,6 +554,21 @@ def grader_node(state: WorkflowState) -> dict:
             f"iterations={state.get('iterations', 0)}",
             file=sys.stderr,
         )
+
+    # Factual queries: skip exploration, go straight to generator
+    answer_mode = state.get("answer_mode", "full_narrative")
+    if answer_mode == "factual_rag":
+        step = AgentStep(
+            node_name="grader",
+            input_summary=f"nodes={len(collected_nodes)}, factual_rag=True",
+            output_summary="evaluation=sufficient (factual fast-path)",
+            llm_calls=0,
+            timestamp_ms=int(time.time() * 1000),
+        )
+        return {
+            "evaluation": '{"evaluation": "sufficient"}',
+            "trace_steps": list(state.get("trace_steps", [])) + [step],
+        }
 
     # Scope-based programmatic check first
     scope = (intent.scope or {}) if intent else {}
@@ -832,8 +854,98 @@ def explorer_node(state: WorkflowState) -> dict:
 # 5.7 generator_node
 # ---------------------------------------------------------------------------
 
+def _generator_factual_branch(
+    state: WorkflowState,
+    collected_nodes: list,
+    collected_messages: dict,
+    question: str,
+    llm,
+    conn,
+    talker_id: str,
+    debug: bool,
+) -> dict:
+    """Factual query branch: direct answer + evidence, no multi-stage narrative, no uncertainty_note."""
+    all_msg_entries = []
+    valid_ids: set[int] = set()
+    for node in collected_nodes:
+        msgs = collected_messages.get(node.node_id)
+        if msgs is None:
+            msgs = get_messages_for_node(conn, talker_id, node)
+        for m in msgs:
+            valid_ids.add(m.local_id)
+            sender = "我" if m.is_send else "TA"
+            date_str = datetime.fromtimestamp(m.create_time / 1000).strftime("%Y-%m-%d %H:%M")
+            all_msg_entries.append({
+                "id": m.local_id,
+                "date": date_str,
+                "sender": sender,
+                "content": m.parsed_content[:200],
+            })
+
+    system_prompt = (
+        "你是一个聊天记录查询助手。根据提供的聊天消息，直接回答用户的问题。\n"
+        "回答要简洁直接，包含具体事实。不要输出多阶段叙事或不确定性说明。\n"
+        "返回JSON格式: {\"answer\": \"直接回答\", \"evidence_msg_ids\": [3-5个最相关的消息ID整数]}"
+    )
+    prompt = (
+        f"用户问题: {question}\n\n"
+        f"相关聊天记录:\n"
+        f"{json.dumps(all_msg_entries, ensure_ascii=False, indent=2)}\n\n"
+        "请直接回答用户的问题，并列出支撑答案的消息ID。"
+    )
+
+    factual_answer: dict = {"answer": "未找到相关记录。", "evidence_msg_ids": []}
+    try:
+        response = llm.think_and_complete(system_prompt, prompt, max_tokens=1024, response_format="json_object")
+        data = json.loads(response)
+        answer_text = data.get("answer", "未找到相关记录。")
+        raw_ids = data.get("evidence_msg_ids", [])
+        evidence_ids: list[int] = []
+        for x in raw_ids:
+            try:
+                mid = int(x)
+                if mid in valid_ids:
+                    evidence_ids.append(mid)
+            except (ValueError, TypeError):
+                pass
+        factual_answer = {"answer": answer_text, "evidence_msg_ids": evidence_ids}
+    except Exception:
+        pass
+
+    phase = NarrativePhase(
+        phase_title="事实回答",
+        time_range="",
+        core_conclusion=factual_answer["answer"],
+        evidence_msg_ids=factual_answer["evidence_msg_ids"],
+        evidence_segments=[],
+        reasoning_chain="",
+        uncertainty_note="",
+        verified=False,
+    )
+
+    step = AgentStep(
+        node_name="generator",
+        input_summary=f"factual: nodes={len(collected_nodes)}, messages={len(all_msg_entries)}",
+        output_summary=f"answer='{factual_answer['answer'][:60]}'",
+        llm_calls=1,
+        timestamp_ms=int(time.time() * 1000),
+    )
+
+    existing_steps = list(state.get("trace_steps", []))
+    existing_steps.append(step)
+
+    if debug:
+        print(f"[generator] factual exit: answer='{factual_answer['answer'][:60]}'", file=sys.stderr)
+
+    return {
+        "phases": [phase],
+        "factual_answer": factual_answer,
+        "trace_steps": existing_steps,
+    }
+
+
 def generator_node(state: WorkflowState) -> dict:
-    """Generate NarrativePhase objects from collected nodes. Supports narrative/summary output_mode."""
+    """Generate NarrativePhase objects from collected nodes. Supports narrative/summary/factual output_mode."""
     collected_nodes = state["collected_nodes"]
     collected_messages = state.get("collected_messages", {})
     question = state["question"]
@@ -842,16 +954,30 @@ def generator_node(state: WorkflowState) -> dict:
     conn = state["conn"]
     talker_id = state["talker_id"]
     debug = state.get("debug", False)
+    answer_mode = state.get("answer_mode", "full_narrative")
 
     output_mode = getattr(intent, "output_mode", None) if intent else "narrative"
-    if output_mode not in ("narrative", "summary"):
+    if output_mode not in ("narrative", "summary", "fact"):
         output_mode = "narrative"
 
     if debug:
         print(
             f"[generator] entry: collected_nodes={len(collected_nodes)}, "
-            f"output_mode={output_mode}, question='{question[:50]}'",
+            f"output_mode={output_mode}, answer_mode={answer_mode}, question='{question[:50]}'",
             file=sys.stderr,
+        )
+
+    # Factual queries: direct answer format, no multi-stage narrative, no uncertainty_note
+    if answer_mode == "factual_rag":
+        return _generator_factual_branch(
+            state=state,
+            collected_nodes=collected_nodes,
+            collected_messages=collected_messages,
+            question=question,
+            llm=llm,
+            conn=conn,
+            talker_id=talker_id,
+            debug=debug,
         )
 
     # Task 1.1: Compute Q1-Q4 temporal boundaries from all collected nodes
@@ -1167,7 +1293,14 @@ def run_workflow(
     phases: list[NarrativePhase] = final_state.get("phases", [])
     answer_mode: str = final_state.get("answer_mode", "full_narrative")
     factual_answer = final_state.get("factual_answer")
+    # When all queries go agentic path, factual_rag gets phases from generator; derive factual_answer for client compat
+    if answer_mode == "factual_rag" and factual_answer is None and phases:
+        first = phases[0]
+        factual_answer = {"answer": first.core_conclusion, "evidence_msg_ids": first.evidence_msg_ids}
+    elif answer_mode == "factual_rag" and factual_answer is None:
+        factual_answer = {"answer": "未找到相关记录。", "evidence_msg_ids": []}
     total_llm_calls = sum(s.llm_calls for s in steps)
+    collected_nodes = final_state.get("collected_nodes", [])
 
     trace = AgentTrace(
         question=question,
@@ -1177,6 +1310,7 @@ def run_workflow(
         total_llm_calls=total_llm_calls,
         answer_mode=answer_mode,
         factual_answer=factual_answer,
+        collected_nodes=collected_nodes,
     )
 
     return trace

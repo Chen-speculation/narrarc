@@ -145,3 +145,5 @@ class AgentTrace:
     total_llm_calls: int = 0
     answer_mode: str = "full_narrative"  # "full_narrative" or "factual_rag"
     factual_answer: Optional[dict] = None  # {"answer": str, "evidence_msg_ids": list[int]}
+    # Optional: nodes passed to generator (for eval: check if expected evidence was in candidate set)
+    collected_nodes: list = field(default_factory=list)  # list[TopicNode]

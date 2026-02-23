@@ -1,0 +1,28 @@
+[
+  {
+    "question": "When did Fahim Khan go for a morning run after the rain?",
+    "query_type": "arc_narrative",
+    "expected_phases": [
+      {
+        "title": "Fahim Khan went for a morning run after the rain on 29.12.2023",
+        "time_range": "",
+        "evidence_dia_ids": [
+          "D1:4"
+        ]
+      }
+    ]
+  },
+  {
+    "question": "When did Muhammad cancel plans with friends due to illness?",
+    "query_type": "arc_narrative",
+    "expected_phases": [
+      {
+        "title": "Muhammad had to call off plans when he became sick on 29.12.2023",
+        "time_range": "",
+        "evidence_dia_ids": [
+          "D1:15"
+        ]
+      }
+    ]
+  }
+]

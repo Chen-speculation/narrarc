@@ -33,12 +33,7 @@ ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
 EVAL_DIR = ROOT / "tests" / "data" / "realtalk_eval"
-CHAT_ID = "realtalk_emi_elise"
-
-MSG_PATH = str(EVAL_DIR / f"{CHAT_ID}_messages.json")
-SESS_PATH = str(EVAL_DIR / f"{CHAT_ID}_sessions.json")
-ARC_PATH = EVAL_DIR / f"{CHAT_ID}_arc_cases.json"
-MAPPING_PATH = EVAL_DIR / f"{CHAT_ID}_mapping.json"
+DEFAULT_CHAT_ID = "realtalk_emi_elise"
 
 
 def evidence_recall(returned_ids: list[int], expected_local_ids: list[int]) -> float:
@@ -230,7 +225,7 @@ def print_section(title: str):
     print(f"{'='*60}")
 
 
-def run_oneshot_eval(arc_cases, conn, llm_cot, dia_to_local, total_msgs, debug=True):
+def run_oneshot_eval(arc_cases, conn, llm_cot, dia_to_local, total_msgs, chat_id, debug=True):
     """Run evaluation with one-shot Q1-Q5 pipeline. Returns metrics dict per case."""
     from narrative_mirror.query import run_query_with_phases
 
@@ -246,7 +241,7 @@ def run_oneshot_eval(arc_cases, conn, llm_cot, dia_to_local, total_msgs, debug=T
 
         output, phases = run_query_with_phases(
             question=arc["question"],
-            talker_id=CHAT_ID,
+            talker_id=chat_id,
             llm=llm_cot,
             conn=conn,
             max_nodes=80,
@@ -268,7 +263,7 @@ def run_oneshot_eval(arc_cases, conn, llm_cot, dia_to_local, total_msgs, debug=T
             "precision": evidence_precision(returned_ids, expected_local_ids),
             "hallucination": hallucination_rate(returned_ids, (1, total_msgs)),
             "per_phase_recall": per_phase_recall(phases, arc.get("expected_phases", []), dia_to_local),
-            "timeline_coverage": timeline_coverage(phases, arc.get("expected_phases", []), dia_to_local, conn=conn, talker_id=CHAT_ID),
+            "timeline_coverage": timeline_coverage(phases, arc.get("expected_phases", []), dia_to_local, conn=conn, talker_id=chat_id),
             "per_phase_temporal_recall": per_phase_temporal_recall(phases, arc.get("expected_phases", []), dia_to_local),
             "groundedness": grounded,
             "avg_phases": len(phases),
@@ -277,14 +272,14 @@ def run_oneshot_eval(arc_cases, conn, llm_cot, dia_to_local, total_msgs, debug=T
     return results
 
 
-def run_agent_eval(arc_cases, conn, llm_cot, llm_noncot, chroma_dir, dia_to_local, total_msgs, debug=True):
+def run_agent_eval(arc_cases, conn, llm_cot, llm_noncot, chroma_dir, dia_to_local, total_msgs, chat_id, debug=True):
     """Run evaluation with agent graph workflow. Returns metrics dict per case."""
     from narrative_mirror.tools import get_all_tools
     from narrative_mirror.workflow import run_workflow
     from narrative_mirror.reflection import reflect_on_evidence
     from narrative_mirror.query import format_cards
 
-    tools = get_all_tools(conn, CHAT_ID, chroma_dir, llm_noncot)
+    tools = get_all_tools(conn, chat_id, chroma_dir, llm_noncot)
     results = []
     for arc in arc_cases:
         expected_local_ids = []
@@ -297,7 +292,7 @@ def run_agent_eval(arc_cases, conn, llm_cot, llm_noncot, chroma_dir, dia_to_loca
 
         trace = run_workflow(
             question=arc["question"],
-            talker_id=CHAT_ID,
+            talker_id=chat_id,
             llm=llm_cot,
             conn=conn,
             tools=tools,
@@ -310,9 +305,9 @@ def run_agent_eval(arc_cases, conn, llm_cot, llm_noncot, chroma_dir, dia_to_loca
             question=arc["question"],
             llm=llm_cot,
             conn=conn,
-            talker_id=CHAT_ID,
+            talker_id=chat_id,
         )
-        output = format_cards(phases, CHAT_ID, conn)
+        output = format_cards(phases, chat_id, conn)
 
         returned_ids = list(set(mid for p in phases for mid in p.evidence_msg_ids))
         grounded = sum(1 for p in phases if p.verified) / len(phases) if phases else 0.0
@@ -328,7 +323,7 @@ def run_agent_eval(arc_cases, conn, llm_cot, llm_noncot, chroma_dir, dia_to_loca
             "precision": evidence_precision(returned_ids, expected_local_ids),
             "hallucination": hallucination_rate(returned_ids, (1, total_msgs)),
             "per_phase_recall": per_phase_recall(phases, arc.get("expected_phases", []), dia_to_local),
-            "timeline_coverage": timeline_coverage(phases, arc.get("expected_phases", []), dia_to_local, conn=conn, talker_id=CHAT_ID),
+            "timeline_coverage": timeline_coverage(phases, arc.get("expected_phases", []), dia_to_local, conn=conn, talker_id=chat_id),
             "per_phase_temporal_recall": per_phase_temporal_recall(phases, arc.get("expected_phases", []), dia_to_local),
             "groundedness": grounded,
             "avg_phases": len(phases),
@@ -341,7 +336,15 @@ def main():
     parser = argparse.ArgumentParser(description="Evaluate narrative_mirror on REALTALK dataset")
     parser.add_argument("--mode", choices=["oneshot", "agent", "compare"], default="oneshot",
                         help="Run oneshot (default), agent, or compare mode")
+    parser.add_argument("--chat-id", default=DEFAULT_CHAT_ID,
+                        help=f"Chat ID for eval fixtures (default: {DEFAULT_CHAT_ID})")
     args = parser.parse_args()
+
+    CHAT_ID = args.chat_id
+    MSG_PATH = str(EVAL_DIR / f"{CHAT_ID}_messages.json")
+    SESS_PATH = str(EVAL_DIR / f"{CHAT_ID}_sessions.json")
+    ARC_PATH = EVAL_DIR / f"{CHAT_ID}_arc_cases.json"
+    MAPPING_PATH = EVAL_DIR / f"{CHAT_ID}_mapping.json"
 
     # ── 1. Load config & LLMs ────────────────────────────────────
     config_path = ROOT / "config.yml"
@@ -357,6 +360,10 @@ def main():
     print(f"LLM: {cfg.llm.model} | Embedding: {cfg.embedding.model} | Reranker: {cfg.reranker.model}")
 
     # ── 2. Load eval fixtures ────────────────────────────────────
+    if not ARC_PATH.exists():
+        print(f"ERROR: arc_cases not found: {ARC_PATH}", file=sys.stderr)
+        print("Run: python scripts/generate_arc_cases_from_qa.py --input <realtalk.json> --output <path>", file=sys.stderr)
+        sys.exit(1)
     with open(ARC_PATH) as f:
         arc_cases = json.load(f)
     with open(MAPPING_PATH) as f:
@@ -451,7 +458,7 @@ def main():
 
         if args.mode in ("oneshot", "compare"):
             oneshot_results = run_oneshot_eval(
-                arc_cases, conn, llm_cot, dia_to_local, total_msgs, debug=True
+                arc_cases, conn, llm_cot, dia_to_local, total_msgs, CHAT_ID, debug=True
             )
             for case_idx, r in enumerate(oneshot_results):
                 print(f"\n{'─'*60}")
@@ -466,7 +473,7 @@ def main():
         if args.mode in ("agent", "compare"):
             agent_results = run_agent_eval(
                 arc_cases, conn, llm_cot, llm_noncot, chroma_dir,
-                dia_to_local, total_msgs, debug=True
+                dia_to_local, total_msgs, CHAT_ID, debug=True
             )
             for case_idx, r in enumerate(agent_results):
                 print(f"\n{'─'*60}")
@@ -474,11 +481,19 @@ def main():
                 print(f"  Recall: {r['recall']:.1%} | Fuzzy: {r['fuzzy_recall']:.1%} | Phases: {r['avg_phases']}")
                 if r.get("trace"):
                     print(f"  Agent steps: {len(r['trace'].steps)} | LLM calls: {r['trace'].total_llm_calls}")
-                if r["recall"] < 0.5 and r["returned_ids"]:
+                if r["recall"] < 1.0:
                     exp = set(r["expected_local_ids"])
                     ret = set(r["returned_ids"])
                     overlap = exp & ret
                     print(f"  [debug] expected={sorted(exp)[:15]}{'...' if len(exp)>15 else ''} | returned={sorted(ret)[:15]}{'...' if len(ret)>15 else ''} | overlap={overlap}")
+                    trace = r.get("trace")
+                    if trace and getattr(trace, "collected_nodes", None):
+                        nodes = trace.collected_nodes
+                        in_candidates = sum(
+                            1 for eid in exp
+                            if any(n.start_local_id <= eid <= n.end_local_id for n in nodes)
+                        )
+                        print(f"  [debug] expected_in_candidates: {in_candidates}/{len(exp)} (retrieval → generator)")
 
         # ── 5. Summary ───────────────────────────────────────────
         print_section("SUMMARY: ACCURACY REPORT")

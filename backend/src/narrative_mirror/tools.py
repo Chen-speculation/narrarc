@@ -160,7 +160,7 @@ class GetNodeMessagesTool:
         "type": "object",
         "properties": {
             "node_id": {"type": "string", "description": "TopicNode 的 node_id"},
-            "max_msgs": {"type": "integer", "default": 20, "description": "最多返回消息数"},
+            "max_msgs": {"type": "integer", "default": 50, "description": "最多返回消息数"},
         },
         "required": ["node_id"],
     }
@@ -170,7 +170,7 @@ class GetNodeMessagesTool:
         conn: sqlite3.Connection,
         talker_id: str,
         node_id: str,
-        max_msgs: int = 20,
+        max_msgs: int = 50,
     ) -> ToolResult:
         # Look up the node
         all_nodes = get_nodes(conn, talker_id)
@@ -191,7 +191,7 @@ class GetNodeMessagesTool:
         lines = [f"节点 [{node_id}] {node.topic_name} 的消息 ({len(msgs)} 条):"]
         for m in msgs:
             sender = "我" if m.is_send else "TA"
-            content_preview = m.parsed_content[:100]
+            content_preview = m.parsed_content[:300]
             ts = datetime.fromtimestamp(m.create_time / 1000).strftime("%m-%d %H:%M")
             lines.append(f"  [{m.local_id}] {sender}({ts}): {content_preview}")
 

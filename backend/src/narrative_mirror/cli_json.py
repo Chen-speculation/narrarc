@@ -345,6 +345,12 @@ def _cmd_query(args) -> None:
             phases = full_state.get("phases", [])
             answer_mode = full_state.get("answer_mode", "full_narrative")
             factual_answer = full_state.get("factual_answer")
+            # Agentic path: factual_rag gets phases from generator; derive factual_answer for client compat
+            if answer_mode == "factual_rag" and factual_answer is None and phases:
+                first = phases[0]
+                factual_answer = {"answer": first.core_conclusion, "evidence_msg_ids": first.evidence_msg_ids}
+            elif answer_mode == "factual_rag" and factual_answer is None:
+                factual_answer = {"answer": "未找到相关记录。", "evidence_msg_ids": []}
             total_llm_calls = sum(s.llm_calls for s in steps)
             trace = AgentTrace(
                 question=args.question,
