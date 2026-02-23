@@ -28,7 +28,7 @@ export function AgentProgress({ steps, logs }: { steps: AgentStep[]; logs: strin
 
           <div className="space-y-8 relative">
             {steps.length === 0 && (
-              <div className="text-zinc-500 dark:text-zinc-600 text-sm">等待 Backend 启动...</div>
+              <div className="text-zinc-500 dark:text-zinc-600 text-sm">正在分析...</div>
             )}
             {steps.map((step, idx) => {
               const isCompleted = steps.length > 1 && idx < steps.length - 1;

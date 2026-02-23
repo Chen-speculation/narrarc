@@ -1,14 +1,14 @@
 import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
 import { Command } from '@tauri-apps/plugin-shell';
 import type { Session, Message, QueryResponse, AgentStep } from './types';
 
-const DB_PATH = 'data/mirror.db';
 const CONFIG_PATH = 'config.yml';
 
 let _backendDir: string | null = null;
 
 function isTauriContext(): boolean {
-  return typeof window !== 'undefined' && !!window.__TAURI_INTERNALS__;
+  return typeof window !== 'undefined' && !!(window as unknown as { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__;
 }
 
 async function getBackendDir(): Promise<string> {
@@ -22,22 +22,15 @@ async function getBackendDir(): Promise<string> {
   return _backendDir;
 }
 
-function cliArgs(subcommand: string, extra: string[] = []): string[] {
-  return ['--db', DB_PATH, subcommand, ...extra];
-}
-
-async function runCli<T>(args: string[]): Promise<T> {
-  const cwd = await getBackendDir();
-  const cmd = Command.create(
-    'uv',
-    ['run', 'python', '-m', 'narrative_mirror.cli_json', ...args],
-    { cwd }
-  );
-  const output = await cmd.execute();
-  if (output.code !== 0) {
-    throw new Error(`CLI error: ${output.stderr}`);
+/** Single request to the long-lived backend process (stdio daemon). */
+async function backendRequest<T>(payload: Record<string, unknown>): Promise<T> {
+  if (!isTauriContext()) {
+    throw new Error(
+      'Tauri API 不可用。请通过 npm run tauri:dev 或运行构建后的应用启动。'
+    );
   }
-  return JSON.parse(output.stdout) as T;
+  const result = await invoke<unknown>('backend_request', { payload });
+  return result as T;
 }
 
 export interface QueryStreamCallbacks {
@@ -47,111 +40,107 @@ export interface QueryStreamCallbacks {
 }
 
 export async function listSessions(): Promise<Session[]> {
-  return runCli<Session[]>(cliArgs('list_sessions'));
+  return backendRequest<Session[]>({ cmd: 'list_sessions' });
 }
 
-/** Use spawn + stream stdout to avoid pipe buffer deadlock with large payloads (400+ msgs). */
-export async function getMessages(talkerId: string, limit?: number, offset?: number): Promise<Message[]> {
-  const cwd = await getBackendDir();
-  const extra: string[] = [];
-  if (limit !== undefined) extra.push('--limit', String(limit));
-  if (offset !== undefined && offset > 0) extra.push('--offset', String(offset));
-  const args = cliArgs('get_messages', ['--talker', talkerId, ...extra]);
-  const cmd = Command.create('uv', ['run', 'python', '-m', 'narrative_mirror.cli_json', ...args], { cwd });
-  let stdout = '';
-  cmd.stdout.on('data', (chunk: string) => { stdout += chunk; });
-  const output = await new Promise<{ code: number; stderr: string }>((resolve, reject) => {
-    cmd.on('close', (e) => resolve({ code: e.code ?? -1, stderr: '' }));
-    cmd.spawn().catch(reject);
-  });
-  if (output.code !== 0) throw new Error(`CLI error: ${output.stderr || 'exit ' + output.code}`);
-  return JSON.parse(stdout) as Message[];
+export async function getMessages(
+  talkerId: string,
+  limit?: number,
+  offset?: number
+): Promise<Message[]> {
+  const payload: Record<string, unknown> = {
+    cmd: 'get_messages',
+    talker: talkerId,
+    offset: offset ?? 0,
+  };
+  if (limit !== undefined) payload.limit = limit;
+  return backendRequest<Message[]>(payload);
 }
 
 export async function queryNarrative(
   talkerId: string,
   question: string
 ): Promise<QueryResponse> {
-  return runCli<QueryResponse>(
-    cliArgs('query', ['--talker', talkerId, '--question', question, '--config', CONFIG_PATH])
-  );
+  return backendRequest<QueryResponse>({
+    cmd: 'query',
+    talker: talkerId,
+    question,
+    config: CONFIG_PATH,
+    stream: false,
+  });
 }
 
-/** Stream query with real-time progress. Uses spawn + stdout NDJSON. */
+/** Stream query via backend_query_stream; progress via backend://progress event. */
 export async function queryNarrativeStream(
   talkerId: string,
   question: string,
   callbacks: QueryStreamCallbacks
 ): Promise<void> {
-  const cwd = await getBackendDir();
-  const args = cliArgs('query', [
-    '--talker', talkerId,
-    '--question', question,
-    '--config', CONFIG_PATH,
-    '--stream',
-  ]);
-  const cmd = Command.create('uv', ['run', 'python', '-m', 'narrative_mirror.cli_json', ...args], { cwd });
-
-  let buffer = '';
-  let resultReceived = false;
-
-  const processLine = (line: string) => {
-    if (!line.trim()) return;
-    try {
-      const obj = JSON.parse(line) as { type?: string; trace_steps?: AgentStep[] };
-      if (obj.type === 'progress' && Array.isArray(obj.trace_steps)) {
-        callbacks.onProgress(obj.trace_steps);
-      } else if (obj.type === 'result') {
-        const { type: _, ...rest } = obj;
-        resultReceived = true;
-        callbacks.onComplete(rest as QueryResponse);
+  if (!isTauriContext()) {
+    callbacks.onError(new Error('Tauri API 不可用'));
+    return;
+  }
+  const unlisten = await listen<{ trace_steps?: AgentStep[] }>(
+    'backend://progress',
+    (event) => {
+      if (Array.isArray(event.payload?.trace_steps)) {
+        callbacks.onProgress(event.payload.trace_steps);
       }
-    } catch {
-      // ignore parse errors for non-JSON lines
     }
-  };
-
-  const onData = (chunk: string) => {
-    buffer += chunk;
-    const lines = buffer.split('\n');
-    buffer = lines.pop() ?? '';
-    for (const line of lines) processLine(line);
-  };
-
-  cmd.stdout.on('data', onData);
-
-  return new Promise<void>((resolve, reject) => {
-    cmd.on('close', (event) => {
-      // Flush remaining buffer
-      if (buffer.trim()) processLine(buffer);
-      if (event.code !== 0 && event.code != null && !resultReceived) {
-        callbacks.onError(new Error(`Process exited with code ${event.code}`));
-        reject(new Error(`Process exited with code ${event.code}`));
-      } else {
-        resolve();
-      }
+  );
+  try {
+    const result = await invoke<Record<string, unknown>>('backend_query_stream', {
+      talker: talkerId,
+      question,
     });
-    cmd.spawn().catch(reject);
-  });
+    const { type: _, ...rest } = result as { type?: string; [k: string]: unknown };
+    callbacks.onComplete(rest as unknown as QueryResponse);
+  } catch (err) {
+    callbacks.onError(err instanceof Error ? err : new Error(String(err)));
+  } finally {
+    unlisten();
+  }
 }
 
 export async function importData(filePath: string): Promise<Session> {
-  return runCli<Session>(cliArgs('import', ['--file', filePath]));
+  const out = await backendRequest<{
+    talker_id: string;
+    message_count: number;
+    build_status: string;
+  }>({ cmd: 'import', file: filePath });
+  return {
+    talker_id: out.talker_id,
+    display_name: out.talker_id,
+    last_timestamp: 0,
+    build_status: out.build_status as Session['build_status'],
+    message_count: out.message_count,
+  };
 }
 
 export async function deleteSession(talkerId: string): Promise<void> {
-  return runCli<void>(cliArgs('delete_session', ['--talker', talkerId]));
+  await backendRequest<unknown>({ cmd: 'delete_session', talker: talkerId });
 }
 
 export async function triggerBuild(talkerId: string): Promise<void> {
-  if (import.meta.env.DEV) {
-    // Dev 模式：通过 Rust 侧 spawn，stdout/stderr 继承到 tauri dev 终端，方便排查
+  if (import.meta.env?.DEV) {
     await invoke('spawn_backend_build', { talkerId });
   } else {
     const cwd = await getBackendDir();
     const cmd = Command.create(
       'uv',
-      ['run', 'python', '-m', 'narrative_mirror.cli_json', ...cliArgs('build', ['--talker', talkerId, '--config', CONFIG_PATH])],
+      [
+        'run',
+        'python',
+        '-m',
+        'narrative_mirror.cli_json',
+        '--db',
+        'data/mirror.db',
+        'build',
+        '--talker',
+        talkerId,
+        '--config',
+        CONFIG_PATH,
+      ],
       { cwd }
     );
     await cmd.spawn();

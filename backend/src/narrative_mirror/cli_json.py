@@ -28,6 +28,18 @@ from .db import (
 )
 from .workflow import run_workflow, run_workflow_stream_values
 
+# Stdio daemon mode: when True, _die() prints JSON error and raises StdioModeError instead of exiting
+_stdio_mode = False
+
+
+class StdioModeError(Exception):
+    """Raised by _die() in stdio mode so the daemon loop can continue."""
+
+    def __init__(self, message: str) -> None:
+        self.message = message
+        super().__init__(message)
+
+
 # Node name to display name mapping for AgentTrace steps
 NODE_NAME_DISPLAY = {
     "planner": "意图解析",
@@ -59,8 +71,11 @@ def msg_to_client(msg: RawMessage, phase_index: Optional[int] = None) -> dict:
 
 
 def _die(msg: str) -> None:
-    """Write error to stderr and exit with code 1."""
+    """Write error to stderr and exit with code 1. In stdio mode, print JSON to stdout and raise instead."""
     print(msg, file=sys.stderr)
+    if _stdio_mode:
+        print(json.dumps({"type": "error", "message": msg}, ensure_ascii=False), flush=True)
+        raise StdioModeError(msg)
     sys.exit(1)
 
 
@@ -138,7 +153,7 @@ def _cmd_list_sessions(args) -> None:
                 if progress:
                     row["build_progress"] = progress
             result.append(row)
-        print(json.dumps(result, ensure_ascii=False))
+        print(json.dumps(result, ensure_ascii=False), flush=True)
     finally:
         conn.close()
 
@@ -159,7 +174,7 @@ def _cmd_get_messages(args) -> None:
         elif offset:
             msgs = msgs[offset:]
         out = [msg_to_client(m) for m in msgs]
-        print(json.dumps(out, ensure_ascii=False))
+        print(json.dumps(out, ensure_ascii=False), flush=True)
     finally:
         conn.close()
 
@@ -304,6 +319,10 @@ def _cmd_query(args) -> None:
             # Stream mode: output NDJSON progress lines, then final result
             from .models import AgentTrace, NarrativePhase
 
+            # Emit one initial progress line so the client gets a response immediately and does not
+            # block waiting for the first workflow yield (which can be slow due to first LLM call).
+            print(json.dumps({"type": "progress", "trace_steps": []}, ensure_ascii=False), flush=True)
+
             for steps, full_state in run_workflow_stream_values(
                 question=args.question,
                 talker_id=args.talker,
@@ -352,7 +371,7 @@ def _cmd_query(args) -> None:
             )
             end_ms = int(time.time() * 1000)
             resp = _build_query_response(trace, args.talker, start_ms, end_ms, conn)
-            print(json.dumps(resp, ensure_ascii=False))
+            print(json.dumps(resp, ensure_ascii=False), flush=True)
     except Exception as e:
         _die(f"query failed: {e}")
     finally:
@@ -443,7 +462,7 @@ def _cmd_import(args) -> None:
             "message_count": count,
             "build_status": status,
         }
-        print(json.dumps(out, ensure_ascii=False))
+        print(json.dumps(out, ensure_ascii=False), flush=True)
     finally:
         conn.close()
 
@@ -474,7 +493,7 @@ def _cmd_delete_session(args) -> None:
             except Exception:
                 pass
         out = {"status": "deleted", "talker_id": args.talker}
-        print(json.dumps(out, ensure_ascii=False))
+        print(json.dumps(out, ensure_ascii=False), flush=True)
     finally:
         conn.close()
 
@@ -549,11 +568,91 @@ def _cmd_build(args) -> None:
 
         clear_build_progress(conn, talker_id)
         out = {"status": "complete", "talker_id": talker_id}
-        print(json.dumps(out, ensure_ascii=False))
+        print(json.dumps(out, ensure_ascii=False), flush=True)
     except Exception as e:
         _die(str(e))
     finally:
         conn.close()
+
+
+# ---------------------------------------------------------------------------
+# stdio daemon (one process per client lifecycle)
+# ---------------------------------------------------------------------------
+
+
+class _Namespace:
+    """Minimal namespace for dispatching to _cmd_* without argparse."""
+
+    def __init__(self, d: dict) -> None:
+        self.__dict__.update(d)
+
+
+def _cmd_stdio(args) -> None:
+    """Read JSON lines from stdin, dispatch to existing _cmd_* by cmd, write responses to stdout."""
+    global _stdio_mode
+    _stdio_mode = True
+    default_db = args.db
+    default_config = getattr(args, "config", None) or "config.yml"
+
+    for line in sys.stdin:
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            data = json.loads(line)
+        except json.JSONDecodeError as e:
+            print(json.dumps({"type": "error", "message": f"Invalid JSON: {e}"}, ensure_ascii=False), flush=True)
+            continue
+
+        cmd = data.get("cmd")
+        if not cmd:
+            print(json.dumps({"type": "error", "message": "Missing 'cmd' field"}, ensure_ascii=False), flush=True)
+            continue
+
+        # Build namespace with defaults; payload keys match CLI option names (e.g. talker, limit, offset)
+        base = {"db": default_db}
+        if cmd == "list_sessions":
+            ns = _Namespace(base)
+            func = _cmd_list_sessions
+        elif cmd == "get_messages":
+            ns = _Namespace({
+                **base,
+                "talker": data.get("talker"),
+                "limit": data.get("limit"),
+                "offset": data.get("offset", 0),
+            })
+            func = _cmd_get_messages
+        elif cmd == "query":
+            ns = _Namespace({
+                **base,
+                "talker": data.get("talker"),
+                "question": data.get("question"),
+                "config": data.get("config") or default_config,
+                "chroma_dir": data.get("chroma_dir"),
+                "stub": data.get("stub", False),
+                "stream": data.get("stream", False),
+            })
+            func = _cmd_query
+        elif cmd == "import":
+            ns = _Namespace({**base, "file": data.get("file")})
+            func = _cmd_import
+        elif cmd == "delete_session":
+            ns = _Namespace({
+                **base,
+                "talker": data.get("talker"),
+                "chroma_dir": data.get("chroma_dir"),
+            })
+            func = _cmd_delete_session
+        else:
+            print(json.dumps({"type": "error", "message": f"Unknown cmd: {cmd}"}, ensure_ascii=False), flush=True)
+            continue
+
+        try:
+            func(ns)
+        except StdioModeError:
+            pass
+        except Exception as e:
+            print(json.dumps({"type": "error", "message": str(e)}, ensure_ascii=False), flush=True)
 
 
 # ---------------------------------------------------------------------------
@@ -613,6 +712,11 @@ def main() -> None:
     p_build.add_argument("--chroma-dir", dest="chroma_dir", default=None, help="ChromaDB directory (optional)")
     p_build.add_argument("--debug", action="store_true", help="Print progress logs to stderr")
     p_build.set_defaults(func=_cmd_build)
+
+    # stdio daemon (one process per client; requests as JSON lines on stdin)
+    p_stdio = subparsers.add_parser("stdio")
+    p_stdio.add_argument("--config", default="config.yml", help="Default config path for query")
+    p_stdio.set_defaults(func=_cmd_stdio)
 
     args = parser.parse_args()
     try:

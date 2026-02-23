@@ -30,6 +30,7 @@ client/data/*
 client/node_modules/
 client/dist/
 client/src-tauri/target/
+client/data/test
 client/coverage/
 *.log
 client/.env*
