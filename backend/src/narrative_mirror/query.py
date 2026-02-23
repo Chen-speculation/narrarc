@@ -5,7 +5,7 @@ import re
 import sqlite3
 import sys
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from .models import QueryIntent, NarrativePhase, TopicNode, AnomalyAnchor
 
@@ -17,6 +17,25 @@ if TYPE_CHECKING:
     from .llm import CoTLLM
     from .tools import NarrativeTool
 
+# Output mode config for dynamic phase count and evidence range
+OUTPUT_MODES = {
+    "narrative": {
+        "min_phases": 2,
+        "max_phases": 8,
+        "evidence_per_phase": (3, 8),
+    },
+    "fact": {
+        "min_phases": 1,
+        "max_phases": 1,
+        "evidence_per_phase": (1, 5),
+    },
+    "summary": {
+        "min_phases": 2,
+        "max_phases": 4,
+        "evidence_per_phase": (2, 5),
+    },
+}
+
 
 def parse_intent(question: str, llm: "CoTLLM") -> QueryIntent:
     """Parse user's question into a structured QueryIntent.
@@ -26,25 +45,44 @@ def parse_intent(question: str, llm: "CoTLLM") -> QueryIntent:
         llm: The CoTLLM to use for parsing.
 
     Returns:
-        A QueryIntent object.
+        A QueryIntent object with scope and output_mode.
     """
-    system_prompt = """你是一个查询意图分析助手。根据用户的问题，识别查询类型和关注的维度。
+    system_prompt = """分析用户问题，输出 JSON：
+{
+  "intent_type": "arc_narrative | fact_lookup | theme_summary | phase_query",
+  "scope": {
+    "type": "global | time_bounded | topic_bounded",
+    "time_hint": {
+      "start": "2023-01-01 或 null",
+      "end": "2023-06-01 或 null",
+      "relative": "自然语言时间描述 或 null"
+    },
+    "topic_hint": "主题关键词 或 null"
+  },
+  "focus_dimensions": ["维度1", "维度2"],
+  "output_mode": "narrative | fact | summary"
+}
 
-查询类型 (query_type):
-- arc_narrative: 用户想了解某个过程/事件的演变（如"我们是怎么分手的"）
-- time_point: 用户问某个时间点发生了什么（如"2023年6月发生了什么"）
-- event_retrieval: 用户问某个特定事件（如"我们第一次吵架是什么时候"）
+scope 判断规则：
+- 问题涉及整段关系/经历的演变 → global
+- 问题指向特定时间段 → time_bounded
+- 问题指向特定话题但不限时间 → topic_bounded
+- 可组合：time_bounded + topic_hint 同时存在
 
-关注维度 (focus_dimensions): 从以下列表中选择相关的维度:
-- reply_delay: 回复延迟变化
-- term_shift: 称呼/措辞变化
-- silence_event: 沉默事件
-- topic_frequency: 话题频率
-- initiator_ratio: 发起比例
-- emotional_tone: 情感基调
-- conflict_intensity: 冲突强度
+参考示例：
+职场："入职以来工作进展如何" → global, narrative
+职场："上个季度的项目复盘" → time_bounded, relative="上个季度", narrative
+职场："那次需求评审会说了什么" → time_bounded + topic_bounded, fact
+师生："导师指导方向有过哪些调整" → global, narrative
+师生："老师有没有提过延毕" → topic_bounded, fact, topic_hint="延毕"
+社交："我和他的关系怎么变化的" → global, narrative
+社交："去年国庆一起出去玩那次" → time_bounded, fact
+家庭："和爸妈的沟通模式有变化吗" → global, narrative
+家庭："上次聊到买房是什么时候" → topic_bounded, fact, topic_hint="买房"
+沟通："沟通方式有什么问题" → global, narrative
+沟通："谁更主动发起聊天" → global, summary
 
-返回JSON格式: {"query_type": "类型", "focus_dimensions": ["维度1", "维度2"], "time_range": "时间范围或null"}"""
+关注维度 (focus_dimensions) 从以下选择: reply_delay, term_shift, silence_event, topic_frequency, initiator_ratio, emotional_tone, conflict_intensity"""
 
     prompt = f"用户问题: {question}\n\n请分析这个问题的意图。"
 
@@ -52,28 +90,42 @@ def parse_intent(question: str, llm: "CoTLLM") -> QueryIntent:
         response = llm.think_and_complete(system_prompt, prompt, max_tokens=512, response_format="json_object")
         data = json.loads(response)
 
-        query_type = data.get("query_type", "arc_narrative")
+        # Support both new format (intent_type, scope, output_mode) and legacy (query_type)
+        intent_type = data.get("intent_type") or data.get("query_type", "arc_narrative")
         focus_dimensions = data.get("focus_dimensions", [])
         time_range = data.get("time_range")
+        output_mode = data.get("output_mode", "narrative")
 
-        # Validate and filter dimensions against canonical list
-        valid_dimensions = [
-            dim for dim in focus_dimensions
-            if dim in CANONICAL_SIGNALS
-        ]
+        # Map intent_type to legacy query_type
+        query_type_map = {
+            "arc_narrative": "arc_narrative",
+            "fact_lookup": "event_retrieval",
+            "theme_summary": "arc_narrative",
+            "phase_query": "time_point",
+        }
+        query_type = query_type_map.get(intent_type, intent_type if intent_type in ("arc_narrative", "time_point", "event_retrieval") else "arc_narrative")
+
+        scope = data.get("scope")
+        if scope and scope.get("type") not in ("global", "time_bounded", "topic_bounded"):
+            scope = {"type": "global", "time_hint": {}, "topic_hint": None}
+
+        valid_dimensions = [d for d in focus_dimensions if d in CANONICAL_SIGNALS]
 
         return QueryIntent(
             query_type=query_type,
             focus_dimensions=valid_dimensions,
             time_range=time_range,
+            scope=scope,
+            output_mode=output_mode if output_mode in ("narrative", "fact", "summary") else "narrative",
         )
 
     except (json.JSONDecodeError, ValueError, KeyError):
-        # Fallback to default
         return QueryIntent(
             query_type="arc_narrative",
             focus_dimensions=CANONICAL_SIGNALS[:3],
             time_range=None,
+            scope={"type": "global", "time_hint": {}, "topic_hint": None},
+            output_mode="narrative",
         )
 
 
@@ -114,6 +166,7 @@ def expand_candidates(
     question: str = "",
     llm_noncot=None,
     chroma_dir: str = "",
+    scope: Optional[dict] = None,
 ) -> list[TopicNode]:
     """Expand candidate nodes from anchors via thread traversal.
 
@@ -140,7 +193,22 @@ def expand_candidates(
     """
     all_nodes = get_nodes(conn, talker_id)
 
-    # Optional semantic retrieval path
+    # Use retrieve_by_scope when chroma_dir and llm_noncot available
+    if chroma_dir and llm_noncot is not None:
+        from .tools import retrieve_by_scope
+        scope = scope or {"type": "global"}
+        return retrieve_by_scope(
+            conn=conn,
+            chroma_dir=chroma_dir,
+            talker_id=talker_id,
+            scope=scope,
+            queries=[question] if question else [],
+            llm=llm_noncot,
+            limit=max_nodes,
+            anchors=anchors,
+        )
+
+    # Optional semantic retrieval path (fallback)
     semantic_node_ids: set[str] = set()
     if question and chroma_dir and llm_noncot is not None:
         try:
@@ -200,6 +268,7 @@ def segment_narrative(
     talker_id: str,
     llm: "CoTLLM",
     conn: sqlite3.Connection,
+    output_mode: str = "narrative",
 ) -> list[NarrativePhase]:
     """Segment candidates into narrative phases.
 
@@ -259,19 +328,29 @@ def segment_narrative(
             "messages_preview": messages_preview,
         })
 
-    system_prompt = """你是一个叙事分析助手。根据对话节点的时间线，将其分割为4-6个叙事阶段。
+    cfg = OUTPUT_MODES.get(output_mode, OUTPUT_MODES["narrative"])
+    time_span_days = 1
+    if candidates:
+        ts_min = min(n.start_time for n in candidates)
+        ts_max = max(n.start_time for n in candidates)
+        time_span_days = max(1, (ts_max - ts_min) / (1000 * 86400))
+    phase_count = max(cfg["min_phases"], min(cfg["max_phases"], max(1, int(time_span_days // 180))))
+    phase_count = min(phase_count, max(1, len(candidates) // 3))
+
+    ev_min, ev_max = cfg["evidence_per_phase"]
+    system_prompt = f"""你是一个叙事分析助手。根据对话节点的时间线，将其分割为 {phase_count} 个叙事阶段。
 
 每个阶段需要包含:
 - phase_title: 阶段标题（简短有力）
 - time_range: 时间范围（如"2023年3月"）
 - core_conclusion: 核心结论（一句话概括）
-- evidence_msg_ids: 从本阶段涵盖的节点中选取5-8个代表性消息的整数ID，覆盖该阶段的起止时间
+- evidence_msg_ids: 从本阶段涵盖的节点中选取{ev_min}-{ev_max}个代表性消息的整数ID，覆盖该阶段的起止时间
 - reasoning_chain: 推理链（解释为什么得出这个结论）
 - uncertainty_note: 不确定性说明
 
 注意：evidence_msg_ids 必须是各节点 start_id 到 end_id 范围内的真实消息ID。确保从不同日期/时间段的节点中选取证据（早期、中期、晚期都要有），不要只从某一小段选取。优先选择直接支撑结论、与用户问题关键词相关的消息。
 
-返回JSON格式: {"phases": [{...}, {...}]}"""
+返回JSON格式: {{\"phases\": [{{...}}, {{...}}]}}"""
 
     prompt = f"""用户问题: {question}
 
@@ -476,6 +555,7 @@ def run_query(
             tools=tools,
             max_iterations=3,
             debug=debug,
+            chroma_dir=chroma_dir,
         )
         phases = reflect_on_evidence(
             phases=trace.phases,
@@ -501,11 +581,15 @@ def run_query(
     candidates = expand_candidates(
         anchors, talker_id, conn, max_nodes, intent.query_type,
         question=question, llm_noncot=llm_noncot, chroma_dir=chroma_dir,
+        scope=intent.scope if intent else None,
     )
     if debug:
         print(f"Q3: Expanded to {len(candidates)} candidate nodes", file=sys.stderr)
 
-    phases = segment_narrative(candidates, question, talker_id, llm, conn)
+    phases = segment_narrative(
+        candidates, question, talker_id, llm, conn,
+        output_mode=intent.output_mode if intent else "narrative",
+    )
     if debug:
         print(f"Q4: Generated {len(phases)} narrative phases", file=sys.stderr)
 
@@ -552,6 +636,7 @@ def run_query_with_phases(
             tools=tools,
             max_iterations=3,
             debug=debug,
+            chroma_dir=chroma_dir,
         )
         phases = reflect_on_evidence(
             phases=trace.phases,
@@ -569,10 +654,18 @@ def run_query_with_phases(
     candidates = expand_candidates(
         anchors, talker_id, conn, max_nodes, intent.query_type,
         question=question, llm_noncot=llm_noncot, chroma_dir=chroma_dir,
+        scope=intent.scope if intent else None,
     )
-    phases = segment_narrative(candidates, question, talker_id, llm, conn)
+    output_mode = intent.output_mode if intent else "narrative"
+    phases = segment_narrative(
+        candidates, question, talker_id, llm, conn,
+        output_mode=output_mode,
+    )
     if not phases and candidates:
-        phases = segment_narrative(candidates, question, talker_id, llm, conn)
+        phases = segment_narrative(
+            candidates, question, talker_id, llm, conn,
+            output_mode=output_mode,
+        )
     from .reflection import reflect_on_evidence
     phases = reflect_on_evidence(
         phases=phases,

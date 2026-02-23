@@ -102,9 +102,11 @@ class AnomalyAnchor:
 class QueryIntent:
     """Parsed query intent from user's question."""
 
-    query_type: str  # "arc_narrative", "time_point", "event_retrieval"
+    query_type: str  # "arc_narrative", "time_point", "event_retrieval", "phase_query"
     focus_dimensions: list[str] = field(default_factory=list)
     time_range: Optional[str] = None  # e.g., "2023-06"
+    scope: Optional[dict] = None  # {type, time_hint, topic_hint}
+    output_mode: str = "narrative"  # "narrative" | "fact" | "summary"
 
 
 @dataclass

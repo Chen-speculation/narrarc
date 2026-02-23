@@ -304,11 +304,23 @@ def build_layer1(
         if progress_callback:
             progress_callback(stage, step, detail)
 
-    # Fetch all messages
+    # Fetch all messages (batch fetch to avoid truncation; datasource supports offset)
     if debug:
         print(f"Fetching messages for {talker_id}...", file=sys.stderr)
 
-    messages = source.get_messages(talker_id, limit=10000)
+    BATCH_SIZE = 10000
+    messages = []
+    offset = 0
+    while True:
+        batch = source.get_messages(talker_id, limit=BATCH_SIZE, offset=offset)
+        if not batch:
+            break
+        messages.extend(batch)
+        offset += BATCH_SIZE
+        _progress("layer1", "fetch", f"已获取 {len(messages)} 条消息")
+        if len(batch) < BATCH_SIZE:
+            break
+
     _progress("layer1", "fetch", f"已获取 {len(messages)} 条消息")
 
     if debug:

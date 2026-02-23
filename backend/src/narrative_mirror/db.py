@@ -391,6 +391,81 @@ def upsert_pointer(
     conn.commit()
 
 
+def get_nodes_by_time_range(
+    conn: sqlite3.Connection,
+    talker_id: str,
+    start_ms: int,
+    end_ms: int,
+) -> list[TopicNode]:
+    """Get topic nodes within a time range.
+
+    Args:
+        conn: SQLite connection.
+        talker_id: The conversation's talker ID.
+        start_ms: Start timestamp in milliseconds.
+        end_ms: End timestamp in milliseconds.
+
+    Returns:
+        List of TopicNode objects, sorted by start_time ascending.
+    """
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT node_id, talker_id, burst_id, topic_name, start_local_id, end_local_id,
+               start_time, end_time, parent_node_id
+        FROM topic_nodes
+        WHERE talker_id = ? AND start_time >= ? AND start_time <= ?
+        ORDER BY start_time ASC
+        """,
+        (talker_id, start_ms, end_ms),
+    )
+    nodes = []
+    for row in cursor.fetchall():
+        nodes.append(TopicNode(
+            node_id=row[0],
+            talker_id=row[1],
+            burst_id=row[2],
+            topic_name=row[3],
+            start_local_id=row[4],
+            end_local_id=row[5],
+            start_time=row[6],
+            end_time=row[7],
+            parent_node_id=row[8],
+        ))
+    return nodes
+
+
+def get_time_range(conn: sqlite3.Connection, talker_id: str) -> tuple[int, int]:
+    """Get min and max timestamps for conversation.
+
+    Returns:
+        (min_start_time_ms, max_end_time_ms) for topic_nodes.
+    """
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT MIN(start_time), MAX(end_time)
+        FROM topic_nodes
+        WHERE talker_id = ?
+        """,
+        (talker_id,),
+    )
+    row = cursor.fetchone()
+    if row is None or row[0] is None:
+        return (0, 0)
+    return (row[0], row[1] or row[0])
+
+
+def get_nodes_count(conn: sqlite3.Connection, talker_id: str) -> int:
+    """Get total count of topic nodes for a conversation."""
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT COUNT(*) FROM topic_nodes WHERE talker_id = ?",
+        (talker_id,),
+    )
+    return cursor.fetchone()[0]
+
+
 def get_nodes(conn: sqlite3.Connection, talker_id: str) -> list[TopicNode]:
     """Get all topic nodes for a conversation.
 

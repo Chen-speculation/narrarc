@@ -348,6 +348,7 @@ def _cmd_query(args) -> None:
                 llm_noncot=llm_noncot,
                 max_iterations=3,
                 debug=False,
+                chroma_dir=chroma_dir,
             )
             end_ms = int(time.time() * 1000)
             resp = _build_query_response(trace, args.talker, start_ms, end_ms, conn)

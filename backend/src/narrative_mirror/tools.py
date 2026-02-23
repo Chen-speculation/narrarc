@@ -16,6 +16,8 @@ from .db import (
     get_anchors,
     get_all_metadata,
     get_messages_for_node,
+    get_nodes_by_time_range,
+    get_time_range,
 )
 
 
@@ -348,16 +350,303 @@ class GetNodeSummaryTool:
 
 
 # ---------------------------------------------------------------------------
+# Stratified sampling and scope-driven retrieval
+# ---------------------------------------------------------------------------
+
+
+def stratified_sample(nodes: list, limit: int) -> list:
+    """Sample nodes evenly across time buckets to avoid early bias."""
+    if not nodes or len(nodes) <= limit:
+        return nodes
+    n_buckets = min(8, max(4, limit // 8))
+    bucket_size = len(nodes) // n_buckets
+    if bucket_size == 0:
+        # Fewer nodes than buckets: take evenly from nodes
+        step = len(nodes) / limit
+        return [nodes[int(j * step)] for j in range(limit)]
+    per_bucket = limit // n_buckets
+    remainder = limit % n_buckets
+
+    sampled = []
+    for i in range(n_buckets):
+        start_idx = i * bucket_size
+        end_idx = start_idx + bucket_size if i < n_buckets - 1 else len(nodes)
+        bucket = nodes[start_idx:end_idx]
+        take = per_bucket + (1 if i < remainder else 0)
+
+        if take <= 0:
+            continue
+        if len(bucket) <= take:
+            sampled.extend(bucket)
+        else:
+            step = len(bucket) / take
+            sampled.extend(bucket[int(j * step)] for j in range(take))
+
+    return sampled
+
+
+def _merge_and_dedup(
+    overview: list[TopicNode],
+    semantic_results: list,
+    node_by_id: dict[str, TopicNode],
+) -> list[TopicNode]:
+    """Merge overview nodes with semantic results, deduplicate, preserve order."""
+    seen = set()
+    result = []
+    for n in overview:
+        if n.node_id not in seen:
+            seen.add(n.node_id)
+            result.append(n)
+    for item in semantic_results:
+        nid = item[0] if isinstance(item, (tuple, list)) else item
+        if isinstance(nid, str) and nid in node_by_id and nid not in seen:
+            seen.add(nid)
+            result.append(node_by_id[nid])
+    result.sort(key=lambda n: n.start_time)
+    return result
+
+
+def time_diversified_search(
+    chroma_collection,
+    queries: list[str],
+    talker_id: str,
+    conn: sqlite3.Connection,
+    llm: "NonCoTLLM",
+    top_k: int = 30,
+) -> list[tuple[str, float, dict]]:
+    """Semantic search with time diversification: split into 4 buckets, take top-k/4 per bucket."""
+    min_ms, max_ms = get_time_range(conn, talker_id)
+    if min_ms == 0 and max_ms == 0:
+        return []
+
+    raw_results = []
+    for q in queries:
+        try:
+            embedding = llm.embed(q)
+            results = chroma_collection.query(
+                query_embeddings=[embedding],
+                n_results=min(top_k * 2, chroma_collection.count()),
+            )
+            if results and results.get("ids") and results["ids"][0]:
+                ids = results["ids"][0]
+                dists = results.get("distances", [[]])[0]
+                metas = results.get("metadatas", [[]])[0]
+                for i, nid in enumerate(ids):
+                    meta = metas[i] if metas and i < len(metas) else {}
+                    dist = dists[i] if dists and i < len(dists) else 0.0
+                    raw_results.append((nid, dist, meta))
+        except Exception:
+            pass
+
+    seen = set()
+    unique = []
+    for nid, dist, meta in raw_results:
+        if nid not in seen:
+            seen.add(nid)
+            unique.append((nid, dist, meta))
+
+    total_days = max(1, (max_ms - min_ms) / (1000 * 86400))
+    n_buckets = 4
+    bucket_days = total_days / n_buckets
+    min_dt = datetime.fromtimestamp(min_ms / 1000)
+
+    buckets: list[list[tuple]] = [[] for _ in range(n_buckets)]
+    for nid, dist, meta in unique:
+        st = meta.get("start_time", min_ms)
+        if isinstance(st, (int, float)):
+            node_dt = datetime.fromtimestamp(st / 1000)
+        else:
+            node_dt = min_dt
+        days_offset = (node_dt - min_dt).days
+        idx = min(n_buckets - 1, max(0, int(days_offset / bucket_days)))
+        buckets[idx].append((nid, dist, meta))
+
+    per_bucket = top_k // n_buckets
+    final = []
+    for bucket in buckets:
+        bucket.sort(key=lambda x: x[1])
+        final.extend(bucket[:per_bucket])
+    return final
+
+
+def search_semantic_in_range(
+    chroma_collection,
+    queries: list[str],
+    start_ms: int,
+    end_ms: int,
+    llm: "NonCoTLLM",
+    top_k: int = 20,
+) -> list[tuple[str, float, dict]]:
+    """Semantic search restricted to time range. ChromaDB metadata start_time is int ms."""
+    raw = []
+    for q in queries:
+        try:
+            embedding = llm.embed(q)
+            results = chroma_collection.query(
+                query_embeddings=[embedding],
+                n_results=top_k * 2,
+                where={
+                    "$and": [
+                        {"start_time": {"$gte": start_ms}},
+                        {"start_time": {"$lte": end_ms}},
+                    ]
+                },
+            )
+            if results and results.get("ids") and results["ids"][0]:
+                ids = results["ids"][0]
+                dists = results.get("distances", [[]])[0]
+                metas = results.get("metadatas", [[]])[0]
+                for i, nid in enumerate(ids):
+                    meta = metas[i] if metas and i < len(metas) else {}
+                    dist = dists[i] if dists and i < len(dists) else 0.0
+                    raw.append((nid, dist, meta))
+        except Exception:
+            pass
+
+    seen = set()
+    unique = []
+    for nid, dist, meta in raw:
+        if nid not in seen:
+            seen.add(nid)
+            unique.append((nid, dist, meta))
+    unique.sort(key=lambda x: x[1])
+    return unique[:top_k]
+
+
+def retrieve_by_scope(
+    conn: sqlite3.Connection,
+    chroma_dir: str,
+    talker_id: str,
+    scope: dict,
+    queries: list[str],
+    llm: "NonCoTLLM",
+    limit: int = 60,
+    anchors: Optional[list] = None,
+) -> list[TopicNode]:
+    """Retrieve nodes by scope type: global (stratified + time-diversified semantic), time_bounded, topic_bounded."""
+    from .time_utils import resolve_time_hint
+    from .layer2 import get_thread
+
+    scope_type = scope.get("type", "global")
+    all_nodes = get_nodes(conn, talker_id)
+    node_by_id = {n.node_id: n for n in all_nodes}
+
+    try:
+        import chromadb
+        client = chromadb.PersistentClient(path=chroma_dir)
+        coll_name = f"narrative_mirror_{talker_id}".replace("-", "_")
+        collection = client.get_collection(coll_name)
+    except Exception:
+        collection = None
+
+    if scope_type == "global":
+        overview = stratified_sample(all_nodes, limit)
+        semantic_tuples: list = []
+        if collection and llm and queries:
+            semantic_tuples = time_diversified_search(
+                collection, queries, talker_id, conn, llm, top_k=30
+            )
+        merged = _merge_and_dedup(overview, [t[0] for t in semantic_tuples], node_by_id)
+        # Add anchor + thread expansion
+        if anchors:
+            anchor_ids = {a.node_id for a in anchors}
+            for a in anchors:
+                anchor_ids.update(get_thread(a.node_id, talker_id, conn))
+            prioritised = [n for n in merged if n.node_id in anchor_ids]
+            rest = [n for n in merged if n.node_id not in anchor_ids]
+            merged = prioritised + rest
+        return merged[:limit]
+
+    if scope_type == "time_bounded":
+        time_hint = scope.get("time_hint", {})
+        start_ms, end_ms = resolve_time_hint(conn, talker_id, time_hint)
+        nodes = get_nodes_by_time_range(conn, talker_id, start_ms, end_ms)
+        if collection and llm and queries:
+            sem = search_semantic_in_range(
+                collection, queries, start_ms, end_ms, llm, top_k=20
+            )
+            sem_ids = [t[0] for t in sem]
+            merged = _merge_and_dedup(nodes, sem_ids, node_by_id)
+        else:
+            merged = nodes
+        return merged[:limit]
+
+    if scope_type == "topic_bounded":
+        if not collection or not llm or not queries:
+            return []
+        semantic_tuples = []
+        for q in queries:
+            try:
+                emb = llm.embed(q)
+                res = collection.query(
+                    query_embeddings=[emb],
+                    n_results=limit,
+                )
+                if res and res.get("ids") and res["ids"][0]:
+                    ids = res["ids"][0]
+                    dists = res.get("distances", [[]])[0]
+                    metas = res.get("metadatas", [[]])[0]
+                    for i, nid in enumerate(ids):
+                        meta = metas[i] if metas and i < len(metas) else {}
+                        dist = dists[i] if dists and i < len(dists) else 0.0
+                        semantic_tuples.append((nid, dist, meta))
+            except Exception:
+                pass
+        seen = set()
+        unique = []
+        for nid, _, meta in sorted(semantic_tuples, key=lambda x: x[1]):
+            if nid not in seen:
+                seen.add(nid)
+                if nid in node_by_id:
+                    unique.append(node_by_id[nid])
+        return unique[:limit]
+
+    return get_all_nodes_overview(conn, talker_id, limit, scope)
+
+
+def get_all_nodes_overview(
+    conn: sqlite3.Connection,
+    talker_id: str,
+    limit: int = 60,
+    scope: Optional[dict] = None,
+) -> list[TopicNode]:
+    """Get node overview with stratified sampling or scope-based filtering."""
+    all_nodes = get_nodes(conn, talker_id)
+
+    if len(all_nodes) <= limit:
+        return all_nodes
+
+    scope_type = (scope or {}).get("type", "global")
+
+    if scope_type == "time_bounded" and scope:
+        from .time_utils import resolve_time_hint
+
+        time_hint = scope.get("time_hint", {})
+        start_ms, end_ms = resolve_time_hint(conn, talker_id, time_hint)
+        filtered = [
+            n for n in all_nodes
+            if start_ms <= n.start_time <= end_ms
+        ]
+        return filtered[:limit]
+
+    if scope_type == "topic_bounded":
+        return []
+
+    return stratified_sample(all_nodes, limit)
+
+
+# ---------------------------------------------------------------------------
 # Tool 7: get_all_nodes_overview
 # ---------------------------------------------------------------------------
 
 class GetAllNodesOverviewTool:
     name = "get_all_nodes_overview"
-    description = "获取所有 TopicNode 的简略列表，用于了解对话整体时间线。不含消息内容。"
+    description = "获取所有 TopicNode 的简略列表，用于了解对话整体时间线。不含消息内容。支持 scope 分层采样。"
     parameters = {
         "type": "object",
         "properties": {
             "limit": {"type": "integer", "default": 60, "description": "最多返回节点数"},
+            "scope": {"type": "object", "description": "可选 scope 用于 time_bounded/topic_bounded 过滤"},
         },
     }
 
@@ -366,15 +655,17 @@ class GetAllNodesOverviewTool:
         conn: sqlite3.Connection,
         talker_id: str,
         limit: int = 60,
+        scope: Optional[dict] = None,
     ) -> ToolResult:
-        all_nodes = get_nodes(conn, talker_id)[:limit]
+        all_nodes = get_all_nodes_overview(conn, talker_id, limit=limit, scope=scope)
         anchors = get_anchors(conn, talker_id)
         anchor_node_ids = {a.node_id for a in anchors}
 
         if not all_nodes:
             return ToolResult(content="未找到任何 TopicNode，请先运行 build 管道", data=[])
 
-        lines = [f"全局节点概览 ({len(all_nodes)} 个节点，共 {len(get_nodes(conn, talker_id))} 个):"]
+        total_count = len(get_nodes(conn, talker_id))
+        lines = [f"全局节点概览 ({len(all_nodes)} 个节点，共 {total_count} 个):"]
         for n in all_nodes:
             date = datetime.fromtimestamp(n.start_time / 1000).strftime("%Y-%m-%d")
             anchor_mark = " [ANCHOR]" if n.node_id in anchor_node_ids else ""

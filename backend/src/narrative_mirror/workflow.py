@@ -6,7 +6,7 @@ import json
 import re
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Optional, TYPE_CHECKING
 
 from langgraph.graph import StateGraph, END
@@ -20,8 +20,9 @@ from .models import (
     AgentStep,
     AgentTrace,
 )
-from .db import get_nodes, get_messages_for_node, get_all_metadata
+from .db import get_nodes, get_messages_for_node, get_all_metadata, get_time_range
 from .query import parse_intent
+from .time_utils import resolve_time_hint
 
 if TYPE_CHECKING:
     pass
@@ -49,6 +50,7 @@ class WorkflowState(TypedDict):
     conn: Any  # sqlite3.Connection
     talker_id: str
     tools: list  # list[NarrativeTool]
+    chroma_dir: str  # ChromaDB path for retrieve_by_scope
     max_iterations: int
     debug: bool
 
@@ -116,9 +118,11 @@ def planner_node(state: WorkflowState) -> dict:
             file=sys.stderr,
         )
 
+    # Map output_mode and query_type to answer_mode
+    output_mode = getattr(intent, "output_mode", None) or "narrative"
     answer_mode = (
         "factual_rag"
-        if intent.query_type in ("time_point", "event_retrieval")
+        if output_mode == "fact" or intent.query_type in ("time_point", "event_retrieval")
         else "full_narrative"
     )
 
@@ -135,72 +139,91 @@ def planner_node(state: WorkflowState) -> dict:
 # ---------------------------------------------------------------------------
 
 def retriever_node(state: WorkflowState) -> dict:
-    """Retrieve relevant nodes via anchors, semantic search, and thread expansion."""
+    """Retrieve relevant nodes via scope-driven retrieval or fallback to anchors/semantic/overview."""
     intent = state["intent"]
     search_queries = state["search_queries"]
     tools = state["tools"]
     conn = state["conn"]
     talker_id = state["talker_id"]
+    chroma_dir = state.get("chroma_dir", "")
+    llm_noncot = state.get("llm_noncot")
     debug = state.get("debug", False)
 
     if debug:
         print(
             f"[retriever] entry: intent={intent.query_type if intent else 'None'}, "
-            f"queries={search_queries}",
+            f"queries={search_queries}, scope={intent.scope.get('type') if intent and intent.scope else None}",
             file=sys.stderr,
         )
 
-    lookup_anchors_tool = _get_tool(tools, "lookup_anchors")
-    search_semantic_tool = _get_tool(tools, "search_semantic")
-    get_thread_neighbors_tool = _get_tool(tools, "get_thread_neighbors")
-    get_all_nodes_overview_tool = _get_tool(tools, "get_all_nodes_overview")
+    scope = (intent.scope or {"type": "global"}) if intent else {"type": "global"}
     get_node_messages_tool = _get_tool(tools, "get_node_messages")
 
-    collected_node_ids: set[str] = set()
-    anchor_node_ids: set[str] = set()
+    # Use retrieve_by_scope when chroma_dir and llm_noncot available
+    if chroma_dir and llm_noncot is not None:
+        from .tools import retrieve_by_scope
+        from .query import lookup_anchors
 
-    # 1. lookup_anchors
-    if lookup_anchors_tool and intent:
-        signals = intent.focus_dimensions if intent.focus_dimensions else None
-        time_range = intent.time_range if intent.time_range else None
-        result = lookup_anchors_tool.run(conn, talker_id, signals=signals, time_range=time_range)
-        if isinstance(result.data, list):
-            for nid in result.data:
-                if isinstance(nid, str):
-                    collected_node_ids.add(nid)
-                    anchor_node_ids.add(nid)
+        anchors = lookup_anchors(intent, talker_id, conn) if intent else []
+        anchor_node_ids = {a.node_id for a in anchors}
+        merged_nodes = retrieve_by_scope(
+            conn=conn,
+            chroma_dir=chroma_dir,
+            talker_id=talker_id,
+            scope=scope,
+            queries=search_queries,
+            llm=llm_noncot,
+            limit=60,
+            anchors=anchors,
+        )
+    else:
+        # Fallback: original tool-based retrieval
+        lookup_anchors_tool = _get_tool(tools, "lookup_anchors")
+        search_semantic_tool = _get_tool(tools, "search_semantic")
+        get_thread_neighbors_tool = _get_tool(tools, "get_thread_neighbors")
+        get_all_nodes_overview_tool = _get_tool(tools, "get_all_nodes_overview")
+        get_node_messages_tool = _get_tool(tools, "get_node_messages")
 
-    # 2. semantic search for each query
-    if search_semantic_tool:
-        for query in search_queries:
-            result = search_semantic_tool.run(conn, talker_id, query=query, top_k=10)
+        collected_node_ids: set[str] = set()
+        anchor_node_ids: set[str] = set()
+
+        if lookup_anchors_tool and intent:
+            signals = intent.focus_dimensions if intent.focus_dimensions else None
+            time_range = intent.time_range if intent.time_range else None
+            result = lookup_anchors_tool.run(conn, talker_id, signals=signals, time_range=time_range)
+            if isinstance(result.data, list):
+                for nid in result.data:
+                    if isinstance(nid, str):
+                        collected_node_ids.add(nid)
+                        anchor_node_ids.add(nid)
+
+        if search_semantic_tool:
+            for query in search_queries:
+                result = search_semantic_tool.run(conn, talker_id, query=query, top_k=10)
+                if isinstance(result.data, list):
+                    for nid in result.data:
+                        if isinstance(nid, str):
+                            collected_node_ids.add(nid)
+
+        if get_thread_neighbors_tool:
+            for anchor_nid in list(anchor_node_ids):
+                result = get_thread_neighbors_tool.run(conn, talker_id, node_id=anchor_nid)
+                if isinstance(result.data, list):
+                    for nid in result.data:
+                        if isinstance(nid, str):
+                            collected_node_ids.add(nid)
+
+        if intent and intent.query_type == "arc_narrative" and get_all_nodes_overview_tool:
+            result = get_all_nodes_overview_tool.run(conn, talker_id, limit=60, scope=scope)
             if isinstance(result.data, list):
                 for nid in result.data:
                     if isinstance(nid, str):
                         collected_node_ids.add(nid)
 
-    # 3. get_thread_neighbors for each anchor node
-    if get_thread_neighbors_tool:
-        for anchor_nid in list(anchor_node_ids):
-            result = get_thread_neighbors_tool.run(conn, talker_id, node_id=anchor_nid)
-            if isinstance(result.data, list):
-                for nid in result.data:
-                    if isinstance(nid, str):
-                        collected_node_ids.add(nid)
-
-    # 4. For arc_narrative, also get all nodes overview
-    if intent and intent.query_type == "arc_narrative" and get_all_nodes_overview_tool:
-        result = get_all_nodes_overview_tool.run(conn, talker_id, limit=60)
-        if isinstance(result.data, list):
-            for nid in result.data:
-                if isinstance(nid, str):
-                    collected_node_ids.add(nid)
-
-    # Load and sort by start_time
-    all_nodes = get_nodes(conn, talker_id)
-    node_by_id = {n.node_id: n for n in all_nodes}
-    merged_nodes = [node_by_id[nid] for nid in collected_node_ids if nid in node_by_id]
-    merged_nodes.sort(key=lambda n: n.start_time)
+        all_nodes = get_nodes(conn, talker_id)
+        node_by_id = {n.node_id: n for n in all_nodes}
+        merged_nodes = [node_by_id[nid] for nid in collected_node_ids if nid in node_by_id]
+        merged_nodes.sort(key=lambda n: n.start_time)
 
     # Load messages for anchor nodes
     collected_messages: dict[str, list[RawMessage]] = dict(state.get("collected_messages", {}))
@@ -213,7 +236,7 @@ def retriever_node(state: WorkflowState) -> dict:
 
     step = AgentStep(
         node_name="retriever",
-        input_summary=f"queries={search_queries[:2]}, anchors={len(anchor_node_ids)}",
+        input_summary=f"queries={search_queries[:2]}, scope={scope.get('type')}",
         output_summary=f"collected_nodes={len(merged_nodes)}, messages_loaded={len(collected_messages)}",
         llm_calls=0,
         timestamp_ms=int(time.time() * 1000),
@@ -224,8 +247,7 @@ def retriever_node(state: WorkflowState) -> dict:
 
     if debug:
         print(
-            f"[retriever] exit: collected_nodes={len(merged_nodes)}, "
-            f"anchor_nodes={len(anchor_node_ids)}",
+            f"[retriever] exit: collected_nodes={len(merged_nodes)}",
             file=sys.stderr,
         )
 
@@ -446,11 +468,76 @@ def factual_generator_node(state: WorkflowState) -> dict:
 # 5.4 grader_node
 # ---------------------------------------------------------------------------
 
+def _grade_coverage_by_scope(
+    collected_nodes: list,
+    scope: dict,
+    conn,
+    talker_id: str,
+) -> Optional[str]:
+    """Programmatic scope-based coverage check. Returns evaluation JSON or None to fall back to LLM."""
+    scope_type = scope.get("type", "global")
+
+    if scope_type == "global":
+        min_ms, max_ms = get_time_range(conn, talker_id)
+        if min_ms == 0 and max_ms == 0:
+            return None
+        min_dt = datetime.fromtimestamp(min_ms / 1000)
+        max_dt = datetime.fromtimestamp(max_ms / 1000)
+        total_days = max(1, (max_dt - min_dt).days)
+        quarter_days = total_days / 4
+        gaps = []
+        for i in range(4):
+            q_start_ms = int((min_dt + timedelta(days=i * quarter_days)).timestamp() * 1000)
+            q_end_ms = int((min_dt + timedelta(days=(i + 1) * quarter_days)).timestamp() * 1000)
+            count = sum(1 for n in collected_nodes if q_start_ms <= n.start_time <= q_end_ms)
+            if count < 2:
+                gaps.append({
+                    "type": "time_search",
+                    "quarter": f"Q{i + 1}",
+                    "start_date": datetime.fromtimestamp(q_start_ms / 1000).strftime("%Y-%m-%d"),
+                    "end_date": datetime.fromtimestamp(q_end_ms / 1000).strftime("%Y-%m-%d"),
+                    "current_count": count,
+                })
+        if gaps:
+            return json.dumps({"evaluation": "insufficient", "reason": "时间覆盖不足", "gaps": gaps})
+        return '{"evaluation": "sufficient"}'
+
+    if scope_type == "time_bounded":
+        time_hint = scope.get("time_hint", {})
+        start_ms, end_ms = resolve_time_hint(conn, talker_id, time_hint)
+        in_range = [n for n in collected_nodes if start_ms <= n.start_time <= end_ms]
+        if len(in_range) >= 5:
+            return '{"evaluation": "sufficient"}'
+        return json.dumps({
+            "evaluation": "insufficient",
+            "reason": "目标时间段内节点不足",
+            "gaps": [{
+                "type": "time_search",
+                "start_date": datetime.fromtimestamp(start_ms / 1000).strftime("%Y-%m-%d"),
+                "end_date": datetime.fromtimestamp(end_ms / 1000).strftime("%Y-%m-%d"),
+                "current_count": len(in_range),
+            }],
+        })
+
+    if scope_type == "topic_bounded":
+        if len(collected_nodes) >= 3:
+            return '{"evaluation": "sufficient"}'
+        return json.dumps({
+            "evaluation": "insufficient",
+            "reason": "主题相关节点不足",
+            "gaps": [{"type": "semantic_expand", "suggestion": "用同义词或相关表述扩展语义搜索"}],
+        })
+
+    return None
+
+
 def grader_node(state: WorkflowState) -> dict:
     """Evaluate whether collected nodes are sufficient to answer the question."""
     collected_nodes = state["collected_nodes"]
     question = state["question"]
     intent = state.get("intent")
+    conn = state["conn"]
+    talker_id = state["talker_id"]
     llm = state["llm"]
     debug = state.get("debug", False)
 
@@ -460,6 +547,23 @@ def grader_node(state: WorkflowState) -> dict:
             f"iterations={state.get('iterations', 0)}",
             file=sys.stderr,
         )
+
+    # Scope-based programmatic check first
+    scope = (intent.scope or {}) if intent else {}
+    if scope.get("type"):
+        prog_eval = _grade_coverage_by_scope(collected_nodes, scope, conn, talker_id)
+        if prog_eval is not None:
+            step = AgentStep(
+                node_name="grader",
+                input_summary=f"nodes={len(collected_nodes)}, scope={scope.get('type')}",
+                output_summary=f"evaluation={prog_eval[:80]}",
+                llm_calls=0,
+                timestamp_ms=int(time.time() * 1000),
+            )
+            return {
+                "evaluation": prog_eval,
+                "trace_steps": list(state.get("trace_steps", [])) + [step],
+            }
 
     # Build prompt summarizing collected nodes
     node_count = len(collected_nodes)
@@ -474,7 +578,6 @@ def grader_node(state: WorkflowState) -> dict:
         date_range = "无数据"
         topics = []
 
-    # Task 2.1: For arc_narrative, compute Q1-Q4 temporal distribution
     temporal_dist_text = ""
     if intent and getattr(intent, "query_type", None) == "arc_narrative" and collected_nodes:
         ts_list = [n.start_time for n in collected_nodes]
@@ -488,16 +591,14 @@ def grader_node(state: WorkflowState) -> dict:
                 ratio = (n.start_time - ts_min) / ts_span
                 qi = min(3, int(ratio * 4))
                 q_counts[qi] += 1
-        # Task 2.2: Format distribution for prompt
         temporal_dist_text = (
             f"\n- 时间分布: Q1={q_counts[0]}, Q2={q_counts[1]}, Q3={q_counts[2]}, Q4={q_counts[3]}"
         )
 
-    # Task 2.3: System prompt includes arc_narrative insufficiency rule
     system_prompt = (
         "你是一个信息充足性评估助手。评估当前收集的节点是否足够回答用户的问题。\n"
         "对于 arc_narrative（完整叙事弧）类型的查询，如果时间分布中任何时段（Q1/Q2/Q3/Q4）的节点数为0，"
-        "则必须返回 insufficient 并建议 time_search，在 params 中指定该缺失时段对应的日期范围。\n"
+        "则必须返回 insufficient 并建议 time_search，在 params 或 gaps 中指定该缺失时段对应的日期范围。\n"
         "返回JSON格式: "
         '{"evaluation": "sufficient"} 或 '
         '{"evaluation": "insufficient", "reason": "原因", '
@@ -517,7 +618,6 @@ def grader_node(state: WorkflowState) -> dict:
     evaluation = '{"evaluation": "sufficient"}'
     try:
         response = llm.think_and_complete(system_prompt, prompt, max_tokens=512, response_format="json_object")
-        # Validate it's parseable JSON
         data = json.loads(response)
         if "evaluation" in data:
             evaluation = response
@@ -597,12 +697,14 @@ def explorer_node(state: WorkflowState) -> dict:
             file=sys.stderr,
         )
 
-    # Parse evaluation to get suggested_action and params
+    # Parse evaluation to get gaps or suggested_action/params
     suggested_action = "topic_search"
     params = {}
     evaluation_reason = ""
+    gaps = []
     try:
         data = json.loads(evaluation)
+        gaps = data.get("gaps", [])
         suggested_action = data.get("suggested_action", "topic_search")
         params = data.get("params", {})
         evaluation_reason = data.get("reason", "")
@@ -614,11 +716,32 @@ def explorer_node(state: WorkflowState) -> dict:
     get_thread_neighbors_tool = _get_tool(tools, "get_thread_neighbors")
     get_node_messages_tool = _get_tool(tools, "get_node_messages")
 
+    from .db import get_nodes_by_time_range
+
     existing_node_ids = {n.node_id for n in collected_nodes}
     new_node_ids: set[str] = set()
 
-    # Execute action based on suggested_action
-    if suggested_action == "time_search" and list_nodes_by_time_tool:
+    # Execute action based on gaps (P1-2) or suggested_action
+    if gaps:
+        for gap in gaps:
+            gap_type = gap.get("type", "")
+            if gap_type == "time_search":
+                start_date = gap.get("start_date", "2020-01-01")
+                end_date = gap.get("end_date", "2030-12-31")
+                start_ts = int(datetime.strptime(start_date, "%Y-%m-%d").timestamp() * 1000)
+                end_ts = int((datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=1)).timestamp() * 1000) - 1
+                nodes = get_nodes_by_time_range(conn, talker_id, start_ts, end_ts)
+                for n in nodes[:15]:
+                    if n.node_id not in existing_node_ids:
+                        new_node_ids.add(n.node_id)
+            elif gap_type == "semantic_expand" and search_semantic_tool:
+                query = gap.get("suggestion", evaluation_reason) or evaluation_reason or "对话"
+                result = search_semantic_tool.run(conn, talker_id, query=query, top_k=15)
+                if isinstance(result.data, list):
+                    for nid in result.data:
+                        if isinstance(nid, str) and nid not in existing_node_ids:
+                            new_node_ids.add(nid)
+    elif suggested_action == "time_search" and list_nodes_by_time_tool:
         start_date = params.get("start_date", "2020-01-01")
         end_date = params.get("end_date", "2030-12-31")
         result = list_nodes_by_time_tool.run(conn, talker_id, start_date=start_date, end_date=end_date)
@@ -710,19 +833,24 @@ def explorer_node(state: WorkflowState) -> dict:
 # ---------------------------------------------------------------------------
 
 def generator_node(state: WorkflowState) -> dict:
-    """Generate NarrativePhase objects from collected nodes."""
+    """Generate NarrativePhase objects from collected nodes. Supports narrative/summary output_mode."""
     collected_nodes = state["collected_nodes"]
     collected_messages = state.get("collected_messages", {})
     question = state["question"]
+    intent = state.get("intent")
     llm = state["llm"]
     conn = state["conn"]
     talker_id = state["talker_id"]
     debug = state.get("debug", False)
 
+    output_mode = getattr(intent, "output_mode", None) if intent else "narrative"
+    if output_mode not in ("narrative", "summary"):
+        output_mode = "narrative"
+
     if debug:
         print(
             f"[generator] entry: collected_nodes={len(collected_nodes)}, "
-            f"question='{question[:50]}'",
+            f"output_mode={output_mode}, question='{question[:50]}'",
             file=sys.stderr,
         )
 
@@ -796,32 +924,61 @@ def generator_node(state: WorkflowState) -> dict:
             entry["conflict_intensity"] = meta.conflict_intensity
         node_summaries.append(entry)
 
-    # Task 1.4 & 1.5: System prompt using evidence_msg_ids with temporal coverage constraint
-    system_prompt = (
-        "你是一个叙事分析助手。根据对话节点的时间线，将其分割为4-6个叙事阶段。\n\n"
-        "每个阶段需要包含:\n"
-        "- phase_title: 阶段标题（简短有力）\n"
-        "- time_range: 时间范围（如\"2023年3月\"）\n"
-        "- core_conclusion: 核心结论（一句话概括）\n"
-        "- evidence_msg_ids: 5-8个整数消息ID，直接从节点的 messages_preview 中可见的 ID 选取，"
-        "或在该节点的 start_id~end_id 范围内选取。必须是具体整数ID的列表，不要使用范围格式。\n"
-        "- reasoning_chain: 推理链（解释为什么得出这个结论）\n"
-        "- uncertainty_note: 不确定性说明\n\n"
-        "时序覆盖约束：叙事的早期阶段（第1、2阶段）的证据应优先来自 temporal_position 为 Q1/Q2 的节点；"
-        "后期阶段（最后1、2阶段）的证据应优先来自 Q3/Q4 的节点。"
-        "每个阶段的 evidence_msg_ids 应尽量覆盖至少两个不同的 temporal_position，以确保时序多样性。\n\n"
-        "返回JSON格式: {\"phases\": [{\"phase_title\": \"...\", \"evidence_msg_ids\": [57, 59, 103, 142, 201], ...}, ...]}"
-    )
+    # P2-1: Dynamic prompt by output_mode
+    from .query import OUTPUT_MODES
+
+    cfg = OUTPUT_MODES.get(output_mode, OUTPUT_MODES["narrative"])
+    time_span_days = 1
+    if collected_nodes:
+        ts_min = min(n.start_time for n in collected_nodes)
+        ts_max = max(n.start_time for n in collected_nodes)
+        time_span_days = max(1, (ts_max - ts_min) / (1000 * 86400))
+    phase_count = max(cfg["min_phases"], min(cfg["max_phases"], max(1, int(time_span_days // 180))))
+    phase_count = min(phase_count, max(1, len(collected_nodes) // 3))
+
+    if output_mode == "summary":
+        system_prompt = (
+            f"围绕用户问题做主题汇总。输出 JSON：\n"
+            f'{{"summary": "整体概括，2-3句话", "themes": ['
+            f'{{"theme_title": "主题标题", "description": "描述", "evidence_msg_ids": [2-5条], "time_range": "涉及的时间范围"}}'
+            f"]}}\n"
+            f"主题数量 {cfg['min_phases']}-{cfg['max_phases']} 个，根据实际内容决定。"
+        )
+    else:
+        ev_min, ev_max = cfg["evidence_per_phase"]
+        system_prompt = (
+            f"你是一个叙事分析助手。根据对话节点的时间线，将其分割为 {phase_count} 个叙事阶段。\n\n"
+            "每个阶段需要包含:\n"
+            "- phase_title: 阶段标题（简短有力）\n"
+            "- time_range: 时间范围（如\"2023年3月\"）\n"
+            "- core_conclusion: 核心结论（一句话概括）\n"
+            f"- evidence_msg_ids: {ev_min}-{ev_max}个整数消息ID，直接从节点的 messages_preview 中可见的 ID 选取，"
+            "或在该节点的 start_id~end_id 范围内选取。必须是具体整数ID的列表。\n"
+            "- reasoning_chain: 推理链（解释为什么得出这个结论）\n"
+            "- uncertainty_note: 不确定性说明\n\n"
+            "时序覆盖约束：叙事的早期阶段（第1、2阶段）的证据应优先来自 temporal_position 为 Q1/Q2 的节点；"
+            "后期阶段（最后1、2阶段）的证据应优先来自 Q3/Q4 的节点。"
+            "每个阶段的 evidence_msg_ids 应尽量覆盖至少两个不同的 temporal_position。\n\n"
+            "返回JSON格式: {\"phases\": [{\"phase_title\": \"...\", \"evidence_msg_ids\": [57, 59, 103], ...}, ...]}"
+        )
 
     # Task 1.8: User prompt explains how to select IDs
-    prompt = (
-        f"用户问题: {question}\n\n"
-        f"对话节点摘要（每个节点含 temporal_position 时序位置标注）:\n"
-        f"{json.dumps(node_summaries, ensure_ascii=False, indent=2)}\n\n"
-        "请将这些节点组织成连贯的叙事阶段，回答用户的问题。"
-        "为每个阶段选择5-8个具体的消息ID作为证据，请从每个节点 messages_preview 中可见的 ID 直接选取，"
-        "或在 start_id~end_id 范围内选取。"
-    )
+    if output_mode == "summary":
+        prompt = (
+            f"用户问题: {question}\n\n"
+            f"对话节点摘要:\n"
+            f"{json.dumps(node_summaries, ensure_ascii=False, indent=2)}\n\n"
+            "请做主题汇总，输出 summary 和 themes。每个 theme 需包含 evidence_msg_ids（从 messages_preview 的 id 选取）。"
+        )
+    else:
+        prompt = (
+            f"用户问题: {question}\n\n"
+            f"对话节点摘要（每个节点含 temporal_position 时序位置标注）:\n"
+            f"{json.dumps(node_summaries, ensure_ascii=False, indent=2)}\n\n"
+            "请将这些节点组织成连贯的叙事阶段，回答用户的问题。"
+            "为每个阶段选择具体的消息ID作为证据，请从每个节点 messages_preview 中可见的 ID 直接选取，"
+            "或在 start_id~end_id 范围内选取。"
+        )
 
     valid_ids = set()
     for node in collected_nodes:
@@ -850,8 +1007,29 @@ def generator_node(state: WorkflowState) -> dict:
                                 continue
                     if data is None:
                         raise ValueError("No valid JSON in response")
-            # Task 1.6: Read evidence_msg_ids directly; no _expand_segments_to_ids
-            for phase_data in data.get("phases", []):
+            # Handle summary format: themes -> phases
+            raw_phases = data.get("phases", [])
+            if not raw_phases and output_mode == "summary":
+                for theme in data.get("themes", []):
+                    raw_ids = theme.get("evidence_msg_ids", [])
+                    evidence_ids = []
+                    for x in raw_ids:
+                        try:
+                            mid = int(x)
+                            if mid in valid_ids:
+                                evidence_ids.append(mid)
+                        except (ValueError, TypeError):
+                            pass
+                    raw_phases.append({
+                        "phase_title": theme.get("theme_title", "主题"),
+                        "time_range": theme.get("time_range", ""),
+                        "core_conclusion": theme.get("description", ""),
+                        "evidence_msg_ids": evidence_ids,
+                        "reasoning_chain": "",
+                        "uncertainty_note": "",
+                    })
+            # Task 1.6: Read evidence_msg_ids directly
+            for phase_data in raw_phases:
                 raw_ids = phase_data.get("evidence_msg_ids", [])
                 evidence_ids: list[int] = []
                 for x in raw_ids:
@@ -944,6 +1122,7 @@ def run_workflow(
     max_iterations: int = 3,
     debug: bool = False,
     llm_noncot=None,
+    chroma_dir: str = "",
 ) -> AgentTrace:
     """Run the LangGraph-based agentic narrative workflow.
 
@@ -977,6 +1156,7 @@ def run_workflow(
         "conn": conn,
         "talker_id": talker_id,
         "tools": tools,
+        "chroma_dir": chroma_dir,
         "max_iterations": max_iterations,
         "debug": debug,
     }
@@ -1011,6 +1191,7 @@ def run_workflow_stream_values(
     max_iterations: int = 3,
     debug: bool = False,
     llm_noncot=None,
+    chroma_dir: str = "",
 ):
     """Stream workflow execution with full state after each node.
 
@@ -1034,6 +1215,7 @@ def run_workflow_stream_values(
         "conn": conn,
         "talker_id": talker_id,
         "tools": tools,
+        "chroma_dir": chroma_dir,
         "max_iterations": max_iterations,
         "debug": debug,
     }
