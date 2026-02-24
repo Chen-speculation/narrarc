@@ -1,0 +1,114 @@
+{
+  "timestamp": "2026-02-24T10:56:00.969889",
+  "chat_id": "realtalk_emi_elise",
+  "mode": "oneshot",
+  "config": {
+    "llm": "DeepSeek-V3.2",
+    "embedding": "BAAI/bge-m3",
+    "reranker": "BAAI/bge-reranker-v2-m3"
+  },
+  "total_cases": 2,
+  "cases": [
+    {
+      "question": "How did Kate's cooking skills evolve throughout the conversations?",
+      "returned_ids": [
+        64,
+        67,
+        101,
+        10,
+        474,
+        470,
+        346,
+        60,
+        94
+      ],
+      "expected_local_ids": [
+        64,
+        6,
+        474,
+        470,
+        90,
+        91
+      ],
+      "recall": 0.5,
+      "fuzzy_recall": 0.6666666666666666,
+      "precision": 0.3333333333333333,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.5,
+      "arc_global_recall": 0.5,
+      "arc_phase_coverage": 0.6666666666666666,
+      "per_phase_recalls": [
+        0.5,
+        0.0,
+        1.0
+      ],
+      "timeline_coverage": 0.950087664316435,
+      "per_phase_temporal_recall": 0.3333333333333333,
+      "groundedness": 1.0,
+      "avg_phases": 2,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "How did Emily's interest in art develop over the conversations?",
+      "returned_ids": [
+        65,
+        68,
+        261,
+        262,
+        264,
+        266,
+        271,
+        275,
+        59,
+        63
+      ],
+      "expected_local_ids": [
+        68,
+        70,
+        262,
+        266,
+        268,
+        271,
+        62
+      ],
+      "recall": 0.5714285714285714,
+      "fuzzy_recall": 1.0,
+      "precision": 0.4,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.5416666666666666,
+      "arc_global_recall": 0.5714285714285714,
+      "arc_phase_coverage": 1.0,
+      "per_phase_recalls": [
+        0.3333333333333333,
+        0.75
+      ],
+      "timeline_coverage": 0.9069891833193,
+      "per_phase_temporal_recall": 1.0,
+      "groundedness": 1.0,
+      "avg_phases": 2,
+      "retrieval_checkpoints": []
+    }
+  ],
+  "aggregates": {
+    "recall": {
+      "mean": 0.5357142857142857,
+      "median": 0.5357142857142857,
+      "std": 0.05050762722761051
+    },
+    "fuzzy_recall": {
+      "mean": 0.8333333333333333,
+      "median": 0.8333333333333333,
+      "std": 0.23570226039551587
+    },
+    "precision": {
+      "mean": 0.3666666666666667,
+      "median": 0.3666666666666667,
+      "std": 0.047140452079103196
+    },
+    "arc_phase_coverage": {
+      "mean": 0.8333333333333333,
+      "median": 0.8333333333333333,
+      "std": 0.23570226039551587
+    }
+  }
+}

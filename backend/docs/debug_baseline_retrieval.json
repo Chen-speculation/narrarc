@@ -1,0 +1,155 @@
+{
+  "failure_patterns": {
+    "failure_at_checkpoint": {
+      "final_selection": 2
+    }
+  },
+  "per_case": [
+    {
+      "case_idx": 1,
+      "question": "How did Kate's cooking skills evolve throughout the conversations?",
+      "checkpoints": [
+        {
+          "checkpoint_name": "candidate_generation",
+          "candidate_count": 468,
+          "ground_truth_ids": [
+            64,
+            6,
+            474,
+            470,
+            90,
+            91
+          ],
+          "ground_truth_present": [
+            64,
+            6,
+            474,
+            470,
+            90,
+            91
+          ],
+          "ground_truth_missing": []
+        },
+        {
+          "checkpoint_name": "post_retrieval",
+          "candidate_count": 468,
+          "ground_truth_ids": [
+            64,
+            6,
+            474,
+            470,
+            90,
+            91
+          ],
+          "ground_truth_present": [
+            64,
+            6,
+            474,
+            470,
+            90,
+            91
+          ],
+          "ground_truth_missing": []
+        },
+        {
+          "checkpoint_name": "final_selection",
+          "candidate_count": 9,
+          "ground_truth_ids": [
+            64,
+            6,
+            474,
+            470,
+            90,
+            91
+          ],
+          "ground_truth_present": [
+            474,
+            470
+          ],
+          "ground_truth_missing": [
+            64,
+            6,
+            90,
+            91
+          ]
+        }
+      ]
+    },
+    {
+      "case_idx": 2,
+      "question": "How did Emily's interest in art develop over the conversations?",
+      "checkpoints": [
+        {
+          "checkpoint_name": "candidate_generation",
+          "candidate_count": 468,
+          "ground_truth_ids": [
+            68,
+            70,
+            262,
+            266,
+            268,
+            271,
+            62
+          ],
+          "ground_truth_present": [
+            68,
+            70,
+            262,
+            266,
+            268,
+            271,
+            62
+          ],
+          "ground_truth_missing": []
+        },
+        {
+          "checkpoint_name": "post_retrieval",
+          "candidate_count": 468,
+          "ground_truth_ids": [
+            68,
+            70,
+            262,
+            266,
+            268,
+            271,
+            62
+          ],
+          "ground_truth_present": [
+            68,
+            70,
+            262,
+            266,
+            268,
+            271,
+            62
+          ],
+          "ground_truth_missing": []
+        },
+        {
+          "checkpoint_name": "final_selection",
+          "candidate_count": 15,
+          "ground_truth_ids": [
+            68,
+            70,
+            262,
+            266,
+            268,
+            271,
+            62
+          ],
+          "ground_truth_present": [
+            68,
+            70,
+            262,
+            268,
+            271,
+            62
+          ],
+          "ground_truth_missing": [
+            266
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -77,14 +77,14 @@
 
 ### 3.2 划分方案
 
-RealTalk 根目录 `REALTALK/data/` 下有多组对话文件，建议**按文件划分**（不同对话彼此独立，避免泄漏）：
+RealTalk 根目录 `REALTALK/data/` 下有多组对话文件，建议**按文件划分**（不同对话彼此独立，避免泄漏）。**ARC case 文件与对话文件一一对应**，划分时须同步处理：
 
-| 划分 | 文件 | 用途 |
-|------|------|------|
-| **训练/开发集** | `Chat_1_Emi_Elise.json` ~ `Chat_7_Nebraas_Vanessa.json`（或自选 6–7 个） | 调参、改 prompt、分析失败 case、快速迭代 |
-| **测试集** | `Chat_8_Akib_Muhhamed.json`、`Chat_9_Fahim_Akib.json`、`Chat_10_Fahim_Muhhamed.json`（或自选 2–3 个留出） | 仅用于最终验收，报告 Evidence Recall 等指标 |
+| 划分 | 原始 QA 文件 | 对应 ARC 文件 | 用途 |
+|------|------------|--------------|------|
+| **训练/开发集** | `Chat_1` ~ `Chat_7` | `realtalk_emi_elise_arc_cases.json` 等 6 个 | 调参、改 prompt、分析失败 case、快速迭代 |
+| **测试集** | `Chat_8_Akib_Muhhamed.json`、`Chat_9_Fahim_Akib.json`、`Chat_10_Fahim_Muhhamed.json` | `realtalk_akib_muhhamed_arc_cases.json`、`realtalk_fahim_akib_arc_cases.json`、`realtalk_fahim_muhhamed_arc_cases.json` | 仅用于最终验收 |
 
-**示例**：开发时只在 `Chat_1` ~ `Chat_7` 上跑 `run_realtalk_eval.py`；全部改动完成后，再在 `Chat_8` ~ `Chat_10` 上跑一次，得到的 Exact Recall 才是可信的「提升水平」。
+**示例**：开发时只在 `Chat_1` ~ `Chat_7` 及其对应 ARC 文件上迭代；全部改动完成后，在 `Chat_8` ~ `Chat_10` 及其对应 ARC 文件上各跑一次，得到的指标才是可信的「提升水平」。
 
 ### 3.3 可选：按 QA 划分（单文件内）
 
@@ -105,7 +105,7 @@ RealTalk 根目录 `REALTALK/data/` 下有多组对话文件，建议**按文件
 - **可用文件**：`Chat_1_Emi_Elise.json` ~ `Chat_10_Fahim_Muhhamed.json`（10 个 RealTalk 格式）
 - **已测示例**：`Chat_10_Fahim_Muhhamed.json`（662 条消息，85 个 QA）
 
-### 4.2 数据结构
+### 4.2 原始 QA 数据结构
 
 RealTalk JSON 包含：
 
@@ -117,6 +117,8 @@ RealTalk JSON 包含：
 | `session_N_date_time` | 会话时间 |
 | `qa` | 问答对：`question`, `answer`, `evidence` (dia_ids), `category` (1=fact, 2=date, 3=inference) |
 
+原始 QA 是**单点事实型**问题（when/what/who），每个 case 只有一个扁平证据列表。
+
 ### 4.3 转换流程
 
 所有 session 会被**合并为一条按时间排序的对话**，再灌入 backend：
@@ -125,19 +127,77 @@ RealTalk JSON 包含：
 2. `generate_arc_cases_from_qa.py`：qa → `arc_cases.json`（评估用例）
 3. 输出目录：`backend/tests/data/realtalk_eval/`
 
+### 4.4 ARC 叙事弧 Cases（新增）
+
+除原始 QA 外，还构造了一批 **ARC 叙事弧 case**，测试系统对跨时间线演变的多阶段叙事能力。
+
+**路径**：`REALTALK/arc_data/`，共 9 个文件，覆盖所有对话对：
+
+| 文件 | 对应对话 |
+|------|----------|
+| `realtalk_emi_elise_arc_cases.json` | Chat_1_Emi_Elise |
+| `realtalk_emi_paola_arc_cases.json` | Chat_2_Emi_Paola |
+| `realtalk_kevin_elise_arc_cases.json` | Chat_3_Kevin_Elise |
+| `realtalk_kevin_paola_arc_cases.json` | Chat_4_Kevin_Paola |
+| `realtalk_nebraas_vanessa_arc_cases.json` | Chat_5/6 Nebraas_Vanessa |
+| `realtalk_vanessa_nicolas_arc_cases.json` | Chat_7_Vanessa_Nicolas |
+| `realtalk_akib_muhhamed_arc_cases.json` | Chat_8_Akib_Muhhamed |
+| `realtalk_fahim_akib_arc_cases.json` | Chat_9_Fahim_Akib |
+| `realtalk_fahim_muhhamed_arc_cases.json` | Chat_10_Fahim_Muhhamed |
+
+**ARC case 格式**（与原始 QA 的核心差异）：
+
+```json
+{
+  "question": "How did Fahim's outdoor activities and health status change over the conversations?",
+  "query_type": "arc_narrative",
+  "expected_phases": [
+    {
+      "title": "Active enjoyment of nature and running",
+      "time_range": "Dec 29",
+      "evidence_dia_ids": ["D1:4", "D1:29"]
+    },
+    {
+      "title": "Falling sick with a cold",
+      "time_range": "Jan 01",
+      "evidence_dia_ids": ["D4:2", "D4:3"]
+    },
+    {
+      "title": "Recovery and resuming outdoor visits",
+      "time_range": "Jan 10-21",
+      "evidence_dia_ids": ["D13:8", "D20:1", "D20:53"]
+    }
+  ]
+}
+```
+
+**关键特征**：
+
+| 维度 | 原始 QA | ARC Case |
+|------|---------|----------|
+| 问题类型 | 单点事实（when/what/who） | 跨时间演变弧（how did X evolve） |
+| 证据结构 | 扁平列表 | 多个阶段，每阶段独立证据 |
+| 预期答案 | 固定文本 `answer` 字段 | 无固定文本，仅 `expected_phases` 中的证据 |
+| Phase 标题 | N/A | LLM 生成的描述性标题，不可做精确匹配 |
+
+**重要**：ARC case 的 `title` 字段是人工构造时由 LLM 生成的描述性标签，不是精确字符串。系统生成的 phase 标题与之不同是**预期现象**，评估时**不得**将标题用于匹配或打分（见第五节）。
+
 ---
 
 ## 五、验证方式
 
 ### 5.1 一键运行
 
+评估脚本同时支持原始 QA cases 和 ARC cases，通过 `--arc-cases` 参数传入 ARC 文件：
+
 **在训练集上迭代**（示例：Chat_1_Emi_Elise）：
 
 ```bash
-cd chat-mirror/backend
+cd backend
 
 uv run python scripts/run_realtalk_eval.py \
   --input /path/to/REALTALK/data/Chat_1_Emi_Elise.json \
+  --arc-cases /path/to/REALTALK/arc_data/realtalk_emi_elise_arc_cases.json \
   --self-id "Emi" \
   --talker-id realtalk_emi_elise \
   --limit-cases 5 \
@@ -149,27 +209,28 @@ uv run python scripts/run_realtalk_eval.py \
 ```bash
 uv run python scripts/run_realtalk_eval.py \
   --input /path/to/REALTALK/data/Chat_10_Fahim_Muhhamed.json \
+  --arc-cases /path/to/REALTALK/arc_data/realtalk_fahim_muhhamed_arc_cases.json \
   --self-id "Fahim Khan" \
   --talker-id realtalk_fahim_muhhamed \
   --mode agent
-# 不加 --limit-cases，跑全量 QA
+# 不加 --limit-cases，跑全量 QA + 全量 ARC
 ```
 
-该脚本依次执行：转换 → 生成 arc_cases → 运行评估。每个 Chat 文件需对应正确的 `--self-id`（`name.speaker_1` 或 `speaker_2` 之一）。
+若暂不传 `--arc-cases`，则只评估原始 QA；两种 case 互不干扰，可独立运行。
 
-### 5.2 评估流程
+### 5.2 原始 QA 评估流程
 
 1. **构建阶段**：L1 → L1.5 → L2，写入临时 SQLite + ChromaDB
-2. **查询阶段**：对每个 arc case 的 `question` 跑查询管道，得到 `phases`（含 `evidence_msg_ids`）
+2. **查询阶段**：对每个 QA case 的 `question` 跑查询管道，得到 `phases`（含 `evidence_msg_ids`）
 3. **指标计算**：
    - 用 `mapping.json` 将预期的 `evidence_dia_ids` 转为 `expected_local_ids`
    - Exact Recall = `|returned ∩ expected| / |expected|`
    - Fuzzy Recall = 对每个 expected_id，若存在 returned_id 满足 `|r - e| ≤ 3` 则计为命中
 
-### 5.3 输出解读
+### 5.3 原始 QA 输出解读
 
 ```
-Case 1/2 [oneshot]: When did Fahim Khan go for a morning run after the rain?
+Case 1/2 [agent]: When did Fahim Khan go for a morning run after the rain?
   Recall: 0.0% | Fuzzy: 0.0% | Phases: 1
   [debug] expected=[4] | returned=[28] | overlap=set()
 ```
@@ -177,6 +238,82 @@ Case 1/2 [oneshot]: When did Fahim Khan go for a morning run after the rain?
 - `expected`：ground truth 的 localId
 - `returned`：系统返回的 localId
 - `overlap`：交集，为空则 exact recall = 0%
+
+### 5.4 ARC Case 评估方法（重要）
+
+ARC case 的评估与原始 QA **有本质差异**，需单独处理。
+
+#### 核心原则：**只评证据，不评标题**
+
+ARC case 的 `expected_phases[i].title` 是构造时由 LLM 生成的描述性标签（如 "Active enjoyment of nature and running"）。系统运行时也会用 LLM 自行生成 phase 标题，两者措辞天然不同。**任何基于标题字符串的匹配（精确或模糊）都是无效的**，评估中完全忽略标题字段。
+
+#### 指标一：全局证据召回（Global Evidence Recall）
+
+将 `expected_phases` 中所有 `evidence_dia_ids` 合并为一个扁平集合，视作该 case 的全量预期证据，然后与系统所有 phases 返回的全量证据取交集：
+
+```
+Global Expected = ∪ expected_phases[i].evidence_dia_ids
+Global Returned = ∪ system_phases[j].evidence_msg_ids
+Global Exact Recall = |Global Returned ∩ Global Expected| / |Global Expected|
+Global Fuzzy Recall = 同原始 QA，±3 容差
+```
+
+这是**最重要的指标**，与原始 QA 的 exact recall 概念一致，便于横向对比。
+
+#### 指标二：Phase-level Recall（分阶段召回）
+
+衡量系统是否把正确证据分配到了对应的「演变阶段」。由于标题不可比较，**以证据重叠度作为阶段匹配依据**：
+
+1. 对每个 `expected_phase[i]`，找系统返回的所有 phases 中，与该期望阶段证据重叠度最高的 `best_match_phase`
+2. 计算该 expected phase 的 per-phase recall = `|best_match.evidence ∩ expected_phase[i].evidence| / |expected_phase[i].evidence|`
+3. 报告各阶段召回均值（Mean Phase Recall）
+
+```
+Mean Phase Recall = mean(per_phase_recall[i] for all i)
+```
+
+#### 指标三：Phase Coverage（阶段覆盖率）
+
+衡量系统输出是否覆盖了各个预期演变阶段（即是否遗漏某个阶段）：
+
+```
+Phase Coverage = fraction of expected phases where per_phase_recall[i] > 0
+```
+
+若系统完全没有返回某个预期阶段的任何证据，该阶段计为「未覆盖」。
+
+#### ARC 评估输出格式（建议）
+
+```
+[ARC] Case 1/3: How did Fahim's outdoor activities and health status change?
+  Global Recall: 33.3% | Global Fuzzy: 50.0% | Phases returned: 3
+  Phase Coverage: 2/3 (66.7%)
+  Mean Phase Recall: 40.0%
+  [debug] phase_0 expected=[localId_A, localId_B] best_match_recall=100% (phase 1)
+  [debug] phase_1 expected=[localId_C, localId_D] best_match_recall=0%   (no match)
+  [debug] phase_2 expected=[localId_E, localId_F, localId_G] best_match_recall=33.3% (phase 2)
+```
+
+#### 实现提示
+
+ARC case 的评估逻辑建议在 `eval_realtalk_accuracy.py` 中增加独立分支，检测 case 是否含 `query_type: arc_narrative` 字段来区分两种评估路径。`generate_arc_cases_from_qa.py` 生成的 cases 与 `arc_data/` 中手工构造的 cases 格式不同（前者是 QA → 单阶段转换），注意区分。
+
+### 5.5 汇总报告
+
+两类 case 的指标分开汇总，最终报告格式建议：
+
+```
+=== QA Cases (N=85) ===
+  Mean Exact Recall:  X%
+  Mean Fuzzy Recall:  Y%
+  Precision:          Z%
+
+=== ARC Cases (N=4) ===
+  Global Exact Recall:  A%
+  Global Fuzzy Recall:  B%
+  Mean Phase Recall:    C%
+  Phase Coverage:       D%
+```
 
 ---
 
@@ -205,13 +342,35 @@ Case 1/2 [oneshot]: When did Fahim Khan go for a morning run after the rain?
    - 即使候选集中包含正确消息，LLM 是否选对了 evidence_msg_ids？
    - 可抽查：候选节点内容 vs 最终返回的 evidence_msg_ids
 
-### 6.3 调试建议
+### 6.3 ARC Case 专项排查方向
+
+ARC case 的核心特征是问题类型为 `arc_narrative`，在系统内部走不同的检索路径（Q3/Retriever 返回**全量节点**而非仅锚点相关）。因此除通用方向外，还需关注：
+
+1. **arc_narrative 路径覆盖全局时间线的能力**
+   - Q3 的全量节点返回是否真的包含所有 session 的 TopicNode？
+   - 若对话跨越多个 session（如 D1 到 D23），确认 L1 建库时所有 session 的节点都写入了 SQLite 和 ChromaDB
+
+2. **Generator 的多阶段切分质量**
+   - Generator（Q4/LLM）能否把全量候选节点正确切分为时间顺序的多个 phase？
+   - 当候选节点覆盖了预期证据，但 LLM 仍合并到单一 phase 或遗漏某阶段时，是 prompt 问题
+   - 可对比：`expected_phases` 的数量 vs 系统返回 phases 数量
+
+3. **Phase 标题差异属于预期，不需要修复**
+   - 系统生成 phase 标题（如 "Active running and nature"）和 ground truth 标题（如 "Active enjoyment of nature and running"）措辞不同是**正常现象**，不需要通过任何方式对齐标题字符串
+   - 评估只看 `evidence_msg_ids` 是否命中，标题仅供人工阅读参考
+
+4. **per-phase 证据分配错误**
+   - 即使 Global Recall 较高，若证据被错误地集中在某一个 phase 而另几个 phase 为空，Mean Phase Recall 和 Phase Coverage 会揭示这一问题
+   - 例如：系统把跨越 3 个月的证据全塞进一个 phase，Global Recall = 100% 但 Phase Coverage = 33%
+
+### 6.4 调试建议
 
 - 先用 `--limit-cases 2` 快速迭代，确认改动有效后再跑全量
 - 对失败 case，可查 `realtalk_fahim_muhhamed_messages.json` 中对应 localId 的 `content`，对比预期与返回
 - 可加日志：在 Q3 输出候选节点列表，检查预期 localId 是否在候选中
+- ARC case 调试时，重点看 `[debug] phase_X expected=... best_match_recall=0%` 的行，找出系统完全未覆盖的预期阶段
 
-### 6.4 相关代码位置
+### 6.5 相关代码位置
 
 | 模块 | 路径 | 职责 |
 |------|------|------|
@@ -222,7 +381,7 @@ Case 1/2 [oneshot]: When did Fahim Khan go for a morning run after the rain?
 | 查询 (agent) | `src/narrative_mirror/workflow.py` | LangGraph 工作流 |
 | 评估脚本 | `scripts/eval_realtalk_accuracy.py` | 指标计算、报告输出 |
 
-### 6.5 参考文档
+### 6.6 参考文档
 
 - `backend/CLAUDE.md`：架构与数据流
 - `backend/docs/REALTALK_EVAL_GUIDE.md`：RealTalk 转换与测评操作说明
@@ -231,9 +390,29 @@ Case 1/2 [oneshot]: When did Fahim Khan go for a morning run after the rain?
 
 ## 七、成功标准（建议）
 
-- **短期**：在**训练集**上，Evidence Recall (exact) 从 0% 提升至 ≥ 30%
-- **中期**：训练集 Exact Recall ≥ 50%，且 Fuzzy 与 Exact 差距缩小
-- **验收**：在**测试集**上跑最终评估，报告 Exact Recall 等指标，作为真实提升水平的依据
+两类 case 分别设定目标，各自独立衡量进展。
+
+### 7.1 原始 QA Cases
+
+| 阶段 | 指标 | 目标 |
+|------|------|------|
+| 短期 | 训练集 Exact Recall | ≥ 30% |
+| 中期 | 训练集 Exact Recall | ≥ 50%，且 Fuzzy–Exact 差距 < 20% |
+| 验收 | **测试集** Exact Recall | 报告实测值，作为权威结果 |
+
+### 7.2 ARC Cases
+
+| 阶段 | 指标 | 目标 |
+|------|------|------|
+| 短期 | 训练集 Global Exact Recall | ≥ 30% |
+| 中期 | 训练集 Global Exact Recall | ≥ 50%，Phase Coverage ≥ 60% |
+| 中期 | 训练集 Mean Phase Recall | ≥ 40% |
+| 验收 | **测试集** Global Exact Recall + Phase Coverage | 报告实测值 |
+
+**说明**：
+- ARC case 总数较少（每个对话约 4–6 个），单 case 的方差较大，需结合多个对话文件的聚合结果来判断趋势
+- Phase Coverage 比 Mean Phase Recall 更能反映「是否遗漏演变阶段」，是 ARC 评估的核心诊断指标
+- 标题质量（phase 标题是否优美、准确）**不在量化评估范围内**，但可供人工 review 参考
 
 **注意**：训练集指标用于指导迭代；**测试集指标**才是对外报告、验收的权威结果。
 
@@ -241,11 +420,24 @@ Case 1/2 [oneshot]: When did Fahim Khan go for a morning run after the rain?
 
 ## 八、快速上手检查清单
 
-- [ ] 克隆/拉取 chat-mirror 与 REALTALK 仓库
+**基础准备**
+- [ ] 克隆/拉取 narrarc（backend）与 REALTALK 仓库
 - [ ] 确认 `backend/config.yml` 中 LLM/embedding/reranker 配置正确
-- [ ] **确定训练集 / 测试集划分**（见第三节），并记录在案
+- [ ] **确定训练集 / 测试集划分**（见第三节），QA 文件和 ARC 文件同步划分，记录在案
+
+**原始 QA 评估**
 - [ ] 在**训练集**某文件上运行 `run_realtalk_eval.py --limit-cases 2` 复现 0% exact recall
 - [ ] 阅读 `CLAUDE.md` 理解 L1/L1.5/L2 与查询管道
-- [ ] 选一个失败 case，手动查看 expected localId 对应的消息内容
+- [ ] 选一个失败 QA case，手动查看 expected localId 对应的消息内容
 - [ ] 在 Q3 或 Retriever 中加日志，确认预期证据是否进入候选集
-- [ ] 全部改动完成后，在**测试集**上跑一次最终评估，记录 Exact Recall
+
+**ARC Case 评估**
+- [ ] 确认 `REALTALK/arc_data/` 下 9 个 `*_arc_cases.json` 文件存在且可读
+- [ ] 在训练集某文件上用 `--arc-cases` 参数运行，查看 Global Recall 与 Phase Coverage 基准值
+- [ ] 检查评估脚本是否已实现 ARC 评估分支（`query_type: arc_narrative` 路径）；若未实现，需先实现（见 5.4 节）
+- [ ] 对失败 ARC case，查看 `[debug] phase_X ... best_match_recall=0%` 行，定位未覆盖的演变阶段
+- [ ] 确认 arc_narrative 查询路径（Q3 全量返回）确实覆盖跨 session 的所有节点
+
+**最终验收**
+- [ ] 全部改动完成后，在**测试集**（Chat_8/9/10）上各跑一次完整评估（含 QA + ARC）
+- [ ] 记录 QA Exact Recall、ARC Global Recall、ARC Phase Coverage 三个核心指标

@@ -1,0 +1,8 @@
+experiment_id,date,train_exact_recall,train_fuzzy_recall,train_precision,train_arc_phase_coverage,test_exact_recall,test_fuzzy_recall,test_precision,test_arc_phase_coverage,config_summary
+baseline_001,2026-02-24T02:25:14,0.5213,0.6979,0.3920,0.7083,0.0000,0.0000,0.0000,0.0000,
+baseline_001,2026-02-24T02:30:57,0.5188,0.6632,0.3431,0.7500,0.0000,0.0000,0.0000,0.0000,
+baseline_001,2026-02-24T02:32:07,0.5188,0.6632,0.3431,0.7500,0.0000,0.0000,0.0000,0.0000,
+debug_baseline,2026-02-24T10:46:42,0.5188,0.6632,0.3431,0.7500,0.0000,0.0000,0.0000,0.0000,
+exp3_reranker,2026-02-24T10:46:57,0.5188,0.6632,0.3431,0.7500,0.0000,0.0000,0.0000,0.0000,
+exp3_reranker,2026-02-24T10:58:56,0.4415,0.6215,0.3538,0.7500,0.0000,0.0000,0.0000,0.0000,
+exp3_reranker,2026-02-24T11:00:19,0.5040,0.7361,0.3436,0.9167,0.0000,0.0000,0.0000,0.0000,reranker: BAAI/bge-reranker-v2-m3 (base/large returned 400 from SiliconFlow)

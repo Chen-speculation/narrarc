@@ -1,0 +1,148 @@
+﻿---
+pid: 56652
+cwd: "c:\\Users\\Administrator\\narrarc"
+command: "cd c:\\Users\\Administrator\\narrarc\\backend; .\\.venv\\Scripts\\python.exe scripts/run_realtalk_eval.py --train-only --record-experiment --experiment-id debug_baseline --debug-retrieval --limit-cases 2 2>&1"
+started_at: 2026-02-24T02:41:01.163Z
+running_for_seconds: 340   
+---
+Wrote 476 messages to C:\Users\Administrator\narrarc\backend\tests\data\realtalk_eval\realtalk_emi_elise_messages.json
+Wrote sessions to C:\Users\Administrator\narrarc\backend\tests\data\realtalk_eval\realtalk_emi_elise_sessions.json
+Wrote dia_id mapping to C:\Users\Administrator\narrarc\backend\tests\data\realtalk_eval\realtalk_emi_elise_mapping.json
+LLM: DeepSeek-V3.2 | Embedding: BAAI/bge-m3 | Reranker: BAAI/bge-reranker-base
+
+Dataset: realtalk_emi_elise
+  Messages file: realtalk_emi_elise_messages.json
+  Total messages: 476
+  Arc cases: 2
+
+============================================================
+  PHASE 1: BUILD PIPELINE (L1 + L1.5 + L2)
+============================================================
+
+Layer 1: 50 topic nodes in 53.2s
+  Top topics: [('锟秸筹拷锟绞猴拷', 5), ('锟斤拷锟节计伙拷', 3), ('锟秸筹拷锟筋动', 2), ('锟斤拷饪课筹拷', 2), ('锟秸筹拷锟狡伙拷', 1), ('锟斤拷锟剿憋拷锟斤拷', 1), ('锟轿程凤拷锟斤拷', 1), ('锟斤拷锟斤拷锟斤拷锟斤拷', 1)]
+
+Layer 1.5: 50 signals, 30 anomaly anchors in 44.1s
+  Anchors by signal: {'reply_delay': 7, 'topic_frequency': 4, 'conflict_intensity': 1, 'silence_event': 18}
+.\.venv\Scripts\python.exe : Traceback (most recent call last):
+锟斤拷锟斤拷位锟斤拷 锟斤拷:1 锟街凤拷: 44
++ ... rc\backend; .\.venv\Scripts\python.exe scripts/run_realtalk_eval.py - ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "C:\Users\Administrator\narrarc\backend\scripts\eval_realtalk_accuracy.py", line 881, in <module>
+    main()
+  File "C:\Users\Administrator\narrarc\backend\scripts\eval_realtalk_accuracy.py", line 527, in main
+    embedded, pointers = build_layer2(
+                         ^^^^^^^^^^^^^
+  File "C:\Users\Administrator\narrarc\backend\src\narrative_mirror\layer2.py", line 512, in build_layer2
+    reranked = stage1_5_rerank(candidates, reranker, rerank_threshold, top_m)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\narrarc\backend\src\narrative_mirror\layer2.py", line 267, in stage1_5_rerank
+    scores = reranker.rerank(text_pairs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\narrarc\backend\src\narrative_mirror\llm.py", line 456, in rerank
+    for orig_idx, score in future.result():
+                           ^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Roaming\uv\python\cpython-3.11.14-windows-x86_64-none\Lib\concurrent\futures\_ba
+se.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Roaming\uv\python\cpython-3.11.14-windows-x86_64-none\Lib\concurrent\futures\_ba
+se.py", line 401, in __get_result
+    raise self._exception
+  File "C:\Users\Administrator\AppData\Roaming\uv\python\cpython-3.11.14-windows-x86_64-none\Lib\concurrent\futures\thr
+ead.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\narrarc\backend\src\narrative_mirror\llm.py", line 434, in fetch_group
+    response.raise_for_status()
+  File "C:\Users\Administrator\narrarc\backend\.venv\Lib\site-packages\httpx\_models.py", line 829, in raise_for_status
+    raise HTTPStatusError(message, request=request, response=self)
+httpx.HTTPStatusError: Client error '400 Bad Request' for url 'https://api.siliconflow.cn/v1/rerank'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+Wrote 453 messages to C:\Users\Administrator\narrarc\backend\tests\data\realtalk_eval\realtalk_kevin_elise_messages.json
+Wrote sessions to C:\Users\Administrator\narrarc\backend\tests\data\realtalk_eval\realtalk_kevin_elise_sessions.json
+Wrote dia_id mapping to C:\Users\Administrator\narrarc\backend\tests\data\realtalk_eval\realtalk_kevin_elise_mapping.json
+LLM: DeepSeek-V3.2 | Embedding: BAAI/bge-m3 | Reranker: BAAI/bge-reranker-base
+
+Dataset: realtalk_kevin_elise
+  Messages file: realtalk_kevin_elise_messages.json
+  Total messages: 453
+  Arc cases: 2
+
+============================================================
+  PHASE 1: BUILD PIPELINE (L1 + L1.5 + L2)
+============================================================
+
+Layer 1: 48 topic nodes in 3.2s
+  Top topics: [('未锟斤拷锟斤拷', 48)]
+
+Layer 1.5: 48 signals, 20 anomaly anchors in 2.4s
+  Anchors by signal: {'reply_delay': 5, 'silence_event': 15}
+Traceback (most recent call last):
+  File "C:\Users\Administrator\narrarc\backend\scripts\eval_realtalk_accuracy.py", line 881, in <module>
+    main()
+  File "C:\Users\Administrator\narrarc\backend\scripts\eval_realtalk_accuracy.py", line 527, in main
+    embedded, pointers = build_layer2(
+                         ^^^^^^^^^^^^^
+  File "C:\Users\Administrator\narrarc\backend\src\narrative_mirror\layer2.py", line 512, in build_layer2
+    reranked = stage1_5_rerank(candidates, reranker, rerank_threshold, top_m)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\narrarc\backend\src\narrative_mirror\layer2.py", line 267, in stage1_5_rerank
+    scores = reranker.rerank(text_pairs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\narrarc\backend\src\narrative_mirror\llm.py", line 456, in rerank
+    for orig_idx, score in future.result():
+                           ^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Roaming\uv\python\cpython-3.11.14-windows-x86_64-none\Lib\concurrent\futures\_ba
+se.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\AppData\Roaming\uv\python\cpython-3.11.14-windows-x86_64-none\Lib\concurrent\futures\_ba
+se.py", line 401, in __get_result
+    raise self._exception
+  File "C:\Users\Administrator\AppData\Roaming\uv\python\cpython-3.11.14-windows-x86_64-none\Lib\concurrent\futures\thr
+ead.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\narrarc\backend\src\narrative_mirror\llm.py", line 434, in fetch_group
+    response.raise_for_status()
+  File "C:\Users\Administrator\narrarc\backend\.venv\Lib\site-packages\httpx\_models.py", line 829, in raise_for_status
+    raise HTTPStatusError(message, request=request, response=self)
+httpx.HTTPStatusError: Client error '400 Bad Request' for url 'https://api.siliconflow.cn/v1/rerank'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+Processing 7 train files: ['Chat_1_Emi_Elise.json', 'Chat_2_Kevin_Elise.json', 'Chat_3_Kevin_Paola.json', 'Chat_4_Emi_Paola.json', 'Chat_5_Nicolas_Nebraas.json', 'Chat_6_Vanessa_Nicolas.json', 'Chat_7_Nebraas_Vanessa.json']
+  Chat_1_Emi_Elise.json -> realtalk_emi_elise (arc: realtalk_emi_elise_arc_cases.json)
+  Chat_2_Kevin_Elise.json -> realtalk_kevin_elise (arc: realtalk_kevin_elise_arc_cases.json)
+  Chat_3_Kevin_Paola.json -> realtalk_kevin_paola (arc: realtalk_kevin_paola_arc_cases.json)
+  Chat_4_Emi_Paola.json -> realtalk_emi_paola (arc: realtalk_emi_paola_arc_cases.json)
+  Chat_5_Nicolas_Nebraas.json -> realtalk_nicolas_nebraas (arc: generate from qa)
+  Chat_6_Vanessa_Nicolas.json -> realtalk_vanessa_nicolas (arc: realtalk_vanessa_nicolas_arc_cases.json)
+  Chat_7_Nebraas_Vanessa.json -> realtalk_nebraas_vanessa (arc: realtalk_nebraas_vanessa_arc_cases.json)
+
+============================================================
+Processing Chat_1_Emi_Elise.json (realtalk_emi_elise)
+============================================================
+=== Step 1: Convert RealTalk ===
+Using ARC cases from c:\Users\Administrator\REALTALK\arc_data\realtalk_emi_elise_arc_cases.json
+Limited to 2 arc cases
+=== Step 3: Run eval pipeline ===
+
+============================================================
+Processing Chat_2_Kevin_Elise.json (realtalk_kevin_elise)
+============================================================
+=== Step 1: Convert RealTalk ===
+Using ARC cases from c:\Users\Administrator\REALTALK\arc_data\realtalk_kevin_elise_arc_cases.json
+Limited to 2 arc cases
+=== Step 3: Run eval pipeline ===
+
+Experiment recorded: debug_baseline (split=train, 4 cases)
+  exact_recall=0.5188, fuzzy_recall=0.6632
+
+---
+exit_code: 1
+elapsed_ms: 341333
+ended_at: 2026-02-24T02:46:42.496Z
+---

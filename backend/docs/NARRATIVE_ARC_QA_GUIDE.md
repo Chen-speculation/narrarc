@@ -1,12 +1,29 @@
 # 叙事弧 QA 对生成指南
 
-本文档面向负责根据 RealTalk 数据生成**叙事弧（Narrative Arc）QA 对**的同学。若你此前未接触本项目，请按顺序阅读。
+本文档面向负责根据 RealTalk 数据生成**叙事弧（Narrative Arc）QA 对**的同学。你只需阅读本文档和 RealTalk 原始 JSON 数据即可完成工作，无需接触项目代码。请按顺序阅读。
 
 ---
 
-## 一、什么是叙事弧 QA
+## 一、基础概念
 
-### 1.1 与简单 QA 的区别
+### 1.1 RealTalk 是什么
+
+**RealTalk** 是一套多轮对话数据集。每条数据是一个 JSON 文件，记录两个人（如 Fahim 和 Muhammad）在一段时间内的多轮聊天。每条消息都有唯一 ID（`dia_id`），用于在评估时精确定位证据。
+
+### 1.2 关键术语
+
+| 术语 | 含义 |
+|------|------|
+| **Session** | 一次对话会话，对应 JSON 中的 `session_1`、`session_2` 等。不同 session 通常发生在不同日期。 |
+| **dia_id** | 每条消息的唯一标识，格式为 `D{session编号}:{消息编号}`，如 `D1:4` 表示 session_1 中的第 4 条消息。 |
+| **clean_text** | 消息的正文内容。 |
+| **叙事弧** | 某条「故事线」在对话中如何随时间推进，需要拆成多个阶段，每个阶段有对应证据。 |
+
+---
+
+## 二、什么是叙事弧 QA
+
+### 2.1 与简单 QA 的区别
 
 RealTalk 自带的 `qa` 多为**单点事实**或**扁平列举**：
 
@@ -18,7 +35,7 @@ RealTalk 自带的 `qa` 多为**单点事实**或**扁平列举**：
 
 **叙事弧 QA** 关注的是：某条「故事线」在对话中**如何随时间推进**，需要拆成多个阶段（phase），每个阶段有对应证据。
 
-### 1.2 典型叙事弧问题句式
+### 2.2 典型叙事弧问题句式
 
 - "How did **X** evolve over these sessions?"
 - "How did **X's relationship with Y** develop over time?"
@@ -27,7 +44,7 @@ RealTalk 自带的 `qa` 多为**单点事实**或**扁平列举**：
 
 ---
 
-## 二、输出格式
+## 三、输出格式
 
 每个叙事弧 QA 对是一个 JSON 对象，结构如下：
 
@@ -55,7 +72,7 @@ RealTalk 自带的 `qa` 多为**单点事实**或**扁平列举**：
 }
 ```
 
-### 2.1 字段说明
+### 3.1 字段说明
 
 | 字段 | 必填 | 说明 |
 |------|------|------|
@@ -66,28 +83,27 @@ RealTalk 自带的 `qa` 多为**单点事实**或**扁平列举**：
 | `expected_phases[].time_range` | 建议 | 时间范围，如 "Dec 29-30"、"Jan 01-05" |
 | `expected_phases[].evidence_dia_ids` | ✓ | 支持该阶段的证据消息 ID 列表 |
 
-### 2.2 evidence_dia_ids 规则
+### 3.2 evidence_dia_ids 规则
 
 - **格式**：`D{session}:{message_index}`，如 `D1:4`、`D3:15`
 - **含义**：`D1:4` = session_1 中某条消息的 ID（编号可能不连续，如 D1:5 可能缺失）
-- **来源**：**必须**从 `session_N` 中每条消息的 `dia_id` 字段直接复制，不得臆造
-- **要求**：每个 ID 都必须在 RealTalk JSON 里真实存在，否则评估会报错
+- **来源**：**必须**从 RealTalk JSON 中每条消息的 `dia_id` 字段直接复制，不得臆造
+- **要求**：每个 ID 都必须在 RealTalk JSON 里真实存在，否则后续评估会报错
 
 ---
 
-## 三、RealTalk 数据结构速览
+## 四、RealTalk JSON 数据结构
 
-### 3.1 需要阅读的部分
+你拿到的是类似 `Chat_10_Fahim_Muhhamed.json` 的 JSON 文件。需要关注的部分如下：
 
-```
-REALTALK/data/Chat_X_*.json
-├── name.speaker_1, speaker_2     # 对话双方
-├── session_1, session_2, ...    # 消息数组，每条有 clean_text, speaker, date_time, dia_id
-├── events_session_1, ...        # 事件摘要（agent_a/agent_b），可辅助找故事线
-└── session_1_date_time, ...     # 各 session 时间，用于填 time_range
-```
+| 字段 | 含义 |
+|------|------|
+| `name.speaker_1`, `name.speaker_2` | 对话双方姓名 |
+| `session_1`, `session_2`, ... | 各次会话的消息数组。每条消息有 `clean_text`（正文）、`speaker`（发言人）、`date_time`（时间）、`dia_id`（唯一 ID） |
+| `events_session_1`, `events_session_2`, ... | 每 session 的事件摘要（`agent_a`/`agent_b` 的 sub-event），可辅助发现故事线，但**没有 dia_id** |
+| `session_1_date_time`, `session_2_date_time`, ... | 各 session 的时间范围，用于填 `time_range` |
 
-### 3.2 消息与 dia_id 示例
+### 4.1 消息与 dia_id 示例
 
 ```json
 {
@@ -100,7 +116,7 @@ REALTALK/data/Chat_X_*.json
 
 → 这条消息的 evidence 应写为 `"D1:4"`。
 
-### 3.3 events_session 的用途
+### 4.2 events_session 的用途
 
 `events_session_N` 提供每 session 的**事件摘要**，便于发现故事线，但**没有 dia_id**，需要你回到 `session_N` 找到对应消息：
 
@@ -119,17 +135,20 @@ REALTALK/data/Chat_X_*.json
 
 ---
 
-## 四、生成流程（建议步骤）
+## 五、生成流程（建议步骤）
 
 ### Step 1：通读对话，标记故事线
 
 - 顺序阅读 `session_1` ~ `session_N` 的 `clean_text`
 - 参考 `events_session_N` 的 sub-event
-- 列出可写成叙事弧的主题，例如：
+- 列出可写成叙事弧的主题，**每个 chat 尽量产出 6–12 个叙事弧 QA 对**，覆盖对话中的主要故事线
+- 常见主题类型：
   - 某人健康/病情变化
   - 某人工作/职场态度变化
   - 两人共同兴趣的发展
   - 某人感情/追求进展
+  - 某人学业/计划进展
+  - 某人家庭/亲友关系变化
 
 ### Step 2：为每条故事线划分阶段
 
@@ -150,9 +169,9 @@ REALTALK/data/Chat_X_*.json
 
 ---
 
-## 五、示例
+## 六、示例
 
-### 5.1 完整示例（参考 realtalk_nicolas_nebraas_arc_cases.json）
+### 6.1 完整示例
 
 ```json
 {
@@ -178,35 +197,39 @@ REALTALK/data/Chat_X_*.json
 }
 ```
 
-### 5.2 针对 Chat_10_Fahim_Muhhamed 的示例思路
+### 6.2 针对 Chat_10_Fahim_Muhhamed 的示例思路
 
-基于对话内容，可考虑的故事线（需你核实具体 dia_id）：
+基于对话内容，可考虑的故事线（需你核实具体 dia_id）。**每个 chat 建议至少 6–8 条**，内容丰富的对话可产出 10+ 条：
 
 | 故事线 | 问题示例 | 阶段思路 |
 |--------|----------|----------|
 | Muhammad 工作/老板 | How did Muhammad's work situation evolve? | 初期不满 → 考虑举报 → 调整心态 |
 | 两人游戏兴趣 | How did Fahim and Muhammad's gaming activities develop? | 提及 Fortnite → 一起打联赛 → 讨论电竞 |
 | Fahim 户外/健康 | How did Fahim's outdoor activities and health change? | 晨跑、自然 → 感冒 → 恢复、博物馆 |
+| Muhammad 健康/生病 | How did Muhammad's health situation progress? | 生病取消计划 → 恢复、调整作息 |
+| Fahim 摄影/分享 | How did Fahim's photo sharing and content creation evolve? | 跑步拍照 → 分享习惯 → 讨论博物馆 |
+| 两人见面/聚会计划 | How did their plans to meet up develop over time? | 初步提议 → 协调时间 → 成行或取消 |
 
 ---
 
-## 六、质量要求
+## 七、质量要求
 
-### 6.1 必须满足
+### 7.1 必须满足
 
 - [ ] `evidence_dia_ids` 中的每个 ID 在 RealTalk JSON 中存在
 - [ ] 阶段按时间顺序排列
 - [ ] 每阶段至少 1 条证据
 - [ ] 问题与阶段内容一致，能由证据支撑
 
-### 6.2 建议做到
+### 7.2 建议做到
 
+- [ ] 每个 chat 产出 6–12 个 arc case，充分覆盖主要故事线
 - [ ] 每阶段 2–3 条证据，提高评估稳定性
 - [ ] `time_range` 与 `session_N_date_time` 一致
 - [ ] 阶段之间有清晰进展或转折
 - [ ] 问题用英文，与 RealTalk 对话语言一致
 
-### 6.3 避免
+### 7.3 避免
 
 - [ ] 单点事实问题（如 "When did X happen?"）—— 用原有 qa 即可
 - [ ] 证据与阶段内容不符
@@ -215,14 +238,15 @@ REALTALK/data/Chat_X_*.json
 
 ---
 
-## 七、输出与交付
+## 八、输出与交付
 
-### 7.1 文件格式
+### 8.1 文件格式
 
 - 单个 JSON 文件，内容为 **数组**，每个元素是一个 arc case
-- 文件命名建议：`{chat_id}_arc_cases.json`，如 `realtalk_fahim_muhhamed_arc_cases.json`
+- 文件命名建议：`{chat_id}_arc_cases.json`。chat_id 通常为对话双方名字的小写+下划线，如 `realtalk_fahim_muhhamed_arc_cases.json`
+- **数量要求**：每个 chat 至少 6 个 arc case，内容丰富的对话建议产出 8–12 个
 
-### 7.2 示例文件结构
+### 8.2 示例文件结构
 
 ```json
 [
@@ -239,49 +263,7 @@ REALTALK/data/Chat_X_*.json
 ]
 ```
 
-### 7.3 放置位置
+### 8.3 交付方式
 
-- 产出文件放在：`chat-mirror/backend/tests/data/realtalk_eval/`
-- 与同 chat 的 `*_messages.json`、`*_sessions.json`、`*_mapping.json` 配套使用
-
-### 7.4 验证方式
-
-你产出的是**手写**的 arc_cases，不要用 `run_realtalk_eval.py`（它会用 qa 自动生成并覆盖你的文件）。按下面步骤验证：
-
-**Step 1：转换消息**（若尚未转换）
-
-```bash
-cd chat-mirror/backend
-uv run python scripts/convert_realtalk.py \
-  --input /path/to/REALTALK/data/Chat_10_Fahim_Muhhamed.json \
-  --self-id "Fahim Khan" \
-  --talker-id realtalk_fahim_muhhamed \
-  --output tests/data/realtalk_eval/realtalk_fahim_muhhamed_messages.json \
-  --sessions-output tests/data/realtalk_eval/realtalk_fahim_muhhamed_sessions.json \
-  --mapping-output tests/data/realtalk_eval/realtalk_fahim_muhhamed_mapping.json
-```
-
-**Step 2：放置你的 arc_cases.json**
-
-将你生成的 `realtalk_fahim_muhhamed_arc_cases.json` 放到 `tests/data/realtalk_eval/`。
-
-**Step 3：跑评估**
-
-```bash
-uv run python scripts/eval_realtalk_accuracy.py \
-  --chat-id realtalk_fahim_muhhamed \
-  --mode agent
-```
-
-若无 dia_id 不存在等报错，且能输出 Recall 等指标，即说明格式正确。
-
----
-
-## 八、参考文件
-
-| 文件 | 说明 |
-|------|------|
-| `backend/tests/data/realtalk_eval/realtalk_nicolas_nebraas_arc_cases.json` | 多阶段叙事弧示例 |
-| `backend/tests/data/realtalk_eval/realtalk_emi_elise_arc_cases.json` | 单阶段示例（简单弧） |
-| `backend/docs/REALTALK_EVAL_GUIDE.md` | RealTalk 转换与测评流程 |
-| `backend/docs/ACCURACY_IMPROVEMENT_TASK.md` | 准确率提升任务说明（含训练/测试集划分） |
+- 将生成的 `*_arc_cases.json` 文件交付给项目负责人或集成方
+- 确保 `evidence_dia_ids` 中的每个 ID 都能在对应的 RealTalk JSON 中找到，否则集成方验证时会报错

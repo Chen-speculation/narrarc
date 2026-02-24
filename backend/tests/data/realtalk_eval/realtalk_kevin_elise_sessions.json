@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "count": 1,
+  "sessions": [
+    {
+      "username": "realtalk_kevin_elise",
+      "displayName": "elise",
+      "type": 1,
+      "lastTimestamp": 1705630976,
+      "unreadCount": 0
+    }
+  ]
+}

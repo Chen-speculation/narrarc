@@ -1,0 +1,67 @@
+[
+  {
+    "question": "How did Kevin's fitness and sports activities evolve over these sessions?",
+    "query_type": "arc_narrative",
+    "expected_phases": [
+      {
+        "title": "Setting fitness goals and planning waterpark visit",
+        "time_range": "Dec 29-30",
+        "evidence_dia_ids": [
+          "D2:5",
+          "D3:11",
+          "D3:12"
+        ]
+      },
+      {
+        "title": "Playing football with friends and preparing for matches",
+        "time_range": "Jan 6-7",
+        "evidence_dia_ids": [
+          "D9:34",
+          "D9:40",
+          "D10:5"
+        ]
+      },
+      {
+        "title": "Discussing healthy diet and maintaining fitness",
+        "time_range": "Jan 14-15",
+        "evidence_dia_ids": [
+          "D15:15",
+          "D16:10",
+          "D16:13"
+        ]
+      }
+    ]
+  },
+  {
+    "question": "How did Elise's fitness and wellness routines develop over these sessions?",
+    "query_type": "arc_narrative",
+    "expected_phases": [
+      {
+        "title": "Morning walks and interest in swimming",
+        "time_range": "Dec 30",
+        "evidence_dia_ids": [
+          "D2:9",
+          "D2:14",
+          "D3:15"
+        ]
+      },
+      {
+        "title": "Tennis practice and yoga for self-care",
+        "time_range": "Jan 4-6",
+        "evidence_dia_ids": [
+          "D9:1",
+          "D9:3",
+          "D9:52"
+        ]
+      },
+      {
+        "title": "Starting university fitness classes",
+        "time_range": "Jan 17-18",
+        "evidence_dia_ids": [
+          "D17:4",
+          "D17:5"
+        ]
+      }
+    ]
+  }
+]

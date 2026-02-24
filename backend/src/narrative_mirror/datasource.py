@@ -1,4 +1,4 @@
-"""Data source layer for Narrative Mirror."""
+﻿"""Data source layer for Narrative Mirror."""
 
 import json
 import sys
@@ -360,7 +360,7 @@ class JsonFileDataSource:
             if not messages_path_obj.exists():
                 raise DataSourceError(f"Messages file not found: {messages_path}")
 
-            with open(messages_path_obj, "r") as f:
+            with open(messages_path_obj, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
             self._talker_id = data.get("talker", "")
@@ -394,7 +394,7 @@ class JsonFileDataSource:
             if not sessions_path_obj.exists():
                 raise DataSourceError(f"Sessions file not found: {sessions_path}")
 
-            with open(sessions_path_obj, "r") as f:
+            with open(sessions_path_obj, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
             for item in data.get("sessions", []):

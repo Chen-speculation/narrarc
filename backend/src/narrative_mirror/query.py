@@ -655,6 +655,7 @@ def run_query_with_phases(
             max_iterations=3,
             debug=debug,
             chroma_dir=chroma_dir,
+            retrieval_limit=max_nodes,
         )
         phases = reflect_on_evidence(
             phases=trace.phases,

@@ -53,6 +53,7 @@ class WorkflowState(TypedDict):
     chroma_dir: str  # ChromaDB path for retrieve_by_scope
     max_iterations: int
     debug: bool
+    retrieval_limit: int  # Max candidate nodes (from config, default 60)
 
 
 # ---------------------------------------------------------------------------
@@ -182,6 +183,7 @@ def retriever_node(state: WorkflowState) -> dict:
 
         anchors = lookup_anchors(intent, talker_id, conn) if intent else []
         anchor_node_ids = {a.node_id for a in anchors}
+        retrieval_limit = state.get("retrieval_limit", 60)
         merged_nodes = retrieve_by_scope(
             conn=conn,
             chroma_dir=chroma_dir,
@@ -189,7 +191,7 @@ def retriever_node(state: WorkflowState) -> dict:
             scope=scope,
             queries=search_queries,
             llm=llm_noncot,
-            limit=60,
+            limit=retrieval_limit,
             anchors=anchors,
         )
     else:
@@ -230,7 +232,8 @@ def retriever_node(state: WorkflowState) -> dict:
                             collected_node_ids.add(nid)
 
         if intent and intent.query_type == "arc_narrative" and get_all_nodes_overview_tool:
-            result = get_all_nodes_overview_tool.run(conn, talker_id, limit=60, scope=scope)
+            retrieval_limit = state.get("retrieval_limit", 60)
+            result = get_all_nodes_overview_tool.run(conn, talker_id, limit=retrieval_limit, scope=scope)
             if isinstance(result.data, list):
                 for nid in result.data:
                     if isinstance(nid, str):
@@ -1249,6 +1252,7 @@ def run_workflow(
     debug: bool = False,
     llm_noncot=None,
     chroma_dir: str = "",
+    retrieval_limit: int = 60,
 ) -> AgentTrace:
     """Run the LangGraph-based agentic narrative workflow.
 
@@ -1285,6 +1289,7 @@ def run_workflow(
         "chroma_dir": chroma_dir,
         "max_iterations": max_iterations,
         "debug": debug,
+        "retrieval_limit": retrieval_limit,
     }
 
     final_state = compiled_graph.invoke(initial_state)
@@ -1326,6 +1331,7 @@ def run_workflow_stream_values(
     debug: bool = False,
     llm_noncot=None,
     chroma_dir: str = "",
+    retrieval_limit: int = 60,
 ):
     """Stream workflow execution with full state after each node.
 
@@ -1352,6 +1358,7 @@ def run_workflow_stream_values(
         "chroma_dir": chroma_dir,
         "max_iterations": max_iterations,
         "debug": debug,
+        "retrieval_limit": retrieval_limit,
     }
 
     for full_state in compiled_graph.stream(

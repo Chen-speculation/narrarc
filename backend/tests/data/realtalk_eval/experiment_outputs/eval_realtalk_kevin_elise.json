@@ -1,0 +1,125 @@
+{
+  "timestamp": "2026-02-24T11:00:18.998223",
+  "chat_id": "realtalk_kevin_elise",
+  "mode": "oneshot",
+  "config": {
+    "llm": "DeepSeek-V3.2",
+    "embedding": "BAAI/bge-m3",
+    "reranker": "BAAI/bge-reranker-v2-m3"
+  },
+  "total_cases": 2,
+  "cases": [
+    {
+      "question": "How did Kevin's fitness and sports activities evolve over these sessions?",
+      "returned_ids": [
+        96,
+        226,
+        90,
+        230,
+        391,
+        186,
+        82,
+        242,
+        443,
+        87,
+        58,
+        219
+      ],
+      "expected_local_ids": [
+        391,
+        401,
+        242,
+        403,
+        87,
+        88,
+        58,
+        221,
+        216
+      ],
+      "recall": 0.4444444444444444,
+      "fuzzy_recall": 0.7777777777777778,
+      "precision": 0.3333333333333333,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.4444444444444444,
+      "arc_global_recall": 0.4444444444444444,
+      "arc_phase_coverage": 1.0,
+      "per_phase_recalls": [
+        0.6666666666666666,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "timeline_coverage": 0.9379422244983124,
+      "per_phase_temporal_recall": 0.6666666666666666,
+      "groundedness": 1.0,
+      "avg_phases": 2,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "How did Elise's fitness and wellness routines develop over these sessions?",
+      "returned_ids": [
+        225,
+        229,
+        390,
+        232,
+        377,
+        441,
+        82,
+        83,
+        87,
+        89,
+        442,
+        91,
+        350
+      ],
+      "expected_local_ids": [
+        65,
+        232,
+        91,
+        441,
+        442,
+        187,
+        188,
+        61
+      ],
+      "recall": 0.5,
+      "fuzzy_recall": 0.5,
+      "precision": 0.3076923076923077,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.5555555555555555,
+      "arc_global_recall": 0.5,
+      "arc_phase_coverage": 1.0,
+      "per_phase_recalls": [
+        0.3333333333333333,
+        0.3333333333333333,
+        1.0
+      ],
+      "timeline_coverage": 0.9460977315504825,
+      "per_phase_temporal_recall": 0.2222222222222222,
+      "groundedness": 1.0,
+      "avg_phases": 2,
+      "retrieval_checkpoints": []
+    }
+  ],
+  "aggregates": {
+    "recall": {
+      "mean": 0.4722222222222222,
+      "median": 0.4722222222222222,
+      "std": 0.039283710065919325
+    },
+    "fuzzy_recall": {
+      "mean": 0.6388888888888888,
+      "median": 0.6388888888888888,
+      "std": 0.19641855032959654
+    },
+    "precision": {
+      "mean": 0.3205128205128205,
+      "median": 0.3205128205128205,
+      "std": 0.018130943107347346
+    },
+    "arc_phase_coverage": {
+      "mean": 1.0,
+      "median": 1.0,
+      "std": 0.0
+    }
+  }
+}

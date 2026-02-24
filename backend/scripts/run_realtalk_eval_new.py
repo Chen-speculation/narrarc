@@ -49,10 +49,6 @@ def run_single_eval_batch(input_path, self_id, talker_id, arc_cases_path, limit_
         print("Limited to", len(cases), "arc cases")
     print("=== Step 3: Run eval pipeline ===")
     cmd = [sys.executable, str(ROOT / "scripts" / "eval_realtalk_accuracy.py"), "--chat-id", talker_id, "--mode", mode, "--output-json", output_json]
-    if debug_retrieval:
-        cmd.extend(["--debug-retrieval"])
-    if output_debug_json:
-        cmd.extend(["--output-debug-json", output_debug_json])
     r = subprocess.run(cmd, cwd=str(ROOT))
     return r.returncode
 
@@ -72,8 +68,6 @@ def main():
     parser.add_argument("--record-experiment", action="store_true", help="Record metrics")
     parser.add_argument("--experiment-id", help="Experiment ID")
     parser.add_argument("--config-changes", default="", help="Config change description")
-    parser.add_argument("--debug-retrieval", action="store_true", help="Log retrieval checkpoints")
-    parser.add_argument("--output-debug-json", help="Write retrieval debug logs to JSON file")
     args = parser.parse_args()
 
     batch = args.train_only or args.test_only
@@ -107,8 +101,7 @@ def main():
             out_dir = EVAL_DIR / "experiment_outputs"
             out_dir.mkdir(parents=True, exist_ok=True)
             out_json = str(out_dir / ("eval_" + talker_id + ".json"))
-            debug_out = args.output_debug_json or (str(ROOT / "experiments" / "debug_baseline.json") if args.debug_retrieval else None)
-            code = run_single_eval_batch(str(chat_path), self_id, talker_id, arc_str, args.limit_cases, args.mode, out_json, debug_retrieval=args.debug_retrieval, output_debug_json=debug_out)
+            code = run_single_eval_batch(str(chat_path), self_id, talker_id, arc_str, args.limit_cases, args.mode, out_json)
             if code != 0: last_code = code
             agg_jsons.append(out_json)
         if args.record_experiment and agg_jsons:
@@ -185,7 +178,8 @@ def main():
 
     # Step 3: optionally limit cases
     if args.limit_cases:
-        with open(arc_path, encoding='utf-8') as f:
+        import json
+        with open(arc_path) as f:
             cases = json.load(f)
         cases = cases[: args.limit_cases]
         with open(arc_path, "w") as f:
@@ -206,5 +200,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
