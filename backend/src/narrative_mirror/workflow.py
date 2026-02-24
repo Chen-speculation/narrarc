@@ -1035,6 +1035,7 @@ def generator_node(state: WorkflowState) -> dict:
                 "content": m.parsed_content[:100],
             })
 
+        all_message_ids = [m.local_id for m in msgs]
         date_str = datetime.fromtimestamp(node.start_time / 1000).strftime("%Y-%m-%d")
         # Task 1.2: Add temporal_position field
         entry: dict = {
@@ -1043,6 +1044,7 @@ def generator_node(state: WorkflowState) -> dict:
             "date": date_str,
             "start_id": node.start_local_id,
             "end_id": node.end_local_id,
+            "all_message_ids": all_message_ids,
             "temporal_position": _get_temporal_position(node.start_time),
             "messages_preview": messages_preview,
         }
@@ -1081,13 +1083,12 @@ def generator_node(state: WorkflowState) -> dict:
             "- phase_title: 阶段标题（简短有力）\n"
             "- time_range: 时间范围（如\"2023年3月\"）\n"
             "- core_conclusion: 核心结论（一句话概括）\n"
-            f"- evidence_msg_ids: {ev_min}-{ev_max}个整数消息ID，直接从节点的 messages_preview 中可见的 ID 选取，"
-            "或在该节点的 start_id~end_id 范围内选取。必须是具体整数ID的列表。\n"
+            f"- evidence_msg_ids: 从本阶段涵盖的节点的 all_message_ids 中选取所有直接支撑本阶段结论的消息ID（目标{ev_min}-{ev_max}个，但不要因数量限制而遗漏关键证据）。每个涵盖该阶段的节点至少选1个ID。必须是具体整数ID的列表。\n"
             "- reasoning_chain: 推理链（解释为什么得出这个结论）\n"
             "- uncertainty_note: 不确定性说明\n\n"
             "时序覆盖约束：叙事的早期阶段（第1、2阶段）的证据应优先来自 temporal_position 为 Q1/Q2 的节点；"
             "后期阶段（最后1、2阶段）的证据应优先来自 Q3/Q4 的节点。"
-            "每个阶段的 evidence_msg_ids 应尽量覆盖至少两个不同的 temporal_position。\n\n"
+            "每个阶段的 evidence_msg_ids 应尽量覆盖至少两个不同的 temporal_position。宁可多选也不要遗漏关键证据。\n\n"
             "返回JSON格式: {\"phases\": [{\"phase_title\": \"...\", \"evidence_msg_ids\": [57, 59, 103], ...}, ...]}"
         )
 
@@ -1102,11 +1103,10 @@ def generator_node(state: WorkflowState) -> dict:
     else:
         prompt = (
             f"用户问题: {question}\n\n"
-            f"对话节点摘要（每个节点含 temporal_position 时序位置标注）:\n"
+            f"对话节点摘要（每个节点含 all_message_ids 和 temporal_position）:\n"
             f"{json.dumps(node_summaries, ensure_ascii=False, indent=2)}\n\n"
             "请将这些节点组织成连贯的叙事阶段，回答用户的问题。"
-            "为每个阶段选择具体的消息ID作为证据，请从每个节点 messages_preview 中可见的 ID 直接选取，"
-            "或在 start_id~end_id 范围内选取。"
+            "为每个阶段选择具体的消息ID作为证据，请从每个节点的 all_message_ids 中选取（不要局限于 messages_preview）。"
         )
 
     valid_ids = set()

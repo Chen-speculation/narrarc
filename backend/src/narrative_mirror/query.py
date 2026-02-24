@@ -22,7 +22,7 @@ OUTPUT_MODES = {
     "narrative": {
         "min_phases": 2,
         "max_phases": 8,
-        "evidence_per_phase": (3, 8),
+        "evidence_per_phase": (3, 15),
     },
     "fact": {
         "min_phases": 1,
@@ -336,12 +336,15 @@ def segment_narrative(
                 "content": content,
             })
 
-        # Expose concrete integer IDs so the LLM can pick from them
+        # Expose concrete integer IDs so the LLM can pick from them.
+        # all_message_ids: full list of local_ids in node (LLM can select from any, not just preview)
+        all_message_ids = [m.local_id for m in msgs]
         node_summaries.append({
             "topic": node.topic_name,
             "date": datetime.fromtimestamp(node.start_time / 1000).strftime("%Y-%m-%d"),
             "start_id": node.start_local_id,
             "end_id": node.end_local_id,
+            "all_message_ids": all_message_ids,
             "signals": signals_str,
             "messages_preview": messages_preview,
         })
@@ -362,11 +365,11 @@ def segment_narrative(
 - phase_title: 阶段标题（简短有力）
 - time_range: 时间范围（如"2023年3月"）
 - core_conclusion: 核心结论（一句话概括）
-- evidence_msg_ids: 从本阶段涵盖的节点中选取{ev_min}-{ev_max}个代表性消息的整数ID，覆盖该阶段的起止时间
+- evidence_msg_ids: 从本阶段涵盖的节点的 all_message_ids 中选取所有直接支撑本阶段结论的消息ID（目标{ev_min}-{ev_max}个，但不要因数量限制而遗漏关键证据）。每个涵盖该阶段的节点至少选1个ID，覆盖该阶段的起止时间。
 - reasoning_chain: 推理链（解释为什么得出这个结论）
 - uncertainty_note: 不确定性说明
 
-注意：evidence_msg_ids 必须是各节点 start_id 到 end_id 范围内的真实消息ID。确保从不同日期/时间段的节点中选取证据（早期、中期、晚期都要有），不要只从某一小段选取。优先选择直接支撑结论、与用户问题关键词相关的消息。
+注意：evidence_msg_ids 必须来自各节点的 all_message_ids（即 start_id 到 end_id 范围内的真实消息ID）。确保从不同日期/时间段的节点中选取证据（早期、中期、晚期都要有），不要只从某一小段选取。优先选择直接支撑结论、与用户问题关键词相关的消息。宁可多选也不要遗漏关键证据。
 
 返回JSON格式: {{\"phases\": [{{...}}, {{...}}]}}"""
 

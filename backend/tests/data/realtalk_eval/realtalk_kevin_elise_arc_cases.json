@@ -6,29 +6,17 @@
       {
         "title": "Setting fitness goals and planning waterpark visit",
         "time_range": "Dec 29-30",
-        "evidence_dia_ids": [
-          "D2:5",
-          "D3:11",
-          "D3:12"
-        ]
+        "evidence_dia_ids": ["D2:5", "D3:11", "D3:12"]
       },
       {
         "title": "Playing football with friends and preparing for matches",
         "time_range": "Jan 6-7",
-        "evidence_dia_ids": [
-          "D9:34",
-          "D9:40",
-          "D10:5"
-        ]
+        "evidence_dia_ids": ["D9:34", "D9:40", "D10:5"]
       },
       {
         "title": "Discussing healthy diet and maintaining fitness",
         "time_range": "Jan 14-15",
-        "evidence_dia_ids": [
-          "D15:15",
-          "D16:10",
-          "D16:13"
-        ]
+        "evidence_dia_ids": ["D15:15", "D16:10", "D16:13"]
       }
     ]
   },
@@ -39,28 +27,101 @@
       {
         "title": "Morning walks and interest in swimming",
         "time_range": "Dec 30",
-        "evidence_dia_ids": [
-          "D2:9",
-          "D2:14",
-          "D3:15"
-        ]
+        "evidence_dia_ids": ["D2:9", "D2:14", "D3:15"]
       },
       {
         "title": "Tennis practice and yoga for self-care",
         "time_range": "Jan 4-6",
-        "evidence_dia_ids": [
-          "D9:1",
-          "D9:3",
-          "D9:52"
-        ]
+        "evidence_dia_ids": ["D9:1", "D9:3", "D9:52"]
       },
       {
         "title": "Starting university fitness classes",
         "time_range": "Jan 17-18",
-        "evidence_dia_ids": [
-          "D17:4",
-          "D17:5"
-        ]
+        "evidence_dia_ids": ["D17:4", "D17:5"]
+      }
+    ]
+  },
+  {
+    "question": "How did Kevin and Elise's travel experiences and future plans unfold over these sessions?",
+    "query_type": "arc_narrative",
+    "expected_phases": [
+      {
+        "title": "Sharing past travels and home countries",
+        "time_range": "Dec 29 - Jan 1",
+        "evidence_dia_ids": ["D1:5", "D5:20", "D9:22"]
+      },
+      {
+        "title": "Discussing upcoming trips and dream destinations",
+        "time_range": "Jan 2-7",
+        "evidence_dia_ids": ["D5:23", "D9:24", "D6:5"]
+      },
+      {
+        "title": "Exchanging detailed travel advice and new ideas",
+        "time_range": "Jan 10-19",
+        "evidence_dia_ids": ["D18:10", "D10:48"]
+      }
+    ]
+  },
+  {
+    "question": "How did the conversation about food and cooking deepen between Kevin and Elise?",
+    "query_type": "arc_narrative",
+    "expected_phases": [
+      {
+        "title": "Introducing hometown specialties and favorite cuisines",
+        "time_range": "Dec 29-31",
+        "evidence_dia_ids": ["D1:7", "D1:26", "D4:11"]
+      },
+      {
+        "title": "Sharing personal recipes and cooking experiences",
+        "time_range": "Jan 1-5",
+        "evidence_dia_ids": ["D4:23", "D4:26", "D5:28"]
+      },
+      {
+        "title": "Exchanging advanced cooking tips and healthy meal ideas",
+        "time_range": "Jan 15-16",
+        "evidence_dia_ids": ["D16:35", "D16:31", "D16:45"]
+      }
+    ]
+  },
+  {
+    "question": "How did Kevin and Elise's academic and career journeys progress throughout the conversation?",
+    "query_type": "arc_narrative",
+    "expected_phases": [
+      {
+        "title": "Introducing majors, universities, and past internships",
+        "time_range": "Dec 29 - Jan 3",
+        "evidence_dia_ids": ["D1:51", "D6:11", "D6:26", "D7:3"]
+      },
+      {
+        "title": "Discussing upcoming courses and academic challenges",
+        "time_range": "Jan 4-8",
+        "evidence_dia_ids": ["D9:8", "D9:16", "D10:54"]
+      },
+      {
+        "title": "Starting the new semester and incorporating fitness into routine",
+        "time_range": "Jan 17",
+        "evidence_dia_ids": ["D17:2", "D17:4"]
+      }
+    ]
+  },
+  {
+    "question": "How did Kevin and Elise's self-care and beauty routines evolve over the sessions?",
+    "query_type": "arc_narrative",
+    "expected_phases": [
+      {
+        "title": "Elise's initial self-care moments: manicure and beach reflections",
+        "time_range": "Jan 6",
+        "evidence_dia_ids": ["D9:42", "D9:43", "D9:51"]
+      },
+      {
+        "title": "Elise's hair transformation and spa day",
+        "time_range": "Jan 12-13",
+        "evidence_dia_ids": ["D13:2", "D13:8", "D14:1"]
+      },
+      {
+        "title": "Both discussing skincare routines and products",
+        "time_range": "Jan 14",
+        "evidence_dia_ids": ["D15:5", "D14:10", "D14:11"]
       }
     ]
   }
