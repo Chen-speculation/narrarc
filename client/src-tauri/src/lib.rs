@@ -41,24 +41,31 @@ fn spawn_backend_process() -> Result<BackendProcess, String> {
 }
 
 #[tauri::command]
-fn spawn_backend_build(talker_id: String) -> Result<(), String> {
+fn spawn_backend_build(talker_id: String, config_overrides: Option<String>) -> Result<(), String> {
   use std::process::{Command, Stdio};
   let cwd = get_backend_dir_impl();
+  let mut args = vec![
+    "run".to_string(),
+    "python".to_string(),
+    "-m".to_string(),
+    "narrative_mirror.cli_json".to_string(),
+    "--db".to_string(),
+    "data/mirror.db".to_string(),
+    "build".to_string(),
+    "--talker".to_string(),
+    talker_id.clone(),
+    "--config".to_string(),
+    "config.yml".to_string(),
+  ];
+  if let Some(ref overrides) = config_overrides {
+    if !overrides.is_empty() {
+      args.push("--config-overrides".to_string());
+      args.push(overrides.clone());
+    }
+  }
+  args.push("--debug".to_string());
   let _child = Command::new("uv")
-    .args([
-      "run",
-      "python",
-      "-m",
-      "narrative_mirror.cli_json",
-      "--db",
-      "data/mirror.db",
-      "build",
-      "--talker",
-      &talker_id,
-      "--config",
-      "config.yml",
-      "--debug",
-    ])
+    .args(&args)
     .env("PYTHONUNBUFFERED", "1")
     .env("PYTHONIOENCODING", "utf-8")
     .current_dir(&cwd)
@@ -152,14 +159,18 @@ async fn backend_query_stream(
   state: tauri::State<'_, Arc<Mutex<BackendProcess>>>,
   talker: String,
   question: String,
+  config_overrides: Option<serde_json::Value>,
 ) -> Result<serde_json::Value, String> {
-  let payload = serde_json::json!({
+  let mut payload = serde_json::json!({
     "cmd": "query",
     "talker": talker,
     "question": question,
     "stream": true,
     "config": "config.yml",
   });
+  if let Some(ref overrides) = config_overrides {
+    payload["config_overrides"] = overrides.clone();
+  }
   let request = serde_json::to_string(&payload).map_err(|e| e.to_string())?;
   let (tx, mut rx) = tokio::sync::mpsc::channel::<String>(64);
   let result_cell = Arc::new(Mutex::new(None::<serde_json::Value>));

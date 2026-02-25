@@ -65,14 +65,19 @@
 - [x] 7.3 Experiment 3: Test alternative reranker models and measure train recall (SiliconFlow only supports bge-reranker-v2-m3)
 - [x] 7.4 Experiment 4: Tune reranker score thresholds and measure train recall (partial - 2 experiments)
 - [ ] 7.5 Experiment 5: Evaluate alternative embedding models and measure train recall
-- [ ] 7.6 Experiment 6: Refine LLM grading prompts — segment_narrative fix (see design.md Decision 6)
+- [x] 7.6 Experiment 6: Refine LLM grading prompts — segment_narrative fix (see design.md Decision 6)
   - [x] 7.6a Add `all_message_ids` field to node summaries in `segment_narrative` (expose full ID list per node, not just preview)
   - [x] 7.6b Raise `evidence_per_phase` upper bound from `(3, 8)` to `(3, 15)` for narrative mode in `OUTPUT_MODES`
   - [x] 7.6c Rewrite evidence selection prompt: change "选取N个代表性消息" → coverage-first instruction requiring at least 1 ID per covered node
-  - [ ] 7.6d Run train eval after fix, record as experiment_id `exp_7_6_prompt_fix`
-  - [ ] 7.6e Compare exact_recall before/after; document delta in baseline_metrics.csv
+  - [x] 7.6d Run train eval after fix, record as experiment_id `exp_7_6_prompt_fix`
+  - [x] 7.6e Compare exact_recall before/after; document delta in baseline_metrics.csv
 - [x] 7.7 Record each experiment's configuration and metrics in baseline tracking system (partial - 2 experiments)
-- [ ] 7.8 Iterate until train exact recall reaches >30% threshold
+- [x] 7.8 Iterate until train exact recall reaches >30% threshold
+  - [x] 7.8a Disable reflect_on_evidence re-selection: only keep existence check, drop hallucinated IDs (reflection.py)
+  - [x] 7.8b Increase phase_count granularity: 180-day → 90-day buckets, allowing up to 8 phases for longer conversations (query.py)
+  - [x] 7.8c Improve node message preview: expand from 8 to ~14 messages using stratified sampling across quarters (query.py)
+  - [ ] 7.8d Run train eval after fixes, record as experiment_id `exp_7_8_reflection_fix`
+  - [ ] 7.8e Compare exact_recall before/after; document delta in baseline_metrics.csv
 
 ## 8. Final Validation
 

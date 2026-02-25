@@ -50,6 +50,90 @@ class Config:
     reranker: RerankerConfig
 
 
+def apply_overrides(config: Config, overrides: dict) -> Config:
+    """Apply partial overrides to a Config. Overrides are merged shallowly per section.
+
+    Args:
+        config: Base configuration.
+        overrides: Dict with optional keys llm, embedding, reranker. Each value
+            is a dict of field names to override (e.g. {"api_key": "x", "model": "y"}).
+
+    Returns:
+        A new Config with overrides applied.
+    """
+    llm_data = {
+        "provider": config.llm.provider,
+        "model": config.llm.model,
+        "api_key": config.llm.api_key,
+        "base_url": config.llm.base_url,
+        "max_workers": config.llm.max_workers,
+    }
+    if overrides.get("llm"):
+        llm_data.update({k: v for k, v in overrides["llm"].items() if v is not None})
+
+    embedding_data = {
+        "provider": config.embedding.provider,
+        "model": config.embedding.model,
+        "api_key": config.embedding.api_key,
+        "base_url": config.embedding.base_url,
+    }
+    if overrides.get("embedding"):
+        embedding_data.update({k: v for k, v in overrides["embedding"].items() if v is not None})
+
+    reranker_data = {
+        "model": config.reranker.model,
+        "api_key": config.reranker.api_key,
+        "base_url": config.reranker.base_url,
+    }
+    if overrides.get("reranker"):
+        reranker_data.update({k: v for k, v in overrides["reranker"].items() if v is not None})
+
+    return Config(
+        llm=LLMConfig(
+            provider=llm_data.get("provider", "openai"),
+            model=llm_data.get("model", "claude-3-5-sonnet-20241022"),
+            api_key=llm_data.get("api_key", ""),
+            base_url=llm_data.get("base_url", "https://api.anthropic.com/v1"),
+            max_workers=int(llm_data.get("max_workers", 8)),
+        ),
+        embedding=EmbeddingConfig(
+            provider=embedding_data.get("provider", "openai"),
+            model=embedding_data.get("model", "BAAI/bge-m3"),
+            api_key=embedding_data.get("api_key", ""),
+            base_url=embedding_data.get("base_url", ""),
+        ),
+        reranker=RerankerConfig(
+            model=reranker_data.get("model", "BAAI/bge-reranker-v2-m3"),
+            api_key=reranker_data.get("api_key", ""),
+            base_url=reranker_data.get("base_url", ""),
+        ),
+    )
+
+
+def config_to_dict(config: Config) -> dict:
+    """Convert Config to a dict suitable for JSON (e.g. for frontend display)."""
+    return {
+        "llm": {
+            "provider": config.llm.provider,
+            "model": config.llm.model,
+            "api_key": config.llm.api_key,
+            "base_url": config.llm.base_url,
+            "max_workers": config.llm.max_workers,
+        },
+        "embedding": {
+            "provider": config.embedding.provider,
+            "model": config.embedding.model,
+            "api_key": config.embedding.api_key,
+            "base_url": config.embedding.base_url,
+        },
+        "reranker": {
+            "model": config.reranker.model,
+            "api_key": config.reranker.api_key,
+            "base_url": config.reranker.base_url,
+        },
+    }
+
+
 def load_config(path: str = "config.yml") -> Config:
     """Load configuration from a YAML file.
 

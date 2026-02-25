@@ -130,6 +130,24 @@ class _SqliteDataSource:
 
 
 # ---------------------------------------------------------------------------
+# get_config
+# ---------------------------------------------------------------------------
+
+
+def _cmd_get_config(args) -> None:
+    """Return current config from file (for frontend settings form)."""
+    try:
+        from .config import load_config, config_to_dict
+        config = load_config(args.config)
+        out = config_to_dict(config)
+        print(json.dumps(out, ensure_ascii=False), flush=True)
+    except FileNotFoundError as e:
+        _die(str(e))
+    except Exception as e:
+        _die(f"Failed to load config: {e}")
+
+
+# ---------------------------------------------------------------------------
 # list_sessions
 # ---------------------------------------------------------------------------
 
@@ -305,9 +323,12 @@ def _cmd_query(args) -> None:
         else:
             if not args.config:
                 _die("--config is required unless --stub is used")
-            from .config import load_config
+            from .config import load_config, apply_overrides
             from .llm import from_config
             config = load_config(args.config)
+            overrides = getattr(args, "config_overrides", None)
+            if overrides:
+                config = apply_overrides(config, overrides)
             llm_noncot, llm_cot, reranker = from_config(config)
 
         chroma_dir = args.chroma_dir or os.path.join(os.path.dirname(args.db), "chroma")
@@ -525,6 +546,11 @@ def _cmd_build(args) -> None:
             set_build_progress(conn, talker_id, stage, step, detail)
 
         config = load_config(args.config)
+        overrides_raw = getattr(args, "config_overrides", None)
+        if overrides_raw:
+            from .config import apply_overrides
+            overrides = json.loads(overrides_raw) if isinstance(overrides_raw, str) else overrides_raw
+            config = apply_overrides(config, overrides)
         llm_noncot, llm_cot, reranker = from_config(config)
         source = _SqliteDataSource(conn, talker_id)
 
@@ -617,7 +643,10 @@ def _cmd_stdio(args) -> None:
 
         # Build namespace with defaults; payload keys match CLI option names (e.g. talker, limit, offset)
         base = {"db": default_db}
-        if cmd == "list_sessions":
+        if cmd == "get_config":
+            ns = _Namespace({"config": data.get("config") or default_config})
+            func = _cmd_get_config
+        elif cmd == "list_sessions":
             ns = _Namespace(base)
             func = _cmd_list_sessions
         elif cmd == "get_messages":
@@ -634,6 +663,7 @@ def _cmd_stdio(args) -> None:
                 "talker": data.get("talker"),
                 "question": data.get("question"),
                 "config": data.get("config") or default_config,
+                "config_overrides": data.get("config_overrides"),
                 "chroma_dir": data.get("chroma_dir"),
                 "stub": data.get("stub", False),
                 "stream": data.get("stream", False),
@@ -715,6 +745,7 @@ def main() -> None:
     p_build = subparsers.add_parser("build")
     p_build.add_argument("--talker", required=True, help="Talker ID")
     p_build.add_argument("--config", required=True, help="Path to config.yml")
+    p_build.add_argument("--config-overrides", dest="config_overrides", default=None, help="JSON string of config overrides")
     p_build.add_argument("--chroma-dir", dest="chroma_dir", default=None, help="ChromaDB directory (optional)")
     p_build.add_argument("--debug", action="store_true", help="Print progress logs to stderr")
     p_build.set_defaults(func=_cmd_build)

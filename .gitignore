@@ -11,25 +11,28 @@ wheels/
 
 # Local Node.js portable (run-local.ps1)
 .node/
-
+openspec/
 # Project tooling
 .claude/
 .cursor/
 .opencode/
+.agent/
 
 # Backend data (mirror.db and chroma/)
 backend/data/
 backend/profile_chroma/
+backend/openspec/
 
 # Client data: only samples/ is tracked
 client/data/*
+client/openspec/
 !client/data/samples/
 
 # Client (Tauri/Node)
 client/node_modules/
 client/dist/
 client/src-tauri/target/
-client/data/test
+client/data/test/
 client/coverage/
 *.log
 client/.env*

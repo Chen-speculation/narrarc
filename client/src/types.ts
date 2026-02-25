@@ -52,6 +52,31 @@ export interface AgentTrace {
   total_duration_ms: number;
 }
 
+/** Backend config (LLM, embedding, reranker) for settings form. */
+export interface BackendConfig {
+  llm: {
+    provider: string;
+    model: string;
+    api_key: string;
+    base_url: string;
+    max_workers: number;
+  };
+  embedding: {
+    provider: string;
+    model: string;
+    api_key: string;
+    base_url: string;
+  };
+  reranker: {
+    model: string;
+    api_key: string;
+    base_url: string;
+  };
+}
+
+/** Partial overrides applied on top of config.yml. */
+export type ConfigOverrides = Partial<BackendConfig>;
+
 export interface QueryResponse {
   conversation_id: string;
   question: string;

@@ -1,14 +1,15 @@
 import { Session } from '../types';
-import { MessageSquare, CheckCircle2, Clock, Loader2, PlusCircle, Terminal, Sun, Moon, Trash2 } from 'lucide-react';
+import { MessageSquare, CheckCircle2, Clock, Loader2, PlusCircle, Terminal, Sun, Moon, Trash2, Settings } from 'lucide-react';
 
-export function Sidebar({ sessions, activeSession, onSelectSession, onDeleteSession, isDarkMode, toggleTheme, onOpenImport }: { 
+export function Sidebar({ sessions, activeSession, onSelectSession, onDeleteSession, isDarkMode, toggleTheme, onOpenImport, onOpenSettings }: { 
   sessions: Session[], 
   activeSession: Session | null, 
   onSelectSession: (s: Session) => void,
   onDeleteSession: (s: Session) => void,
   isDarkMode: boolean,
   toggleTheme: () => void,
-  onOpenImport: () => void
+  onOpenImport: () => void,
+  onOpenSettings: () => void
 }) {
   return (
     <div className="w-[240px] min-w-[200px] bg-white dark:bg-[#0a0a0a] text-zinc-600 dark:text-zinc-300 flex flex-col h-full flex-shrink-0 border-r border-zinc-200 dark:border-white/5 font-mono transition-colors duration-300">
@@ -19,19 +20,28 @@ export function Sidebar({ sessions, activeSession, onSelectSession, onDeleteSess
           <span className="animate-pulse text-indigo-600 dark:text-indigo-500">_</span>
         </h1>
         
-        <button 
-          onClick={toggleTheme} 
-          className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 transition-all group border border-transparent hover:border-zinc-300 dark:hover:border-white/10"
-        >
-          <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest group-hover:text-zinc-800 dark:group-hover:text-zinc-200 transition-colors">
-            {isDarkMode ? 'SWITCH_TO_LIGHT' : 'SWITCH_TO_DARK'}
-          </span>
-          {isDarkMode ? (
-            <Sun className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400 group-hover:text-amber-500 transition-colors" />
-          ) : (
-            <Moon className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400 group-hover:text-indigo-500 transition-colors" />
-          )}
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={onOpenSettings}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 transition-all group border border-transparent hover:border-zinc-300 dark:hover:border-white/10"
+            title="后端配置"
+          >
+            <Settings className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400 group-hover:text-indigo-500 transition-colors" />
+          </button>
+          <button 
+            onClick={toggleTheme} 
+            className="flex-1 flex items-center justify-between px-4 py-2.5 rounded-lg bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 transition-all group border border-transparent hover:border-zinc-300 dark:hover:border-white/10"
+          >
+            <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest group-hover:text-zinc-800 dark:group-hover:text-zinc-200 transition-colors">
+              {isDarkMode ? 'LIGHT' : 'DARK'}
+            </span>
+            {isDarkMode ? (
+              <Sun className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400 group-hover:text-amber-500 transition-colors" />
+            ) : (
+              <Moon className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400 group-hover:text-indigo-500 transition-colors" />
+            )}
+          </button>
+        </div>
       </div>
 
       <div className="p-5">

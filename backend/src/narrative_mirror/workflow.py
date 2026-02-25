@@ -402,7 +402,7 @@ def factual_generator_node(state: WorkflowState) -> dict:
         preview_msgs = msgs
         for m in preview_msgs:
             valid_ids.add(m.local_id)
-            sender = "我" if m.is_send else "TA"
+            sender = m.sender_username if m.sender_username else ("我" if m.is_send else "TA")
             date_str = datetime.fromtimestamp(m.create_time / 1000).strftime("%Y-%m-%d %H:%M")
             all_msg_entries.append({
                 "id": m.local_id,
@@ -530,7 +530,7 @@ def _grade_coverage_by_scope(
         })
 
     if scope_type == "topic_bounded":
-        if len(collected_nodes) >= 3:
+        if len(collected_nodes) >= 8:
             return '{"evaluation": "sufficient"}'
         return json.dumps({
             "evaluation": "insufficient",
@@ -876,7 +876,7 @@ def _generator_factual_branch(
             msgs = get_messages_for_node(conn, talker_id, node)
         for m in msgs:
             valid_ids.add(m.local_id)
-            sender = "我" if m.is_send else "TA"
+            sender = m.sender_username if m.sender_username else ("我" if m.is_send else "TA")
             date_str = datetime.fromtimestamp(m.create_time / 1000).strftime("%Y-%m-%d %H:%M")
             all_msg_entries.append({
                 "id": m.local_id,
@@ -1017,8 +1017,18 @@ def generator_node(state: WorkflowState) -> dict:
         if msgs is None:
             msgs = get_messages_for_node(conn, talker_id, node)
 
-        # Build messages_preview: first 3 + middle 2 + last 3 for large nodes
-        if len(msgs) > 8:
+        # Build messages_preview: stratified sampling ~14 msgs for large nodes
+        if len(msgs) > 15:
+            q1 = len(msgs) // 4
+            q2 = len(msgs) // 2
+            q3 = 3 * len(msgs) // 4
+            seen: set[int] = set()
+            preview_msgs = []
+            for m in msgs[:4] + msgs[q1:q1+2] + msgs[q2:q2+2] + msgs[q3:q3+2] + msgs[-4:]:
+                if m.local_id not in seen:
+                    seen.add(m.local_id)
+                    preview_msgs.append(m)
+        elif len(msgs) > 8:
             mid = len(msgs) // 2
             preview_msgs = msgs[:3] + msgs[mid - 1 : mid + 1] + msgs[-3:]
         elif len(msgs) > 5:
@@ -1028,7 +1038,7 @@ def generator_node(state: WorkflowState) -> dict:
 
         messages_preview = []
         for m in preview_msgs:
-            sender = "我" if m.is_send else "TA"
+            sender = m.sender_username if m.sender_username else ("我" if m.is_send else "TA")
             messages_preview.append({
                 "id": m.local_id,
                 "sender": sender,
@@ -1064,7 +1074,7 @@ def generator_node(state: WorkflowState) -> dict:
         ts_min = min(n.start_time for n in collected_nodes)
         ts_max = max(n.start_time for n in collected_nodes)
         time_span_days = max(1, (ts_max - ts_min) / (1000 * 86400))
-    phase_count = max(cfg["min_phases"], min(cfg["max_phases"], max(1, int(time_span_days // 180))))
+    phase_count = max(cfg["min_phases"], min(cfg["max_phases"], max(1, int(time_span_days // 90))))
     phase_count = min(phase_count, max(1, len(collected_nodes) // 3))
 
     if output_mode == "summary":
@@ -1076,9 +1086,30 @@ def generator_node(state: WorkflowState) -> dict:
             f"主题数量 {cfg['min_phases']}-{cfg['max_phases']} 个，根据实际内容决定。"
         )
     else:
+        # Resolve speaker names from DB so the LLM can match names in QA questions
+        speaker_context = ""
+        try:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT sender_username FROM raw_messages WHERE talker_id=? AND is_send=1 AND sender_username!='' LIMIT 1",
+                (talker_id,),
+            )
+            row = cursor.fetchone()
+            self_name = row[0] if row else None
+            cursor.execute(
+                "SELECT sender_username FROM raw_messages WHERE talker_id=? AND is_send=0 AND sender_username!='' LIMIT 1",
+                (talker_id,),
+            )
+            row = cursor.fetchone()
+            other_name = row[0] if row else None
+            if self_name and other_name:
+                speaker_context = f"\n\n对话双方：发送方（isSend=1）= {self_name}，接收方（isSend=0）= {other_name}。消息中的 sender 字段即为此名字。"
+        except Exception:
+            pass
+
         ev_min, ev_max = cfg["evidence_per_phase"]
         system_prompt = (
-            f"你是一个叙事分析助手。根据对话节点的时间线，将其分割为 {phase_count} 个叙事阶段。\n\n"
+            f"你是一个叙事分析助手。根据对话节点的时间线，将其分割为 {phase_count} 个叙事阶段。{speaker_context}\n\n"
             "每个阶段需要包含:\n"
             "- phase_title: 阶段标题（简短有力）\n"
             "- time_range: 时间范围（如\"2023年3月\"）\n"

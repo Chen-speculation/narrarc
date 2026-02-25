@@ -1,9 +1,10 @@
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { Command } from '@tauri-apps/plugin-shell';
-import type { Session, Message, QueryResponse, AgentStep } from './types';
+import type { Session, Message, QueryResponse, AgentStep, BackendConfig, ConfigOverrides } from './types';
 
 const CONFIG_PATH = 'config.yml';
+const STORAGE_KEY_OVERRIDES = 'narrarc_config_overrides';
 
 let _backendDir: string | null = null;
 
@@ -20,6 +21,26 @@ async function getBackendDir(): Promise<string> {
   }
   _backendDir = await invoke<string>('get_backend_dir');
   return _backendDir;
+}
+
+/** Get config overrides from localStorage (frontend overrides). */
+export function getConfigOverrides(): ConfigOverrides | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_OVERRIDES);
+    if (!raw) return null;
+    return JSON.parse(raw) as ConfigOverrides;
+  } catch {
+    return null;
+  }
+}
+
+/** Save config overrides to localStorage. */
+export function setConfigOverrides(overrides: ConfigOverrides | null): void {
+  if (overrides === null) {
+    localStorage.removeItem(STORAGE_KEY_OVERRIDES);
+    return;
+  }
+  localStorage.setItem(STORAGE_KEY_OVERRIDES, JSON.stringify(overrides));
 }
 
 /** Single request to the long-lived backend process (stdio daemon). */
@@ -43,6 +64,11 @@ export async function listSessions(): Promise<Session[]> {
   return backendRequest<Session[]>({ cmd: 'list_sessions' });
 }
 
+/** Get current backend config from config.yml (for settings form). */
+export async function getConfig(): Promise<BackendConfig> {
+  return backendRequest<BackendConfig>({ cmd: 'get_config', config: CONFIG_PATH });
+}
+
 export async function getMessages(
   talkerId: string,
   limit?: number,
@@ -61,13 +87,16 @@ export async function queryNarrative(
   talkerId: string,
   question: string
 ): Promise<QueryResponse> {
-  return backendRequest<QueryResponse>({
+  const overrides = getConfigOverrides();
+  const payload: Record<string, unknown> = {
     cmd: 'query',
     talker: talkerId,
     question,
     config: CONFIG_PATH,
     stream: false,
-  });
+  };
+  if (overrides) payload.config_overrides = overrides;
+  return backendRequest<QueryResponse>(payload);
 }
 
 /** Stream query via backend_query_stream; progress via backend://progress event. */
@@ -80,6 +109,7 @@ export async function queryNarrativeStream(
     callbacks.onError(new Error('Tauri API 不可用'));
     return;
   }
+  const overrides = getConfigOverrides();
   const unlisten = await listen<{ trace_steps?: AgentStep[] }>(
     'backend://progress',
     (event) => {
@@ -92,6 +122,7 @@ export async function queryNarrativeStream(
     const result = await invoke<Record<string, unknown>>('backend_query_stream', {
       talker: talkerId,
       question,
+      configOverrides: overrides ?? undefined,
     });
     const { type: _, ...rest } = result as { type?: string; [k: string]: unknown };
     callbacks.onComplete(rest as unknown as QueryResponse);
@@ -122,27 +153,29 @@ export async function deleteSession(talkerId: string): Promise<void> {
 }
 
 export async function triggerBuild(talkerId: string): Promise<void> {
+  const overrides = getConfigOverrides();
+  const overridesJson = overrides ? JSON.stringify(overrides) : undefined;
   if (import.meta.env?.DEV) {
-    await invoke('spawn_backend_build', { talkerId });
+    await invoke('spawn_backend_build', { talkerId, configOverrides: overridesJson });
   } else {
     const cwd = await getBackendDir();
-    const cmd = Command.create(
-      'uv',
-      [
-        'run',
-        'python',
-        '-m',
-        'narrative_mirror.cli_json',
-        '--db',
-        'data/mirror.db',
-        'build',
-        '--talker',
-        talkerId,
-        '--config',
-        CONFIG_PATH,
-      ],
-      { cwd }
-    );
+    const args = [
+      'run',
+      'python',
+      '-m',
+      'narrative_mirror.cli_json',
+      '--db',
+      'data/mirror.db',
+      'build',
+      '--talker',
+      talkerId,
+      '--config',
+      CONFIG_PATH,
+    ];
+    if (overridesJson) {
+      args.push('--config-overrides', overridesJson);
+    }
+    const cmd = Command.create('uv', args, { cwd });
     await cmd.spawn();
   }
 }

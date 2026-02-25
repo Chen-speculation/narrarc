@@ -1,89 +1,2115 @@
 {
-  "timestamp": "2026-02-24T10:56:00.969889",
+  "timestamp": "2026-02-25T01:37:29.378890",
   "chat_id": "realtalk_emi_elise",
-  "mode": "oneshot",
+  "mode": "agent",
   "config": {
-    "llm": "DeepSeek-V3.2",
+    "llm": "MiniMax-M2.5",
     "embedding": "BAAI/bge-m3",
     "reranker": "BAAI/bge-reranker-v2-m3"
   },
-  "total_cases": 2,
+  "total_cases": 70,
   "cases": [
     {
-      "question": "How did Kate's cooking skills evolve throughout the conversations?",
+      "question": "What are Kate's hobbies?",
       "returned_ids": [
-        64,
-        67,
-        101,
+        6,
+        39,
         10,
-        474,
-        470,
-        346,
-        60,
-        94
+        46,
+        51
+      ],
+      "expected_local_ids": [
+        143,
+        6,
+        39
+      ],
+      "recall": 0.6666666666666666,
+      "fuzzy_recall": 0.6666666666666666,
+      "precision": 0.4,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.6666666666666666,
+      "arc_global_recall": 0.6666666666666666,
+      "arc_phase_coverage": 1.0,
+      "per_phase_recalls": [
+        0.6666666666666666
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.6666666666666666,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "Which cities have both, Kate and Elise, been to?",
+      "returned_ids": [
+        9,
+        16,
+        20,
+        21,
+        22,
+        23
+      ],
+      "expected_local_ids": [
+        103,
+        9,
+        203,
+        115,
+        21,
+        118,
+        22,
+        123,
+        127
+      ],
+      "recall": 0.3333333333333333,
+      "fuzzy_recall": 0.3333333333333333,
+      "precision": 0.5,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.3333333333333333,
+      "arc_global_recall": 0.3333333333333333,
+      "arc_phase_coverage": 1.0,
+      "per_phase_recalls": [
+        0.3333333333333333
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.3333333333333333,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "Where does Kate work as a teacher assistant?",
+      "returned_ids": [
+        1,
+        2,
+        3
+      ],
+      "expected_local_ids": [
+        160,
+        21
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "Does Kate work full-time or part-time as a social media manager?",
+      "returned_ids": [
+        1,
+        2,
+        3
+      ],
+      "expected_local_ids": [
+        154,
+        28
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "How many times has Elise been to Turks and Caicos?",
+      "returned_ids": [
+        1,
+        2,
+        3
+      ],
+      "expected_local_ids": [
+        44,
+        110
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "When did Kate start skiing?",
+      "returned_ids": [
+        43,
+        46
+      ],
+      "expected_local_ids": [
+        46
+      ],
+      "recall": 1.0,
+      "fuzzy_recall": 1.0,
+      "precision": 0.5,
+      "hallucination": 0.0,
+      "per_phase_recall": 1.0,
+      "arc_global_recall": 1.0,
+      "arc_phase_coverage": 1.0,
+      "per_phase_recalls": [
+        1.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 1.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "When did Kate visit Art Basel?",
+      "returned_ids": [
+        1,
+        2,
+        3
+      ],
+      "expected_local_ids": [
+        59
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What kind of pasta did Kate make on 29 Dec 2023?",
+      "returned_ids": [
+        10,
+        55
+      ],
+      "expected_local_ids": [
+        64
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What expensive purchase could Elise make in the near future?",
+      "returned_ids": [
+        37,
+        38
+      ],
+      "expected_local_ids": [
+        68,
+        70
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What era culture does Elise like best?",
+      "returned_ids": [
+        1,
+        2,
+        3
+      ],
+      "expected_local_ids": [
+        74,
+        76,
+        62,
+        63
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What do Elise and Kate have in common?",
+      "returned_ids": [
+        20,
+        21,
+        22,
+        23
+      ],
+      "expected_local_ids": [
+        172,
+        84,
+        85,
+        133
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "Where was Elise on 31 Dec 2023?",
+      "returned_ids": [
+        44,
+        37,
+        55
+      ],
+      "expected_local_ids": [
+        85
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What dishes did Kate learn to cook in her Italian cooking class?",
+      "returned_ids": [
+        8,
+        10,
+        6
       ],
       "expected_local_ids": [
         64,
-        6,
-        474,
-        470,
         90,
-        91
+        470
       ],
-      "recall": 0.5,
-      "fuzzy_recall": 0.6666666666666666,
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "Where are Kate and Elise planning to celebrate New Year 2025?",
+      "returned_ids": [
+        1,
+        2,
+        3
+      ],
+      "expected_local_ids": [
+        96,
+        98
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "Where was Kate on 31 Dec 2023?",
+      "returned_ids": [
+        48,
+        36
+      ],
+      "expected_local_ids": [
+        105,
+        103
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "Which place did Elise visit in the first week of 2024?",
+      "returned_ids": [
+        232,
+        233,
+        231
+      ],
+      "expected_local_ids": [
+        110
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "When did Elise return from Turks and Caicos?",
+      "returned_ids": [
+        44,
+        37
+      ],
+      "expected_local_ids": [
+        149,
+        110
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What remedies does Elise use to fall asleep faster?",
+      "returned_ids": [
+        1,
+        2,
+        3
+      ],
+      "expected_local_ids": [
+        155,
+        195
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "Which country did Elise visit in winter 2021 - 2022?",
+      "returned_ids": [
+        44,
+        37
+      ],
+      "expected_local_ids": [
+        162
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What cities did Elise visit during her holidays?",
+      "returned_ids": [
+        44,
+        37
+      ],
+      "expected_local_ids": [
+        162,
+        102
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What are Elise's favorite vacation destinations?",
+      "returned_ids": [
+        50,
+        44,
+        37,
+        52
+      ],
+      "expected_local_ids": [
+        36,
+        133
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.5,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.5,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "How long did Elise have the flu?",
+      "returned_ids": [
+        1,
+        2,
+        3
+      ],
+      "expected_local_ids": [
+        149,
+        183
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "Why can't Kate play volleyball on the beach?",
+      "returned_ids": [
+        1,
+        2,
+        3
+      ],
+      "expected_local_ids": [
+        184,
+        227,
+        150
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "Could Kate be stressed from working extra hours?",
+      "returned_ids": [
+        1,
+        2,
+        3
+      ],
+      "expected_local_ids": [
+        184,
+        186
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What happened to Elise in the library on 5 January 2024?",
+      "returned_ids": [
+        1,
+        2,
+        3
+      ],
+      "expected_local_ids": [
+        189
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "Where did Elise celebrate the New Year?",
+      "returned_ids": [
+        9,
+        4,
+        13
+      ],
+      "expected_local_ids": [
+        208,
+        205
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "In which countries did Kate relax on the beach near the sea?",
+      "returned_ids": [
+        1,
+        2,
+        3
+      ],
+      "expected_local_ids": [
+        224,
+        172,
+        254
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What did Elise play 5 Jan 2024?",
+      "returned_ids": [
+        1,
+        2,
+        3
+      ],
+      "expected_local_ids": [
+        232,
+        231
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What games are both Kate and Elise interested in?",
+      "returned_ids": [
+        232,
+        233,
+        46,
+        39
+      ],
+      "expected_local_ids": [
+        216,
+        219,
+        246,
+        239
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "Where does Kate plan to visit in the spring of 2024?",
+      "returned_ids": [
+        48,
+        36
+      ],
+      "expected_local_ids": [
+        238
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What do the locations where Kate spends her holidays have in common?",
+      "returned_ids": [
+        110,
+        146,
+        59,
+        127,
+        254,
+        255
+      ],
+      "expected_local_ids": [
+        254,
+        238,
+        39
+      ],
+      "recall": 0.3333333333333333,
+      "fuzzy_recall": 0.3333333333333333,
+      "precision": 0.16666666666666666,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.3333333333333333,
+      "arc_global_recall": 0.3333333333333333,
+      "arc_phase_coverage": 1.0,
+      "per_phase_recalls": [
+        0.3333333333333333
+      ],
+      "timeline_coverage": 0.7926879358597063,
+      "per_phase_temporal_recall": 0.3333333333333333,
+      "groundedness": 1.0,
+      "avg_phases": 3,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "When was Elise in Mexico?",
+      "returned_ids": [
+        37,
+        9,
+        44,
+        20,
+        21
+      ],
+      "expected_local_ids": [
+        251
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What is Elise's favorite type of vacation?",
+      "returned_ids": [
+        50,
+        44,
+        37
+      ],
+      "expected_local_ids": [
+        253,
+        250,
+        116,
+        37
+      ],
+      "recall": 0.25,
+      "fuzzy_recall": 0.25,
       "precision": 0.3333333333333333,
       "hallucination": 0.0,
-      "per_phase_recall": 0.5,
-      "arc_global_recall": 0.5,
-      "arc_phase_coverage": 0.6666666666666666,
+      "per_phase_recall": 0.25,
+      "arc_global_recall": 0.25,
+      "arc_phase_coverage": 1.0,
       "per_phase_recalls": [
-        0.5,
-        0.0,
+        0.25
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.25,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "Did Elise spend her day on 7 Jan 2024 alone?",
+      "returned_ids": [
+        232,
+        233,
+        231
+      ],
+      "expected_local_ids": [
+        260
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "When does Kate plan to visit the botanical garden?",
+      "returned_ids": [
+        1,
+        2,
+        3
+      ],
+      "expected_local_ids": [
+        265
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What might have inspired Elise to create an abstract art work?",
+      "returned_ids": [
+        448,
+        449,
+        356,
+        70,
+        358,
+        391,
+        266,
+        334,
+        335,
+        338,
+        275,
+        59
+      ],
+      "expected_local_ids": [
+        266,
+        268,
+        62
+      ],
+      "recall": 0.3333333333333333,
+      "fuzzy_recall": 1.0,
+      "precision": 0.08333333333333333,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.3333333333333333,
+      "arc_global_recall": 0.3333333333333333,
+      "arc_phase_coverage": 1.0,
+      "per_phase_recalls": [
+        0.3333333333333333
+      ],
+      "timeline_coverage": 0.9069324283790221,
+      "per_phase_temporal_recall": 1.0,
+      "groundedness": 1.0,
+      "avg_phases": 2,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "Do Kate and Elise have the same favorite art style?",
+      "returned_ids": [
+        1,
+        2,
+        3
+      ],
+      "expected_local_ids": [
+        70,
+        270
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What did Elise buy on 7 Jan 2024?",
+      "returned_ids": [
+        232,
+        233,
+        231
+      ],
+      "expected_local_ids": [
+        280
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "Is Elise a proponent of a completely healthy diet?",
+      "returned_ids": [
+        1,
+        2,
+        3
+      ],
+      "expected_local_ids": [
+        204
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "When did Kate visit the \"Central Perk\" cafe?",
+      "returned_ids": [
+        1,
+        2,
+        3
+      ],
+      "expected_local_ids": [
+        292
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What TV show was Kate watching shortly before 7 Jan 2024?",
+      "returned_ids": [
+        128,
+        1,
+        2,
+        384,
+        391,
+        392,
+        453,
+        398,
+        399,
+        401,
+        148,
+        149,
+        150,
+        413,
+        414,
+        424,
+        427,
+        428,
+        301,
+        302,
+        434,
+        307,
+        308,
+        54,
+        55,
+        182,
+        184,
+        183,
+        314,
+        315,
+        316,
+        317,
+        319,
+        440,
+        441,
+        443,
+        444,
+        324,
+        445,
+        446,
+        447,
+        448,
+        449,
+        450,
+        331,
+        452,
+        205,
+        206,
+        454,
+        463,
+        464,
+        83,
+        84,
+        340,
+        344,
+        345,
+        474,
+        475,
+        351,
+        356,
+        358,
+        231,
+        232,
+        105,
+        106,
+        233,
+        234,
+        235,
+        110,
+        361,
+        362,
+        363,
+        371,
+        381,
+        127
+      ],
+      "expected_local_ids": [
+        303
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 1.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 2,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "How does Elise usually spend her free time?",
+      "returned_ids": [
+        266,
+        275,
+        441,
+        443,
+        59,
+        444,
+        446,
+        319,
+        447,
+        448,
+        449,
+        324,
+        70,
+        329,
+        205,
+        334,
+        335,
+        80,
+        229,
+        232,
+        233,
+        235,
+        110
+      ],
+      "expected_local_ids": [
+        218,
+        260,
+        306
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 2,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What activities does Elise do with her friends?",
+      "returned_ids": [
+        232,
+        9,
+        4,
+        233
+      ],
+      "expected_local_ids": [
+        140,
+        4,
+        316
+      ],
+      "recall": 0.3333333333333333,
+      "fuzzy_recall": 0.3333333333333333,
+      "precision": 0.25,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.3333333333333333,
+      "arc_global_recall": 0.3333333333333333,
+      "arc_phase_coverage": 1.0,
+      "per_phase_recalls": [
+        0.3333333333333333
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.3333333333333333,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "How does Elise take care of her appearance?",
+      "returned_ids": [
+        386,
+        391,
+        392,
+        427,
+        428,
+        429,
+        434,
+        435,
+        440,
+        441,
+        443,
+        444,
+        317,
+        445,
+        319,
+        446,
+        447,
+        448,
+        323,
+        324,
+        449,
+        450,
+        451,
+        452,
+        329,
+        330,
+        331,
+        453,
+        333,
+        334,
+        335,
+        336,
+        337,
+        338,
+        339,
+        463,
+        464,
+        474,
+        475,
+        476,
+        361,
+        363,
+        371,
+        372,
+        381,
+        382,
+        383
+      ],
+      "expected_local_ids": [
+        427,
+        444,
+        319
+      ],
+      "recall": 1.0,
+      "fuzzy_recall": 1.0,
+      "precision": 0.06382978723404255,
+      "hallucination": 0.0,
+      "per_phase_recall": 1.0,
+      "arc_global_recall": 1.0,
+      "arc_phase_coverage": 1.0,
+      "per_phase_recalls": [
         1.0
       ],
-      "timeline_coverage": 0.950087664316435,
+      "timeline_coverage": 1.0,
       "per_phase_temporal_recall": 0.3333333333333333,
       "groundedness": 1.0,
       "avg_phases": 2,
       "retrieval_checkpoints": []
     },
     {
-      "question": "How did Emily's interest in art develop over the conversations?",
+      "question": "When did Eliza have lunch with her best friends?",
       "returned_ids": [
-        65,
-        68,
-        261,
-        262,
-        264,
-        266,
-        271,
-        275,
-        59,
-        63
+        9,
+        4
       ],
       "expected_local_ids": [
-        68,
-        70,
-        262,
-        266,
-        268,
-        271,
-        62
+        343
       ],
-      "recall": 0.5714285714285714,
-      "fuzzy_recall": 1.0,
-      "precision": 0.4,
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
       "hallucination": 0.0,
-      "per_phase_recall": 0.5416666666666666,
-      "arc_global_recall": 0.5714285714285714,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What types of pasta does Kate make in her Italian cooking class?",
+      "returned_ids": [
+        10,
+        55
+      ],
+      "expected_local_ids": [
+        64,
+        346
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What Italian dishes does Elise like?",
+      "returned_ids": [
+        1,
+        2,
+        3
+      ],
+      "expected_local_ids": [
+        473,
+        350
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "When was the last time Elise saw her ex?",
+      "returned_ids": [
+        354,
+        355,
+        356
+      ],
+      "expected_local_ids": [
+        354
+      ],
+      "recall": 1.0,
+      "fuzzy_recall": 1.0,
+      "precision": 0.3333333333333333,
+      "hallucination": 0.0,
+      "per_phase_recall": 1.0,
+      "arc_global_recall": 1.0,
       "arc_phase_coverage": 1.0,
       "per_phase_recalls": [
-        0.3333333333333333,
-        0.75
+        1.0
       ],
-      "timeline_coverage": 0.9069891833193,
+      "timeline_coverage": 1.0,
       "per_phase_temporal_recall": 1.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "Do Kate and Elise support each other in difficult situations?",
+      "returned_ids": [
+        1,
+        2,
+        391,
+        392,
+        398,
+        399,
+        400,
+        401,
+        402,
+        403,
+        148,
+        149,
+        150,
+        182,
+        183,
+        184,
+        444,
+        445,
+        446,
+        450,
+        474,
+        475,
+        476,
+        355,
+        356,
+        358,
+        360,
+        108,
+        109
+      ],
+      "expected_local_ids": [
+        360,
+        295
+      ],
+      "recall": 0.5,
+      "fuzzy_recall": 0.5,
+      "precision": 0.034482758620689655,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.5,
+      "arc_global_recall": 0.5,
+      "arc_phase_coverage": 1.0,
+      "per_phase_recalls": [
+        0.5
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 4,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "When did Kate dye her hair?",
+      "returned_ids": [
+        357
+      ],
+      "expected_local_ids": [
+        361
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "When does Elise plan to meet her college friends?",
+      "returned_ids": [
+        9,
+        4,
+        13
+      ],
+      "expected_local_ids": [
+        364
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "How many times has Elise bought Emsibeth products on Kate's advice?",
+      "returned_ids": [
+        386,
+        387
+      ],
+      "expected_local_ids": [
+        387,
+        427
+      ],
+      "recall": 0.5,
+      "fuzzy_recall": 0.5,
+      "precision": 0.5,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.5,
+      "arc_global_recall": 0.5,
+      "arc_phase_coverage": 1.0,
+      "per_phase_recalls": [
+        0.5
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.5,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What unpleasant situation happened in the lives of both Kate and Elise?",
+      "returned_ids": [
+        354,
+        394,
+        358,
+        391
+      ],
+      "expected_local_ids": [
+        394,
+        354
+      ],
+      "recall": 1.0,
+      "fuzzy_recall": 1.0,
+      "precision": 0.5,
+      "hallucination": 0.0,
+      "per_phase_recall": 1.0,
+      "arc_global_recall": 1.0,
+      "arc_phase_coverage": 1.0,
+      "per_phase_recalls": [
+        1.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 1.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "When will Elise leave Los Angeles?",
+      "returned_ids": [
+        21,
+        23
+      ],
+      "expected_local_ids": [
+        404
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "When did Elise take the photo of the clouds from the plane?",
+      "returned_ids": [
+        1,
+        2,
+        3
+      ],
+      "expected_local_ids": [
+        407
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "From what perspective does Elise conduct her research about airplanes?",
+      "returned_ids": [
+        1,
+        2,
+        3
+      ],
+      "expected_local_ids": [
+        421,
+        405,
+        408,
+        409,
+        412
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What countries has Kate visited?",
+      "returned_ids": [
+        16,
+        12
+      ],
+      "expected_local_ids": [
+        417,
+        172,
+        254
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What are some tips that Kate give Elise?",
+      "returned_ids": [
+        386,
+        387,
+        394,
+        397,
+        445
+      ],
+      "expected_local_ids": [
+        360,
+        473,
+        427
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What color are both Kate and Elise's hair?",
+      "returned_ids": [
+        387,
+        357,
+        390
+      ],
+      "expected_local_ids": [
+        361,
+        427
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What cosmetic products does Kate use?",
+      "returned_ids": [
+        387,
+        357
+      ],
+      "expected_local_ids": [
+        361,
+        430
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "When did Kate tried Neutrogena cream?",
+      "returned_ids": [
+        1,
+        2,
+        3
+      ],
+      "expected_local_ids": [
+        430
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What companies' cosmetic products does Kate use?",
+      "returned_ids": [
+        387
+      ],
+      "expected_local_ids": [
+        369,
+        434,
+        379
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "When is Elise's first yoga class?",
+      "returned_ids": [
+        443,
+        444
+      ],
+      "expected_local_ids": [
+        444,
+        446
+      ],
+      "recall": 0.5,
+      "fuzzy_recall": 1.0,
+      "precision": 0.5,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.5,
+      "arc_global_recall": 0.5,
+      "arc_phase_coverage": 1.0,
+      "per_phase_recalls": [
+        0.5
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 1.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What exercises do Kate and Elise both do to reduce stress?",
+      "returned_ids": [
+        39,
+        46,
+        443,
+        444,
+        446
+      ],
+      "expected_local_ids": [
+        446,
+        438
+      ],
+      "recall": 0.5,
+      "fuzzy_recall": 0.5,
+      "precision": 0.2,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.5,
+      "arc_global_recall": 0.5,
+      "arc_phase_coverage": 1.0,
+      "per_phase_recalls": [
+        0.5
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.5,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "When did Elise go for a massage?",
+      "returned_ids": [
+        1,
+        2,
+        3
+      ],
+      "expected_local_ids": [
+        455
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "In what ways does Elise try to relieve physical and mental stress?",
+      "returned_ids": [
+        448,
+        37,
+        232,
+        233,
+        395,
+        44,
+        397,
+        14,
+        50,
+        444,
+        446
+      ],
+      "expected_local_ids": [],
+      "recall": 1.0,
+      "fuzzy_recall": 1.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 1.0,
+      "arc_global_recall": 1.0,
+      "arc_phase_coverage": 1.0,
+      "per_phase_recalls": [
+        1.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 1.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "When did Elise start doing laser hair removal?",
+      "returned_ids": [
+        1,
+        2,
+        3
+      ],
+      "expected_local_ids": [
+        458
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What types of recreation on water bodies does Elise like?",
+      "returned_ids": [
+        59,
+        110,
+        255
+      ],
+      "expected_local_ids": [
+        466
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What recipes did Elise and Kate share?",
+      "returned_ids": [
+        448,
+        449,
+        450,
+        451,
+        443,
+        444,
+        445,
+        446,
+        447
+      ],
+      "expected_local_ids": [
+        473,
+        286
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.0,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 0.0,
+      "per_phase_temporal_recall": 0.0,
+      "groundedness": 1.0,
+      "avg_phases": 1,
+      "retrieval_checkpoints": []
+    },
+    {
+      "question": "What dish did both Kate and Elise cook?",
+      "returned_ids": [
+        1,
+        2,
+        257,
+        266,
+        275,
+        54,
+        55,
+        56,
+        452,
+        453,
+        463,
+        83,
+        84,
+        340,
+        341,
+        342,
+        344,
+        345,
+        474,
+        347,
+        475,
+        476,
+        94,
+        95,
+        350,
+        105,
+        106,
+        107,
+        361,
+        363,
+        371
+      ],
+      "expected_local_ids": [
+        473,
+        90
+      ],
+      "recall": 0.0,
+      "fuzzy_recall": 0.5,
+      "precision": 0.0,
+      "hallucination": 0.0,
+      "per_phase_recall": 0.0,
+      "arc_global_recall": 0.0,
+      "arc_phase_coverage": 0.0,
+      "per_phase_recalls": [
+        0.0
+      ],
+      "timeline_coverage": 1.0,
+      "per_phase_temporal_recall": 0.0,
       "groundedness": 1.0,
       "avg_phases": 2,
       "retrieval_checkpoints": []
@@ -91,24 +2117,24 @@
   ],
   "aggregates": {
     "recall": {
-      "mean": 0.5357142857142857,
-      "median": 0.5357142857142857,
-      "std": 0.05050762722761051
+      "mean": 0.13214285714285715,
+      "median": 0.0,
+      "std": 0.2881492030060237
     },
     "fuzzy_recall": {
-      "mean": 0.8333333333333333,
-      "median": 0.8333333333333333,
-      "std": 0.23570226039551587
+      "mean": 0.1773809523809524,
+      "median": 0.0,
+      "std": 0.33810635534167244
     },
     "precision": {
-      "mean": 0.3666666666666667,
-      "median": 0.3666666666666667,
-      "std": 0.047140452079103196
+      "mean": 0.06235684589316284,
+      "median": 0.0,
+      "std": 0.1475658247002375
     },
     "arc_phase_coverage": {
-      "mean": 0.8333333333333333,
-      "median": 0.8333333333333333,
-      "std": 0.23570226039551587
+      "mean": 0.21428571428571427,
+      "median": 0.0,
+      "std": 0.4132885836992707
     }
   }
 }

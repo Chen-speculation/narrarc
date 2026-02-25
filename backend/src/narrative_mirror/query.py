@@ -358,8 +358,29 @@ def segment_narrative(
     phase_count = max(cfg["min_phases"], min(cfg["max_phases"], max(1, int(time_span_days // 180))))
     phase_count = min(phase_count, max(1, len(candidates) // 3))
 
+    # Resolve speaker names from DB so the LLM can match names in QA questions
+    speaker_context = ""
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT sender_username FROM raw_messages WHERE talker_id=? AND is_send=1 AND sender_username!='' LIMIT 1",
+            (talker_id,),
+        )
+        row = cursor.fetchone()
+        self_name = row[0] if row else None
+        cursor.execute(
+            "SELECT sender_username FROM raw_messages WHERE talker_id=? AND is_send=0 AND sender_username!='' LIMIT 1",
+            (talker_id,),
+        )
+        row = cursor.fetchone()
+        other_name = row[0] if row else None
+        if self_name and other_name:
+            speaker_context = f"\n\n对话双方：发送方（isSend=1）= {self_name}，接收方（isSend=0）= {other_name}。消息中的 sender 字段即为此名字。"
+    except Exception:
+        pass
+
     ev_min, ev_max = cfg["evidence_per_phase"]
-    system_prompt = f"""你是一个叙事分析助手。根据对话节点的时间线，将其分割为 {phase_count} 个叙事阶段。
+    system_prompt = f"""你是一个叙事分析助手。根据对话节点的时间线，将其分割为 {phase_count} 个叙事阶段。{speaker_context}
 
 每个阶段需要包含:
 - phase_title: 阶段标题（简短有力）

@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { Sidebar } from './components/Sidebar';
 import { MainArea } from './components/MainArea';
 import { ImportModal } from './components/ImportModal';
+import { SettingsModal } from './components/SettingsModal';
 import { TitleBar } from './components/TitleBar';
 import { Session, QueryResponse, Message } from './types';
 import * as api from './api';
@@ -19,6 +20,7 @@ export default function App() {
   const [highlightedMessageId, setHighlightedMessageId] = useState<number | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   useEffect(() => {
     api.listSessions().then(setSessions).catch(console.error);
@@ -137,6 +139,7 @@ export default function App() {
             isDarkMode={isDarkMode}
             toggleTheme={() => setIsDarkMode(!isDarkMode)}
             onOpenImport={() => setIsImportModalOpen(true)}
+            onOpenSettings={() => setIsSettingsModalOpen(true)}
           />
           <MainArea
             activeSession={activeSession}
@@ -154,6 +157,10 @@ export default function App() {
             isOpen={isImportModalOpen}
             onClose={() => setIsImportModalOpen(false)}
             onImport={handleImport}
+          />
+          <SettingsModal
+            isOpen={isSettingsModalOpen}
+            onClose={() => setIsSettingsModalOpen(false)}
           />
         </div>
       </motion.div>

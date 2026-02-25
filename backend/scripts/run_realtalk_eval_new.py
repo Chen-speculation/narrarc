@@ -58,7 +58,7 @@ def main():
     parser.add_argument("--self-id", help="Participant for isSend=1")
     parser.add_argument("--talker-id", help="Output chat_id")
     parser.add_argument("--limit-cases", type=int, default=None, help="Limit arc cases (for debugging)")
-    parser.add_argument("--mode", choices=["oneshot", "agent"], default="oneshot")
+    parser.add_argument("--mode", choices=["oneshot", "agent"], default="agent")
     parser.add_argument("--train-only", action="store_true", help="Process only train set (Chat_1-7)")
     parser.add_argument("--test-only", action="store_true", help="Process only test set (Chat_8-10)")
     parser.add_argument("--realtalk-dir", type=Path, default=Path(r"c:\Users\Administrator\REALTALK\data"), help="RealTalk data dir")
