@@ -12,6 +12,7 @@ description = "Narrative Mirror - Transform WeChat chat history into evidence-ba
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "pyinstaller>=6.0.0",
     "chromadb>=1.5.0",
     "httpx[socks]>=0.28.1",
     "langgraph>=0.2,<0.4",

@@ -1,6 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
-import { Command } from '@tauri-apps/plugin-shell';
 import type { Session, Message, QueryResponse, AgentStep, BackendConfig, ConfigOverrides } from './types';
 
 const CONFIG_PATH = 'config.yml';
@@ -155,27 +154,5 @@ export async function deleteSession(talkerId: string): Promise<void> {
 export async function triggerBuild(talkerId: string): Promise<void> {
   const overrides = getConfigOverrides();
   const overridesJson = overrides ? JSON.stringify(overrides) : undefined;
-  if (import.meta.env?.DEV) {
-    await invoke('spawn_backend_build', { talkerId, configOverrides: overridesJson });
-  } else {
-    const cwd = await getBackendDir();
-    const args = [
-      'run',
-      'python',
-      '-m',
-      'narrative_mirror.cli_json',
-      '--db',
-      'data/mirror.db',
-      'build',
-      '--talker',
-      talkerId,
-      '--config',
-      CONFIG_PATH,
-    ];
-    if (overridesJson) {
-      args.push('--config-overrides', overridesJson);
-    }
-    const cmd = Command.create('uv', args, { cwd });
-    await cmd.spawn();
-  }
+  await invoke('spawn_backend_build', { talkerId, configOverrides: overridesJson });
 }

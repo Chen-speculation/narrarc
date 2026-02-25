@@ -1,5 +1,6 @@
 use std::io::{BufRead, BufReader, Write};
 use std::ops::DerefMut;
+use std::path::PathBuf;
 use std::process::{Child, Command, Stdio};
 use std::sync::{Arc, Mutex};
 use tauri::{Emitter, Manager};
@@ -11,69 +12,173 @@ struct BackendProcess {
   stdout: Option<BufReader<std::process::ChildStdout>>,
 }
 
-fn spawn_backend_process() -> Result<BackendProcess, String> {
-  let cwd = get_backend_dir_impl();
-  let mut child = Command::new("uv")
-    .args([
-      "run",
-      "python",
-      "-m",
-      "narrative_mirror.cli_json",
-      "--db",
-      "data/mirror.db",
-      "stdio",
-    ])
-    .env("PYTHONUNBUFFERED", "1")
-    .env("PYTHONIOENCODING", "utf-8")
-    .current_dir(&cwd)
-    .stdin(Stdio::piped())
-    .stdout(Stdio::piped())
-    .stderr(Stdio::inherit())
-    .spawn()
-    .map_err(|e| format!("Failed to spawn backend: {}", e))?;
-  let stdin = child.stdin.take();
-  let stdout = child.stdout.take().map(BufReader::new);
-  Ok(BackendProcess {
-    child,
-    stdin,
-    stdout,
-  })
+/// Spawn backend: dev uses uv run python, release uses bundled sidecar via std::process::Command.
+fn spawn_backend_process(app: Option<&tauri::AppHandle>) -> Result<BackendProcess, String> {
+  let (cwd, db_arg) = get_backend_cwd_and_db(app);
+
+  #[cfg(debug_assertions)]
+  {
+    let mut child = Command::new("uv")
+      .args([
+        "run",
+        "python",
+        "-m",
+        "narrative_mirror.cli_json",
+        "--db",
+        &db_arg,
+        "stdio",
+      ])
+      .env("PYTHONUNBUFFERED", "1")
+      .env("PYTHONIOENCODING", "utf-8")
+      .current_dir(&cwd)
+      .stdin(Stdio::piped())
+      .stdout(Stdio::piped())
+      .stderr(Stdio::inherit())
+      .spawn()
+      .map_err(|e| format!("Failed to spawn backend: {}", e))?;
+    let stdin = child.stdin.take();
+    let stdout = child.stdout.take().map(BufReader::new);
+    Ok(BackendProcess {
+      child,
+      stdin,
+      stdout,
+    })
+  }
+
+  #[cfg(not(debug_assertions))]
+  {
+    let app = app.ok_or("AppHandle required for sidecar")?;
+    let resource_dir = app
+      .path()
+      .resource_dir()
+      .map_err(|e| format!("resource_dir: {}", e))?;
+    let target = env!("TARGET");
+    let sidecar_name = format!(
+      "backend-{}{}",
+      target,
+      if cfg!(windows) { ".exe" } else { "" }
+    );
+    let sidecar_path = resource_dir
+      .join("bin")
+      .join("backend")
+      .join(&sidecar_name);
+    if !sidecar_path.exists() {
+      return Err(format!(
+        "Sidecar not found: {}",
+        sidecar_path.display()
+      ));
+    }
+    let mut child = Command::new(&sidecar_path)
+      .args(["--db", &db_arg, "stdio"])
+      .current_dir(&cwd)
+      .stdin(Stdio::piped())
+      .stdout(Stdio::piped())
+      .stderr(Stdio::inherit())
+      .spawn()
+      .map_err(|e| format!("Failed to spawn sidecar: {}", e))?;
+    let stdin = child.stdin.take();
+    let stdout = child.stdout.take().map(BufReader::new);
+    Ok(BackendProcess {
+      child,
+      stdin,
+      stdout,
+    })
+  }
 }
 
 #[tauri::command]
-fn spawn_backend_build(talker_id: String, config_overrides: Option<String>) -> Result<(), String> {
+fn spawn_backend_build(
+  app: tauri::AppHandle,
+  talker_id: String,
+  config_overrides: Option<String>,
+) -> Result<(), String> {
   use std::process::{Command, Stdio};
-  let cwd = get_backend_dir_impl();
-  let mut args = vec![
-    "run".to_string(),
-    "python".to_string(),
-    "-m".to_string(),
-    "narrative_mirror.cli_json".to_string(),
-    "--db".to_string(),
-    "data/mirror.db".to_string(),
-    "build".to_string(),
-    "--talker".to_string(),
-    talker_id.clone(),
-    "--config".to_string(),
-    "config.yml".to_string(),
-  ];
-  if let Some(ref overrides) = config_overrides {
-    if !overrides.is_empty() {
-      args.push("--config-overrides".to_string());
-      args.push(overrides.clone());
+  let (cwd, _) = get_backend_cwd_and_db(Some(&app));
+  #[cfg(debug_assertions)]
+  {
+    let mut args = vec![
+      "run".to_string(),
+      "python".to_string(),
+      "-m".to_string(),
+      "narrative_mirror.cli_json".to_string(),
+      "--db".to_string(),
+      "data/mirror.db".to_string(),
+      "build".to_string(),
+      "--talker".to_string(),
+      talker_id.clone(),
+      "--config".to_string(),
+      "config.yml".to_string(),
+    ];
+    if let Some(ref overrides) = config_overrides {
+      if !overrides.is_empty() {
+        args.push("--config-overrides".to_string());
+        args.push(overrides.clone());
+      }
     }
+    args.push("--debug".to_string());
+    let _child = Command::new("uv")
+      .args(&args)
+      .env("PYTHONUNBUFFERED", "1")
+      .env("PYTHONIOENCODING", "utf-8")
+      .current_dir(&cwd)
+      .stdin(Stdio::null())
+      .stdout(Stdio::inherit())
+      .stderr(Stdio::inherit())
+      .spawn()
+      .map_err(|e| format!("Failed to spawn backend build: {}", e))?;
   }
-  args.push("--debug".to_string());
-  let _child = Command::new("uv")
-    .args(&args)
-    .env("PYTHONUNBUFFERED", "1")
-    .env("PYTHONIOENCODING", "utf-8")
-    .current_dir(&cwd)
-    .stdin(Stdio::null())
-    .stdout(Stdio::inherit())
-    .stderr(Stdio::inherit())
-    .spawn()
-    .map_err(|e| format!("Failed to spawn backend build: {}", e))?;
+
+  #[cfg(not(debug_assertions))]
+  {
+    let resource_dir = app
+      .path()
+      .resource_dir()
+      .map_err(|e| format!("resource_dir: {}", e))?;
+    let target = env!("TARGET");
+    let sidecar_name = format!(
+      "backend-{}{}",
+      target,
+      if cfg!(windows) { ".exe" } else { "" }
+    );
+    let sidecar_path = resource_dir
+      .join("bin")
+      .join("backend")
+      .join(&sidecar_name);
+    let mut args: Vec<&str> = vec![
+      "--db",
+      "data/mirror.db",
+      "build",
+      "--talker",
+      &talker_id,
+      "--config",
+      "config.yml",
+      "--debug",
+    ];
+    if let Some(ref overrides) = config_overrides {
+      if !overrides.is_empty() {
+        args = vec![
+          "--db",
+          "data/mirror.db",
+          "build",
+          "--talker",
+          &talker_id,
+          "--config",
+          "config.yml",
+          "--config-overrides",
+          overrides,
+          "--debug",
+        ];
+      }
+    }
+    let _child = Command::new(&sidecar_path)
+      .args(args)
+      .current_dir(&cwd)
+      .stdin(Stdio::null())
+      .stdout(Stdio::inherit())
+      .stderr(Stdio::inherit())
+      .spawn()
+      .map_err(|e| format!("Failed to spawn sidecar build: {}", e))?;
+  }
   Ok(())
 }
 
@@ -83,31 +188,74 @@ fn log_frontend_error(message: String) {
 }
 
 #[tauri::command]
-fn get_backend_dir() -> String {
-  get_backend_dir_impl()
+fn get_backend_dir(app: tauri::AppHandle) -> String {
+  let (cwd, _) = get_backend_cwd_and_db(Some(&app));
+  cwd.to_string_lossy().into_owned()
 }
 
-fn get_backend_dir_impl() -> String {
-  use std::path::Path;
-  let cwd = std::env::current_dir().unwrap_or_else(|_| Path::new(".").to_path_buf());
-  for rel in ["../backend", "../../backend"] {
-    let p = cwd.join(rel);
-    if p.join("pyproject.toml").exists() || p.join("src").join("narrative_mirror").exists() {
-      return p
-        .canonicalize()
-        .unwrap_or(p)
-        .to_string_lossy()
-        .into_owned();
+/// Returns (backend_cwd, db_path_for_args). In release, ensures app_data dir exists with config.
+fn get_backend_cwd_and_db(app: Option<&tauri::AppHandle>) -> (PathBuf, String) {
+  #[cfg(debug_assertions)]
+  {
+    use std::path::Path;
+    let cwd = std::env::current_dir().unwrap_or_else(|_| Path::new(".").to_path_buf());
+    for rel in ["../backend", "../../backend"] {
+      let p = cwd.join(rel);
+      if p.join("pyproject.toml").exists() || p.join("src").join("narrative_mirror").exists() {
+        let path = p.canonicalize().unwrap_or(p);
+        let db = path.join("data").join("mirror.db");
+        return (
+          path,
+          db.to_str().unwrap_or("data/mirror.db").to_string(),
+        );
+      }
     }
+    let manifest = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let path = manifest
+      .parent()
+      .and_then(|p| p.parent())
+      .map(|p| p.join("backend"))
+      .unwrap_or_else(|| manifest.join("../../backend"));
+    let db = path.join("data").join("mirror.db");
+    (
+      path,
+      db.to_str().unwrap_or("data/mirror.db").to_string(),
+    )
   }
-  let manifest = Path::new(env!("CARGO_MANIFEST_DIR"));
-  manifest
-    .parent()
-    .and_then(|p| p.parent())
-    .map(|p| p.join("backend"))
-    .unwrap_or_else(|| manifest.join("../../backend"))
-    .to_string_lossy()
-    .into_owned()
+
+  #[cfg(not(debug_assertions))]
+  {
+    let app = app.expect("AppHandle required in release");
+    let app_data = app
+      .path()
+      .app_data_dir()
+      .expect("app_data_dir");
+    let backend_dir = app_data.join("narrarc").join("backend");
+    let data_dir = backend_dir.join("data");
+    let config_path = backend_dir.join("config.yml");
+    let res_dir = app.path().resource_dir().ok();
+    let config_example = res_dir.as_ref().and_then(|r| {
+      let p = r.join("config.yml.example");
+      if p.exists() {
+        Some(p)
+      } else {
+        let p2 = r.join("backend").join("config.yml.example");
+        p2.exists().then_some(p2)
+      }
+    });
+    if let Some(ref ex) = config_example {
+      if ex.exists() && !config_path.exists() {
+        let _ = std::fs::create_dir_all(&backend_dir);
+        let _ = std::fs::copy(ex, &config_path);
+      }
+    }
+    let _ = std::fs::create_dir_all(&data_dir);
+    let db_path = data_dir.join("mirror.db");
+    (
+      backend_dir,
+      db_path.to_str().unwrap_or("data/mirror.db").to_string(),
+    )
+  }
 }
 
 /// Single request/response: write one JSON line, read one line, return parsed value or error from {"type":"error","message":"..."}.
@@ -266,15 +414,7 @@ async fn backend_query_stream(
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-  let backend = match spawn_backend_process() {
-    Ok(p) => Arc::new(Mutex::new(p)),
-    Err(e) => {
-      log::error!("Backend spawn failed: {}", e);
-      panic!("Backend spawn failed: {}", e);
-    }
-  };
   tauri::Builder::default()
-    .manage(backend)
     .invoke_handler(tauri::generate_handler![
       get_backend_dir,
       spawn_backend_build,
@@ -301,6 +441,14 @@ pub fn run() {
             .build(),
         )?;
       }
+      let backend = match spawn_backend_process(Some(app.handle())) {
+        Ok(p) => Arc::new(Mutex::new(p)),
+        Err(e) => {
+          log::error!("Backend spawn failed: {}", e);
+          return Err(e.into());
+        }
+      };
+      app.manage(backend);
       Ok(())
     })
     .run(tauri::generate_context!())

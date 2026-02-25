@@ -12,7 +12,11 @@
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build"
+    "tauri:build": "tauri build",
+    "build:sidecar": "node -e \"const p=process.platform;const m={win32:'winos',darwin:'macos',linux:'linux'};require('child_process').execSync('npm run build:sidecar-'+m[p],{stdio:'inherit'})\"",
+    "build:sidecar-winos": "cd ../backend && uv run pyinstaller -y --clean -n backend-x86_64-pc-windows-msvc --distpath ../client/src-tauri/bin/backend tauri_sidecar.spec",
+    "build:sidecar-macos": "cd ../backend && uv run pyinstaller -y --clean -n backend-aarch64-apple-darwin --distpath ../client/src-tauri/bin/backend tauri_sidecar.spec",
+    "build:sidecar-linux": "cd ../backend && uv run pyinstaller -y --clean -n backend-x86_64-unknown-linux-gnu --distpath ../client/src-tauri/bin/backend tauri_sidecar.spec"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",

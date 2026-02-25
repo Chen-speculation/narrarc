@@ -32,6 +32,7 @@ client/openspec/
 client/node_modules/
 client/dist/
 client/src-tauri/target/
+client/src-tauri/bin/
 client/data/test/
 client/coverage/
 *.log
