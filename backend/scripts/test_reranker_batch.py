@@ -5,10 +5,19 @@ import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
+import pytest
+
+_script_dir = os.path.dirname(__file__)
+_config_yml = os.path.join(_script_dir, "..", "config.yml")
+
+# Skip when config.yml not found (e.g. CI where it's gitignored)
+if not os.path.exists(_config_yml):
+    pytest.skip("config.yml not found, skipping reranker batch test", allow_module_level=True)
+
 import httpx
 from narrative_mirror.config import load_config
 
-cfg = load_config(os.path.join(os.path.dirname(__file__), "..", "config.yml"))
+cfg = load_config(_config_yml)
 r = cfg.reranker
 
 base_url = r.base_url.rstrip("/")
