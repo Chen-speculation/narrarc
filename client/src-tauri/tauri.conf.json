@@ -37,6 +37,6 @@
       "icons/icon.ico"
     ],
     "externalBin": ["bin/backend/backend"],
-    "resources": ["../backend/config.yml.example"]
+    "resources": ["../../backend/config.yml.example"]
   }
 }
