@@ -52,7 +52,7 @@ fn spawn_backend_process(app: Option<&tauri::AppHandle>) -> Result<BackendProces
       .path()
       .resource_dir()
       .map_err(|e| format!("resource_dir: {}", e))?;
-    let target = env!("TARGET");
+    let target = env!("APP_TARGET");
     let sidecar_name = format!(
       "backend-{}{}",
       target,
@@ -134,7 +134,7 @@ fn spawn_backend_build(
       .path()
       .resource_dir()
       .map_err(|e| format!("resource_dir: {}", e))?;
-    let target = env!("TARGET");
+    let target = env!("APP_TARGET");
     let sidecar_name = format!(
       "backend-{}{}",
       target,
